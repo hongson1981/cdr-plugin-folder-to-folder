@@ -45,6 +45,24 @@ class File_Processing:
         json_data = self.events_log.add_log(message, event_data)
         self.events_elastic.add_event_log(json_data)
 
+    def rebuild_zip_from_file(self, endpoint, file_path):
+        try:
+            url = endpoint + "/api/analyse/rebuild-zip-from-file"
+
+            payload={}
+            files=[
+            ('File',(os.path.basename(file_path),open(file_path,'rb'),'application/' + ))
+            ]
+            headers = {
+            'Content-Type': 'application/octet-stream'
+            }
+
+            return requests.request("POST", url, headers=headers, data=payload, files=files)
+
+        except Exception as e:
+            log_error(str(e))
+            raise ValueError(str(e))
+
     def base64request(self, endpoint, api_route, base64enc_file):
         try:
             url = endpoint + "/" + api_route
@@ -262,3 +280,5 @@ class File_Processing:
         self.meta_service.set_rebuild_file_duration(dir, delta.total_seconds())
 
         return status
+
+
