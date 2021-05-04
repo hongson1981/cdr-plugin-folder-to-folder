@@ -89,11 +89,11 @@ class test_API_Client(TestCase):
 
     def test_get_processing_status(self):
         status = self.client.get_processing_status()
-        assert status             is not None
-        assert "files_count"      in status
-        assert "files_to_process" in status
-        assert "completed"        in status
-        assert "failed"           in status
-        assert "in_progress"      in status
+        assert status                 is not None
+        assert "files_in_hd1_folder"  in status
+        assert "files_to_process"     in status
+        assert "completed"            in status
+        assert "failed"               in status
+        assert "in_progress"          in status
 
 

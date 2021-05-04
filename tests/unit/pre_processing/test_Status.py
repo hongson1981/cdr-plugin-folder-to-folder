@@ -24,6 +24,7 @@ class test_Status(Temp_Config):
                                                                               ('INITIAL'     , 'Initial'                                          ),
                                                                               ('IN_PROGRESS' , 'In Progress'                                      ),
                                                                               ('NONE'        , 'None'                                             ),
+                                                                              ('NOT_COPIED'  , 'Will not be copied'                               ),
                                                                               ('TO_PROCESS'  , 'To Process'                                       ),
                                                                               ('__module__'  , 'cdr_plugin_folder_to_folder.pre_processing.Status')]
 
@@ -31,6 +32,8 @@ class test_Status(Temp_Config):
         status = self.status
         status.get_server_status()
         data = status.data()
+
+        assert data[Status.VAR_NUMBER_OF_CPUS] > 0
 
         cpu_percents = data[Status.VAR_CPU_UTILIZATION]
         assert len(cpu_percents) > 0
@@ -44,6 +47,10 @@ class test_Status(Temp_Config):
         processes_count = data[Status.VAR_NUM_OF_PROCESSES]
         assert isinstance(processes_count, (int))
         assert processes_count > 0
+
+        assert data[Status.VAR_NETWORK_CONNECTIONS] >= 0
+
+        assert data[Status.VAR_DISK_PARTITIONS] > 0
 
     def test_load_data(self):
         status = self.status

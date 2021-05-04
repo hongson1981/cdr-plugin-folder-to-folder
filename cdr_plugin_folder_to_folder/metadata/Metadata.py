@@ -11,6 +11,7 @@ from osbot_utils.utils.Misc import datetime_now
 from cdr_plugin_folder_to_folder.metadata.Metadata_Utils import Metadata_Utils
 from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
 from cdr_plugin_folder_to_folder.storage.Storage import Storage
+from cdr_plugin_folder_to_folder.common_settings.Config import Config
 
 DEFAULT_REPORT_FILENAME   = "report.json"
 DEFAULT_METADATA_FILENAME = "metadata.json"
@@ -19,6 +20,7 @@ DEFAULT_SOURCE_FILENAME   = "source"
 class Metadata:
 
     def __init__(self, file_hash=None):
+        self.config         = Config()
         self.storage        = Storage()
         self.process_status = Status()
         self.metadata_utils = Metadata_Utils()
@@ -114,8 +116,29 @@ class Metadata:
             return path_combine(self.metadata_folder_path(), DEFAULT_METADATA_FILENAME)
 
     def metadata_folder_path(self):
-        if self.file_hash:
-            return self.storage.hd2_data(self.file_hash)
+        if not self.file_hash:
+            return
+
+        path = self.storage.hd2_not_processed(self.file_hash)
+        if folder_exists(path):
+            return path
+
+        path = self.storage.hd2_processed(self.file_hash)
+        if folder_exists(path):
+            return path
+
+        # never processed - must be in the 'todo' folder
+        path = self.storage.hd2_data(self.file_hash)
+        return path
+
+    def is_in_todo(self):
+        folder_exists(self.storage.hd2_data(self.file_hash))
+
+    def is_in_processed(self):
+        folder_exists(self.storage.hd2_processed(self.file_hash))
+
+    def is_in_not_processed(self):
+        folder_exists(self.storage.hd2_not_processed(self.file_hash))
 
     def save(self):
         if self.exists():
@@ -169,6 +192,12 @@ class Metadata:
 
     def get_last_update_time(self):
         return self.data.get('last_update_time')
+
+    def get_error(self):
+        return self.data.get('error')
+
+    def get_original_file_extension(self):
+        return self.data.get('original_file_extension')
 
     def report_file_path(self):
         if self.file_hash:

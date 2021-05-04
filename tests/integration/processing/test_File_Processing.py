@@ -98,9 +98,7 @@ class test_File_Processing(Temp_Config):
         assert metadata.data.get('error')          == 'Engine response could not be decoded'
 
     def test_pdf_rebuild(self,):            # refactor into separate test file
-        #server          = "192.168.0.249"   # local
         server          = self.config.test_sdk
-        server          = "63.35.219.252"
         url             = f"http://{server}:8080/api/rebuild/base64"
         headers         = { 'accept': 'application/json',
                             'Content-Type': 'application/json'}

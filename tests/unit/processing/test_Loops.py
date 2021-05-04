@@ -44,7 +44,7 @@ class test_Loops(Temp_Config):
 
     def test_updateHashJson(self):
         Loops.continue_processing = True
-        count = 40
+        count = 20
         self.add_test_files(count=count, execute_stage_1=True)
 
         json_data = self.loops.updateHashJson()
@@ -52,22 +52,22 @@ class test_Loops(Temp_Config):
 
     def test_moveProcessedFiles(self):
         Loops.continue_processing = True
-        count = 40
+        count = 20
         self.add_test_files(count=count, execute_stage_1=True)
 
         json_data = self.loops.updateHashJson()
         assert len(json_data) > 0
 
         self.loops.moveProcessedFiles()
-        assert folder_exists(self.loops.processed_dir)
+        assert folder_exists(self.loops.storage.hd2_processed())
 
     def test_LoopHashDirectoriesInternal(self):
         Loops.continue_processing = True
-        count = 40
+        count = 20
         self.add_test_files(count=count, execute_stage_1=True)
 
         with patch.object(File_Processing, 'do_rebuild', return_value=True):
-            self.loops.LoopHashDirectoriesInternal(thread_count=30, do_single=False)
+            self.loops.LoopHashDirectoriesInternal(thread_count=10, do_single=False)
 
         metadatas = self.storage.hd2_metadatas()
 
@@ -91,7 +91,10 @@ class test_Loops(Temp_Config):
         assert self.loops.ProcessDirectoryWithEndpoint(itempath, filehash, 0) is False
 
     def test_LoopHashDirectoriesInternal_bad(self):
-        self.loops.rootdir = '/not_existing'
+        hd2_data_location = self.loops.config.hd2_data_location
+        self.loops.config.hd2_data_location = '/not_existing'
         assert self.loops.LoopHashDirectoriesInternal(thread_count=30, do_single=False) is False
+        self.loops.config.hd2_data_location = hd2_data_location
+
 
 

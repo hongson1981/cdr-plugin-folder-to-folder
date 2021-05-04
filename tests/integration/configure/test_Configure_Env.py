@@ -12,16 +12,12 @@ class test_Configure_Env(TestCase):
         self.configure_env = Configure_Env()
 
     def test_get_valid_endpoints(self):
-#        test_ips =[   '3.250.55.150',
-#                      '34.242.205.32',
-#                      '3.250.152.58',
-#                      '3.248.208.74',
-#                      '54.195.161.214',
-#                      '54.75.120.78',
-#                      '3.250.212.118']
 
-
-        test_ips =[   '84.16.229.232' ]
+        test_ips =  [
+                        "52.51.76.83",
+                        "34.245.236.153",
+                        "34.242.222.23"
+                    ]
 
         endpoints = []
         for ip in test_ips:

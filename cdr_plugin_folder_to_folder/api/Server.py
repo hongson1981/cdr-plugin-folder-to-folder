@@ -1,6 +1,5 @@
 import logging
 import os
-import threading
 
 import uvicorn
 from fastapi_offline import FastAPIOffline as FastAPI
@@ -21,8 +20,6 @@ from cdr_plugin_folder_to_folder.utils.Logging import log_debug
 from cdr_plugin_folder_to_folder.utils.Logging_Process import start_logging
 from cdr_plugin_folder_to_folder.pre_processing.Status import Status
 
-from time import sleep
-
 class Logging_Middleware:
     def __init__(self, app: ASGIApp, minimum_size: int = 500) -> None:
         self.app = app
@@ -42,9 +39,6 @@ class Server:
         self.port       = to_int(port)                                    # todo: move to globally configurable value (set via Env variables)
         self.app        = app
         self.reload     = reload                                              # automatically reloads server on code changes
-        self.status_update_interval = 10
-        self.status_thread          = threading.Thread()
-        self.status_thread_on       = False
 
     def add_routes(self):
         self.app.include_router(router_processing       )
@@ -69,24 +63,9 @@ class Server:
         #    - https://github.com/encode/uvicorn/issues/562
         logging.getLogger().handlers.clear()                                # todo: see side effects of this
 
-    def StatusThread(self, update_interval):
-        status = Status()
-        while self.status_thread_on:
-            status.get_server_status()
-            status.save()
-            sleep(update_interval)
-
     def start(self):
-        #self.status_thread_on = True
-        #self.status_thread = threading.Thread(target=self.StatusThread, args=(self.status_update_interval,))
-        #self.status_thread.start()
-
         log_debug(message=f"Starting API server on {self.host}:{self.port} with uvicorn log level {self.log_level}")
         uvicorn.run("cdr_plugin_folder_to_folder.api.Server:app", host=self.host, port=self.port, log_level=self.log_level, reload=self.reload)
-
-        #print("Stopping the FastAPI server")
-        #self.status_thread_on = False
-        #self.status_thread.join()
 
     def setup_logging(self):
         start_logging()

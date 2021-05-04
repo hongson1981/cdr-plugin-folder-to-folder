@@ -18,6 +18,7 @@ from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Servi
 from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
 from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 from cdr_plugin_folder_to_folder.processing.Report_Elastic import Report_Elastic
+from cdr_plugin_folder_to_folder.storage.Storage import Storage
 
 from elasticsearch import Elasticsearch
 from datetime import datetime
@@ -36,17 +37,17 @@ class Loops(object):
         self.use_es = False
         self.config = Config()
         self.status = Status()
+        self.storage = Storage()
         self.hash_json = Hash_Json()
-        self.events = Events_Log(os.path.join(self.config.hd2_location, "status"))
+        self.events = Events_Log(self.config.hd2_status_location)
         self.events_elastic = Events_Log_Elastic()
         self.hash=None
         self.report_elastic = Report_Elastic()
         self.analysis_elastic = Analysis_Elastic()
         self.report_elastic.setup()
         self.analysis_elastic.setup()
-        self.rootdir = os.path.join(self.config.hd2_location, "data")
-        self.processed_dir = os.path.join(self.config.hd2_location, "processed")
-        create_folder(self.processed_dir)
+        create_folder(self.storage.hd2_processed())
+        create_folder(self.storage.hd2_not_processed())
 
 
     def IsProcessing(self):
@@ -148,9 +149,9 @@ class Loops(object):
         self.hash_json.reset()
         meta_service = Metadata_Service()
 
-        for hash_folder in os.listdir(self.rootdir):
+        for hash_folder in os.listdir(self.storage.hd2_data()):
 
-            metadata_folder = os.path.join(self.rootdir, hash_folder)
+            metadata_folder = self.storage.hd2_data(hash_folder)
 
             if not os.path.isdir(metadata_folder):
                 continue
@@ -172,22 +173,35 @@ class Loops(object):
 
         for key in json_list:
 
-            if (FileStatus.COMPLETED != json_list[key]["file_status"]):
-                continue
+            source_path = self.storage.hd2_data(key)
 
-            source_path = os.path.join(self.rootdir, key)
-            destination_path = os.path.join(self.processed_dir, key)
+            if (FileStatus.COMPLETED == json_list[key]["file_status"]):
+                destination_path = self.storage.hd2_processed(key)
 
-            if folder_exists(destination_path):
-                folder_delete_all(destination_path)
+                if folder_exists(destination_path):
+                    folder_delete_all(destination_path)
 
-            shutil.move(source_path, destination_path)
+                shutil.move(source_path, destination_path)
 
+            if (FileStatus.FAILED == json_list[key]["file_status"]):
+
+                meta_service = Metadata_Service()
+                meta_service.get_from_file(source_path)
+                metadata = meta_service.metadata
+                if ("Engine response could not be decoded" == metadata.get_error()) and \
+                    metadata.get_original_file_extension() in ['.xml', '.json']:
+                        destination_path = self.storage.hd2_not_processed(key)
+
+                        if folder_exists(destination_path):
+                            folder_delete_all(destination_path)
+
+
+                        shutil.move(source_path, destination_path)
 
     def LoopHashDirectoriesInternal(self, thread_count, do_single):
 
-        if folder_exists(self.rootdir) is False:
-            log_message = "ERROR: rootdir does not exist: " + self.rootdir
+        if folder_exists(self.storage.hd2_data()) is False:
+            log_message = "ERROR: rootdir does not exist: " + self.storage.hd2_data()
             log_error(log_message)
             return False
 
@@ -216,7 +230,7 @@ class Loops(object):
         for key in json_list:
             file_hash   =  key
 
-            itempath = os.path.join(self.rootdir, key)
+            itempath = self.storage.hd2_data(key)
             if (FileStatus.COMPLETED == json_list[key]["file_status"]):
                 self.events.add_log(f"The file processing has been already completed")
                 continue
@@ -282,12 +296,15 @@ class Loops(object):
         if self.IsProcessing():
             log_error(message="ERROR: Attempt to start processing while processing is in progress")
             return False
+
+        self.status.StartStatusThread()
         thread_count = thread_count or self.config.thread_count
         log_info(message="in LoopHashDirectories, about to start main loop")
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(self.LoopHashDirectoriesAsync(thread_count))
         log_info(message="in LoopHashDirectories, Loop completed")
+        self.status.StopStatusThread()
         return True
 
     @log_duration

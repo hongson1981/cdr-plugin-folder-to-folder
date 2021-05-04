@@ -75,7 +75,7 @@ class Pre_Processor:
                 if os.path.isfile(file_path):
                     files_count += 1
 
-        self.status.add_files_count(files_count)
+        self.status.set_files_count(files_count)
 
         for folderName, subfolders, filenames in os.walk(folder_to_process):
             for filename in filenames:
@@ -87,9 +87,11 @@ class Pre_Processor:
 
     @log_duration
     def process_files(self):
+        self.status.StartStatusThread()
         self.status.set_phase_1()
         self.process_folder(self.storage.hd1())
         self.status.set_phase_2()
+        self.status.StopStatusThread()
 
     @log_duration
     def process(self, file_path):
@@ -104,8 +106,11 @@ class Pre_Processor:
         tok   = datetime.now()
         delta = tok - tik
 
-        hash_folder_path = os.path.join(self.storage.hd2_data(), original_hash)
-        self.meta_service.set_hd1_to_hd2_copy_time(hash_folder_path, delta.total_seconds())
+        if metadata.is_in_todo():
+            hash_folder_path = self.storage.hd2_data(original_hash)
+            self.meta_service.set_hd1_to_hd2_copy_time(hash_folder_path, delta.total_seconds())
+        else:
+            self.status.set_not_copied()
 
     def update_status(self, file_name, original_hash, status):
         if status == FileStatus.INITIAL:

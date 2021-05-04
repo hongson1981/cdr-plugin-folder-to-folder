@@ -14,7 +14,8 @@ DEFAULT_HD2_NAME         = 'hd2'
 DEFAULT_HD3_NAME         = 'hd3'
 DEFAULT_HD2_DATA_NAME    = 'data'
 DEFAULT_HD2_STATUS_NAME  = 'status'
-DEFAULT_HD2_PROCESSED_NAME = 'processed'
+DEFAULT_HD2_PROCESSED_NAME      = 'processed'
+DEFAULT_HD2_NOT_PROCESSED_NAME  = 'cannot_be_processed'
 DEFAULT_ROOT_FOLDER      = path_combine(__file__                , '../../../test_data/scenario-1' )
 DEFAULT_HD1_LOCATION     = path_combine(DEFAULT_ROOT_FOLDER     , DEFAULT_HD1_NAME                )
 DEFAULT_HD2_LOCATION     = path_combine(DEFAULT_ROOT_FOLDER     , DEFAULT_HD2_NAME                )
@@ -25,10 +26,10 @@ DEFAULT_ELASTIC_SCHEMA   = "http"
 DEFAULT_KIBANA_HOST      = "kib01"
 DEFAULT_KIBANA_PORT      = "5601"
 DEFAULT_THREAD_COUNT     = 10
-DEFAULT_TEST_SDK         = '3.250.214.207'
+DEFAULT_TEST_SDK         = '52.51.76.83'
 DEFAULT_ENDPOINTS        = '{"Endpoints":[{"IP":"' + DEFAULT_TEST_SDK + '", "Port":"8080"}]}'
-DEFAULT_REQUEST_TIMEOUT  = 60
-API_VERSION              = "v0.5.62"
+DEFAULT_REQUEST_TIMEOUT  = 600
+API_VERSION              = "v0.5.63"
 
 
 
@@ -97,7 +98,8 @@ class Config:
         self.hd2_location           = self.ensure_last_char_is_not_forward_slash(hd2_location)
         self.hd2_data_location      = path_combine(self.hd2_location, DEFAULT_HD2_DATA_NAME)
         self.hd2_status_location    = path_combine(self.hd2_location, DEFAULT_HD2_STATUS_NAME)
-        self.hd2_processed_location = path_combine(self.hd2_location, DEFAULT_HD2_PROCESSED_NAME)
+        self.hd2_processed_location     = path_combine(self.hd2_location, DEFAULT_HD2_PROCESSED_NAME)
+        self.hd2_not_processed_location = path_combine(self.hd2_location, DEFAULT_HD2_NOT_PROCESSED_NAME)
         folder_create(self.hd2_location       )
         folder_create(self.hd2_data_location  )
         folder_create(self.hd2_status_location)
