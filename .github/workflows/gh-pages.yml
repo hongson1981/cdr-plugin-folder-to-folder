@@ -19,11 +19,10 @@ jobs:
           hugo-version: '0.81.0'
           extended: true
 
-      - run: cd website
       - run: git clone https://github.com/matcornic/hugo-theme-learn.git
-      - run: cd site
+        working-directory: ./website
       - run: hugo --minify -b https://filetrust.github.io/cdr-plugin-folder-to-folder/ --config config-github-pages.toml
-
+        working-directory: ./website/site
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
