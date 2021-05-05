@@ -293,7 +293,7 @@ class File_Processing:
 
                     self.get_xmlreport_from_file(xmlreport_path, dir)
 
-                    # Handle the clean file
+                    # Handle the file
                     clean_folder_path = path_append(unzip_folder_path, "clean")
                     if not folder_exists(clean_folder_path):
                         log_error (f"folder not found {clean_folder_path}")
