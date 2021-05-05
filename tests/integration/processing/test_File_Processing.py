@@ -84,7 +84,7 @@ class test_File_Processing(Temp_Config):
         result      = self.file_processing.do_rebuild(endpoint=endpoint, hash=file_hash, source_path=bad_file, dir=dir)
         assert result == False
         metadata.load()
-        assert metadata.data.get('error') ==  'Engine response could not be decoded'
+        assert metadata.data.get('error') ==  File_Processing.RESP_CODE_NOT_DECODED
 
     def test_processDirectory__bad_file(self):
         bad_file = temp_file(contents=random_text())
@@ -95,7 +95,7 @@ class test_File_Processing(Temp_Config):
         assert result == False
         metadata.load()
         assert metadata.data.get('rebuild_status') == 'Completed with errors'
-        assert metadata.data.get('error')          == 'Engine response could not be decoded'
+        assert metadata.data.get('error')          == File_Processing.RESP_CODE_NOT_DECODED
 
     def test_pdf_rebuild(self,):            # refactor into separate test file
         server          = self.config.test_sdk

@@ -68,7 +68,7 @@ class Loops(object):
 
         return git_commit
 
-    def ProcessDirectoryWithEndpoint(self, itempath, file_hash, endpoint_index):
+    def ProcessDirectoryWithEndpoint(self, itempath, file_hash, endpoint_index,):
 
         if not os.path.isdir(itempath):
             return False
@@ -86,7 +86,7 @@ class Loops(object):
 
         try:
             file_processing = File_Processing(events, self.events_elastic, self.report_elastic, self.analysis_elastic, meta_service)
-            if not file_processing.processDirectory(endpoint, itempath):
+            if not file_processing.processDirectory(endpoint, itempath, self.config.rebuild_zip):
                 events.add_log("CANNOT be processed")
                 return False
 
@@ -188,15 +188,13 @@ class Loops(object):
                 meta_service = Metadata_Service()
                 meta_service.get_from_file(source_path)
                 metadata = meta_service.metadata
-                if ("Engine response could not be decoded" == metadata.get_error()) and \
-                    metadata.get_original_file_extension() in ['.xml', '.json']:
-                        destination_path = self.storage.hd2_not_processed(key)
+                if metadata.get_original_file_extension() in ['.xml', '.json']:
+                    destination_path = self.storage.hd2_not_processed(key)
 
-                        if folder_exists(destination_path):
-                            folder_delete_all(destination_path)
+                    if folder_exists(destination_path):
+                        folder_delete_all(destination_path)
 
-
-                        shutil.move(source_path, destination_path)
+                    shutil.move(source_path, destination_path)
 
     def LoopHashDirectoriesInternal(self, thread_count, do_single):
 
@@ -241,7 +239,7 @@ class Loops(object):
                 continue
 
             process_index += 1
-            thread_data.append((itempath, file_hash, process_index,))
+            thread_data.append((itempath, file_hash, process_index, ))
             # # limit the number of parallel threads
             #
             # if process_index % int(thread_count) == 0:                      # todo: refactor this workflow to use multiprocess and queues
