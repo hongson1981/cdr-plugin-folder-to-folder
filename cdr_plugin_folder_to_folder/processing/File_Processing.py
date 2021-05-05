@@ -9,7 +9,8 @@ import zipfile
 
 from osbot_utils.testing.Duration import Duration
 from osbot_utils.utils.Files import folder_create, parent_folder, file_delete, \
-    folder_delete_all, file_unzip, path_append, folder_exists, file_exists
+    folder_delete_all, file_unzip, path_append, folder_exists, file_exists, \
+    folder_files, file_copy
 from osbot_utils.utils.Json import json_save_file_pretty
 from datetime import datetime, timedelta
 
@@ -120,7 +121,6 @@ class File_Processing:
         return self.convert_xml_report_to_json(dir, xmlreport)
 
     def get_xmlreport_from_file(self, file_path, dir):
-        print(f"getting XML Report from file {file_path}")
         log_info(message=f"getting XML Report from file {file_path}")
 
         xmlfile = open(file_path,"r+")
@@ -271,27 +271,42 @@ class File_Processing:
 
                 unzip_folder_path = path_append(dir, headers[fileIdKey])
                 if not folder_exists(unzip_folder_path):
-                    print (f"folder not found {unzip_folder_path}")
+                    log_error (f"folder not found {unzip_folder_path}")
                     return False
 
                 clean_folder_path = path_append(unzip_folder_path, "clean")
                 if not folder_exists(clean_folder_path):
-                    print (f"folder not found {clean_folder_path}")
+                    log_error (f"folder not found {clean_folder_path}")
+                    return False
+
+                clean_files = folder_files(clean_folder_path)
+                if len(clean_files) != 1:
+                    log_error(f"Unexpected number of files in clean folder: {len(clean_files)}")
+                    return False
+
+                clean_file_path = path_append(clean_folder_path, clean_files[0])
+                if not file_exists(clean_file_path):
+                    log_error (f"file not found {clean_file_path}")
                     return False
 
                 report_folder_path = path_append(unzip_folder_path, "report")
                 if not folder_exists(report_folder_path):
-                    print (f"folder not found {report_folder_path}")
+                    log_error (f"folder not found {report_folder_path}")
                     return False
 
                 xmlreport_path = os.path.join(report_folder_path, "report.xml")
                 if not file_exists(xmlreport_path):
-                    print (f"file not found {xmlreport_path}")
+                    log_error (f"file not found {xmlreport_path}")
                     return False
 
                 self.get_xmlreport_from_file(xmlreport_path, dir)
 
-                folder_delete_all(unzip_folder_path)
+                file_size    = os.path.getsize(clean_file_path)                 # calculate rebuilt file fize
+                rebuild_hash = self.meta_service.file_hash(clean_file_path)     # calculate hash of final_rebuild_file_path
+
+                self.meta_service.set_rebuild_file_size(dir, file_size)
+                self.meta_service.set_rebuild_file_path(dir, clean_file_path)   # capture final_rebuild_file_path
+                self.meta_service.set_rebuild_hash(dir, rebuild_hash)           # capture it
 
                 for path in self.meta_service.get_original_file_paths(dir):
                     if path.startswith(self.config.hd1_location):
@@ -301,6 +316,9 @@ class File_Processing:
 
                     folder_create(parent_folder(rebuild_file_path))                         # make sure parent folder exists
 
+                    file_copy(clean_file_path, rebuild_file_path)     # returns actual file saved (which could be .html)
+
+                folder_delete_all(unzip_folder_path)
 
             except Exception as error:
                 message=f"Error in do_rebuild_zip for {hash} : {error}"
