@@ -4,9 +4,12 @@ import requests
 import ntpath
 import os.path
 import xmltodict
-from osbot_utils.testing.Duration import Duration
+import zipfile
 
-from osbot_utils.utils.Files import folder_create, parent_folder
+
+from osbot_utils.testing.Duration import Duration
+from osbot_utils.utils.Files import folder_create, parent_folder, file_delete, \
+    folder_delete_all, file_unzip, path_append, folder_exists
 from osbot_utils.utils.Json import json_save_file_pretty
 from datetime import datetime, timedelta
 
@@ -84,10 +87,7 @@ class File_Processing:
     def rebuild_zip (self, endpoint, base64enc_file):
         return self.base64request(endpoint, "api/analyse/rebuild-zip-from-base64", base64enc_file)
 
-    def get_xmlreport(self, endpoint, fileId, dir):
-        log_info(message=f"getting XML Report for {fileId} at {endpoint}")
-
-        xmlreport = self.xmlreport_request(endpoint, fileId)
+    def convert_xml_report_to_json(self, dir, xmlreport):
         if not xmlreport:
             raise ValueError('Failed to obtain the XML report')
 
@@ -111,6 +111,22 @@ class File_Processing:
         except Exception as error:
             log_error(message=f"Error in parsing xmlreport for {fileId} : {error}")
             return False
+
+    def get_xmlreport(self, endpoint, fileId, dir):
+        log_info(message=f"getting XML Report for {fileId} at {endpoint}")
+
+        xmlreport = self.xmlreport_request(endpoint, fileId)
+
+        return self.convert_xml_report_to_json(dir, xmlreport)
+
+    def get_xmlreport_from_file(self, file_path, dir):
+        print(f"getting XML Report from file {file_path}")
+        log_info(message=f"getting XML Report from file {file_path}")
+
+        xmlfile = open(file_path,"r+")
+        xmlreport = xmlfile.read()
+
+        return self.convert_xml_report_to_json(dir, xmlreport)
 
     # Save to HD3
     def save_file(self, result, processed_path):
@@ -237,8 +253,42 @@ class File_Processing:
                 self.meta_service.set_error(dir,message)
                 return False
 
+            #with open(rebuild_file_path + ".txt", 'w') as file:
+            #    file.write(encodedFile)
+
             response = self.rebuild_zip(endpoint, encodedFile)
+            zip_file_path = os.path.join(dir, "rebuild.zip")
+
+            headers = response.headers
+            fileIdKey = "X-Adaptation-File-Id"
+
             try:
+                with open(zip_file_path, 'wb') as file:
+                    file.write(response.content)
+
+                file_unzip(zip_file_path, dir)
+                file_delete(zip_file_path)
+
+                unzip_folder_path = path_append(dir, headers[fileIdKey])
+                if not folder_exists(unzip_folder_path):
+                    print (f"folder not found {unzip_folder_path}")
+                    return False
+
+                clean_folder_path = path_append(unzip_folder_path, "clean")
+                if not folder_exists(clean_folder_path):
+                    print (f"folder not found {clean_folder_path}")
+                    return False
+
+                report_folder_path = path_append(unzip_folder_path, "report")
+                if not folder_exists(report_folder_path):
+                    print (f"folder not found {report_folder_path}")
+                    return False
+
+                xmlreport_path = os.path.join(report_folder_path, "report.xml")
+                self.get_xmlreport_from_file(xmlreport_path, dir)
+
+                folder_delete_all(unzip_folder_path)
+
                 for path in self.meta_service.get_original_file_paths(dir):
                     if path.startswith(self.config.hd1_location):
                         rebuild_file_path = path.replace(self.config.hd1_location, self.config.hd3_location)
@@ -247,16 +297,9 @@ class File_Processing:
 
                     folder_create(parent_folder(rebuild_file_path))                         # make sure parent folder exists
 
-                    #with open(rebuild_file_path + ".txt", 'w') as file:
-                    #    file.write(encodedFile)
-
-                    zip_file_path = os.path.join(dir, "rebuild.zip")
-
-                    with open(zip_file_path, 'wb') as file:
-                        file.write(response.content)
 
             except Exception as error:
-                message=f"Error Saving ZIP file for {hash} : {error}"
+                message=f"Error in do_rebuild_zip for {hash} : {error}"
                 log_error(message=message)
                 self.meta_service.set_xml_report_status(dir, "No Report")
                 self.meta_service.set_error(dir,message)
@@ -296,7 +339,8 @@ class File_Processing:
 
         self.add_event_log("Sending to rebuild")
         tik = datetime.now()
-        status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
+        status = self.do_rebuild(endpoint, hash, source_path, dir)
+#        status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
 #        if status:
 #            self.meta_service.set_status(dir, FileStatus.COMPLETED)
 #            self.meta_service.set_error(dir, "none")
