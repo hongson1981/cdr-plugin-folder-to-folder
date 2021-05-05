@@ -62,6 +62,7 @@ services:
       - ${PWD}/website/site:/src/site
       - ${PWD}/website/content:/src/site/content
       - ${PWD}/website/data:/src/site/data
+      - ${PWD}/website/hugo-theme-learn:/src/hugo-theme-learn
     ports:
       - 1313:1313
     restart: always

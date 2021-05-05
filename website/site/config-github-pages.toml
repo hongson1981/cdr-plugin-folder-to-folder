@@ -3,12 +3,17 @@ title           = "Glasswall CDR Platform"
 theme           = "hugo-theme-learn"
 themesdir       = "../"
 metaDataFormat  = "yaml"
+contentDir      = "../content"
+dataDir         = "../data"
+canonifyURLs    = true
+ignorefiles     = [ "aws/.*", "servers/.*", "status/.*", "workflows/.*" ]
+
 
 [params]
   themeVariant    = "blue"
   disableSearch   = true
   disableNextPrev = true
-  titleSeparator = "-"
+  titleSeparator  = "-"
 
 
 [[menu.shortcuts]]
