@@ -45,24 +45,6 @@ class File_Processing:
         json_data = self.events_log.add_log(message, event_data)
         self.events_elastic.add_event_log(json_data)
 
-    def rebuild_zip_from_file(self, endpoint, file_path):
-        try:
-            url = endpoint + "/api/analyse/rebuild-zip-from-file"
-
-            payload={}
-            files=[
-            ('File',(os.path.basename(file_path),open(file_path,'rb'),'application/' + ))
-            ]
-            headers = {
-            'Content-Type': 'application/octet-stream'
-            }
-
-            return requests.request("POST", url, headers=headers, data=payload, files=files)
-
-        except Exception as e:
-            log_error(str(e))
-            raise ValueError(str(e))
-
     def base64request(self, endpoint, api_route, base64enc_file):
         try:
             url = endpoint + "/" + api_route
@@ -98,6 +80,9 @@ class File_Processing:
 
     def rebuild (self, endpoint, base64enc_file):
         return self.base64request(endpoint, "api/rebuild/base64", base64enc_file)
+
+    def rebuild_zip (self, endpoint, base64enc_file):
+        return self.base64request(endpoint, "api/analyse/rebuild-zip-from-base64", base64enc_file)
 
     def get_xmlreport(self, endpoint, fileId, dir):
         log_info(message=f"getting XML Report for {fileId} at {endpoint}")
@@ -236,6 +221,51 @@ class File_Processing:
         return True
 
     @log_duration
+    def do_rebuild_zip(self, endpoint, hash, source_path, dir):
+        log_info(message=f"Starting rebuild for file {hash} on endpoint {endpoint}")
+        with Duration() as duration:
+            event_data = {"endpoint": endpoint, "hash": hash, "source_path": source_path, "dir": dir } # todo: see if we can use a variable that holds the params data
+            self.add_event_log('Starting File rebuild', event_data)
+
+            self.meta_service.set_rebuild_server(dir, endpoint)
+
+            encodedFile = FileService.base64encode(source_path)
+            if not encodedFile:
+                message = f"Failed to encode the file: {hash}"
+                log_error(message=message)
+                self.add_event_log(message)
+                self.meta_service.set_error(dir,message)
+                return False
+
+            response = self.rebuild_zip(endpoint, encodedFile)
+            try:
+                for path in self.meta_service.get_original_file_paths(dir):
+                    if path.startswith(self.config.hd1_location):
+                        rebuild_file_path = path.replace(self.config.hd1_location, self.config.hd3_location)
+                    else:
+                        rebuild_file_path = os.path.join(self.config.hd3_location, path)
+
+                    folder_create(parent_folder(rebuild_file_path))                         # make sure parent folder exists
+
+                    #with open(rebuild_file_path + ".txt", 'w') as file:
+                    #    file.write(encodedFile)
+
+                    zip_file_path = os.path.join(dir, "rebuild.zip")
+
+                    with open(zip_file_path, 'wb') as file:
+                        file.write(response.content)
+
+            except Exception as error:
+                message=f"Error Saving ZIP file for {hash} : {error}"
+                log_error(message=message)
+                self.meta_service.set_xml_report_status(dir, "No Report")
+                self.meta_service.set_error(dir,message)
+                return False
+
+        log_info(message=f"rebuild ok for file {hash} on endpoint {endpoint} took {duration.seconds()} seconds")
+        return True
+
+    @log_duration
     def processDirectory (self, endpoint, dir):
         self.add_event_log("Processing Directory: " + dir)
         hash = ntpath.basename(dir)
@@ -266,7 +296,7 @@ class File_Processing:
 
         self.add_event_log("Sending to rebuild")
         tik = datetime.now()
-        status = self.do_rebuild(endpoint, hash, source_path, dir)
+        status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
 #        if status:
 #            self.meta_service.set_status(dir, FileStatus.COMPLETED)
 #            self.meta_service.set_error(dir, "none")
