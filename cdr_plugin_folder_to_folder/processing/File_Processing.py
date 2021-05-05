@@ -4,9 +4,13 @@ import requests
 import ntpath
 import os.path
 import xmltodict
-from osbot_utils.testing.Duration import Duration
+import zipfile
 
-from osbot_utils.utils.Files import folder_create, parent_folder
+
+from osbot_utils.testing.Duration import Duration
+from osbot_utils.utils.Files import folder_create, parent_folder, file_delete, \
+    folder_delete_all, file_unzip, path_append, folder_exists, file_exists, \
+    folder_files, file_copy
 from osbot_utils.utils.Json import json_save_file_pretty
 from datetime import datetime, timedelta
 
@@ -24,6 +28,8 @@ from cdr_plugin_folder_to_folder.processing.Analysis_Json import Analysis_Json
 from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 
 class File_Processing:
+
+    RESP_CODE_NOT_DECODED = "Engine response could not be decoded"
 
     def __init__(self, events_log, events_elastic, report_elastic, analysis_elastic, meta_service):
         self.meta_service   = meta_service
@@ -81,10 +87,10 @@ class File_Processing:
     def rebuild (self, endpoint, base64enc_file):
         return self.base64request(endpoint, "api/rebuild/base64", base64enc_file)
 
-    def get_xmlreport(self, endpoint, fileId, dir):
-        log_info(message=f"getting XML Report for {fileId} at {endpoint}")
+    def rebuild_zip (self, endpoint, base64enc_file):
+        return self.base64request(endpoint, "api/analyse/rebuild-zip-from-base64", base64enc_file)
 
-        xmlreport = self.xmlreport_request(endpoint, fileId)
+    def convert_xml_report_to_json(self, dir, xmlreport):
         if not xmlreport:
             raise ValueError('Failed to obtain the XML report')
 
@@ -108,6 +114,21 @@ class File_Processing:
         except Exception as error:
             log_error(message=f"Error in parsing xmlreport for {fileId} : {error}")
             return False
+
+    def get_xmlreport(self, endpoint, fileId, dir):
+        log_info(message=f"getting XML Report for {fileId} at {endpoint}")
+
+        xmlreport = self.xmlreport_request(endpoint, fileId)
+
+        return self.convert_xml_report_to_json(dir, xmlreport)
+
+    def get_xmlreport_from_file(self, file_path, dir):
+        log_info(message=f"getting XML Report from file {file_path}")
+
+        xmlfile = open(file_path,"r+")
+        xmlreport = xmlfile.read()
+
+        return self.convert_xml_report_to_json(dir, xmlreport)
 
     # Save to HD3
     def save_file(self, result, processed_path):
@@ -174,7 +195,7 @@ class File_Processing:
                     self.meta_service.set_rebuild_file_path(dir, final_rebuild_file_path)   # capture final_rebuild_file_path
                     self.meta_service.set_rebuild_hash(dir, rebuild_hash)                   # capture it
                 if not FileService.base64decode(result):
-                    message = f"Engine response could not be decoded"
+                    message = File_Processing.RESP_CODE_NOT_DECODED
                     log_error(message=message, data=f"{result}")
                     self.meta_service.set_error(dir,message)
                     return False
@@ -218,7 +239,113 @@ class File_Processing:
         return True
 
     @log_duration
-    def processDirectory (self, endpoint, dir):
+    def do_rebuild_zip(self, endpoint, hash, source_path, dir):
+        log_info(message=f"Starting rebuild for file {hash} on endpoint {endpoint}")
+
+        retvalue = False
+
+        with Duration() as duration:
+            event_data = {"endpoint": endpoint, "hash": hash, "source_path": source_path, "dir": dir } # todo: see if we can use a variable that holds the params data
+            self.add_event_log('Starting File rebuild', event_data)
+
+            self.meta_service.set_rebuild_server(dir, endpoint)
+
+            encodedFile = FileService.base64encode(source_path)
+            if not encodedFile:
+                message = f"Failed to encode the file: {hash}"
+                log_error(message=message)
+                self.add_event_log(message)
+                self.meta_service.set_error(dir,message)
+                return False
+
+            #with open(rebuild_file_path + ".txt", 'w') as file:
+            #    file.write(encodedFile)
+
+            response = self.rebuild_zip(endpoint, encodedFile)
+            zip_file_path = os.path.join(dir, "rebuild.zip")
+
+            headers = response.headers
+            fileIdKey = "X-Adaptation-File-Id"
+
+            unzip_folder_path = path_append(dir, headers[fileIdKey])
+
+            try:
+                with open(zip_file_path, 'wb') as file:
+                    file.write(response.content)
+
+                file_unzip(zip_file_path, dir)
+
+                while True:
+                    if not folder_exists(unzip_folder_path):
+                        log_error (f"folder not found {unzip_folder_path}")
+                        break
+
+                    ## Handle the report
+                    report_folder_path = path_append(unzip_folder_path, "report")
+                    if not folder_exists(report_folder_path):
+                        log_error (f"folder not found {report_folder_path}")
+                        break
+
+                    xmlreport_path = os.path.join(report_folder_path, "report.xml")
+                    if not file_exists(xmlreport_path):
+                        log_error (f"file not found {xmlreport_path}")
+                        break
+
+                    self.get_xmlreport_from_file(xmlreport_path, dir)
+
+                    ## Handle the file
+                    clean_folder_path = path_append(unzip_folder_path, "clean")
+                    if not folder_exists(clean_folder_path):
+                        log_error (f"folder not found {clean_folder_path}")
+                        break
+
+                    clean_files = folder_files(clean_folder_path)
+                    if len(clean_files) != 1:
+                        log_error(f"Unexpected number of files in clean folder: {len(clean_files)}")
+                        break
+
+                    clean_file_path = path_append(clean_folder_path, clean_files[0])
+                    if not file_exists(clean_file_path):
+                        log_error (f"file not found {clean_file_path}")
+                        break
+
+                    file_size    = os.path.getsize(clean_file_path)                 # calculate rebuilt file fize
+                    rebuild_hash = self.meta_service.file_hash(clean_file_path)     # calculate hash of final_rebuild_file_path
+
+                    self.meta_service.set_rebuild_file_size(dir, file_size)
+                    self.meta_service.set_rebuild_file_path(dir, clean_file_path)   # capture final_rebuild_file_path
+                    self.meta_service.set_rebuild_hash(dir, rebuild_hash)           # capture it
+
+                    for path in self.meta_service.get_original_file_paths(dir):
+                        if path.startswith(self.config.hd1_location):
+                            rebuild_file_path = path.replace(self.config.hd1_location, self.config.hd3_location)
+                        else:
+                            rebuild_file_path = os.path.join(self.config.hd3_location, path)
+
+                        folder_create(parent_folder(rebuild_file_path))                         # make sure parent folder exists
+
+                        file_copy(clean_file_path, rebuild_file_path)     # returns actual file saved (which could be .html)
+
+                    retvalue = True
+                    log_info(message=f"rebuild ok for file {hash} on endpoint {endpoint} took {duration.seconds()} seconds")
+                    break
+
+            except Exception as error:
+                message=f"Error in do_rebuild_zip for {hash} : {error}"
+                log_error(message=message)
+                self.meta_service.set_xml_report_status(dir, "No Report")
+                self.meta_service.set_error(dir,message)
+            finally:
+                # clean it up
+                if file_exists(zip_file_path):
+                    file_delete(zip_file_path)
+                if folder_exists(unzip_folder_path):
+                    folder_delete_all(unzip_folder_path)
+
+        return retvalue
+
+    @log_duration
+    def processDirectory (self, endpoint, dir, use_rebuild_zip=False):
         self.add_event_log("Processing Directory: " + dir)
         hash = ntpath.basename(dir)
         if len(hash) != 64:
@@ -248,7 +375,11 @@ class File_Processing:
 
         self.add_event_log("Sending to rebuild")
         tik = datetime.now()
-        status = self.do_rebuild(endpoint, hash, source_path, dir)
+        if use_rebuild_zip:
+            status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
+        else:
+            status = self.do_rebuild(endpoint, hash, source_path, dir)
+
 #        if status:
 #            self.meta_service.set_status(dir, FileStatus.COMPLETED)
 #            self.meta_service.set_error(dir, "none")
@@ -262,3 +393,5 @@ class File_Processing:
         self.meta_service.set_rebuild_file_duration(dir, delta.total_seconds())
 
         return status
+
+
