@@ -68,7 +68,7 @@ class Loops(object):
 
         return git_commit
 
-    def ProcessDirectoryWithEndpoint(self, itempath, file_hash, endpoint_index, use_rebuild_zip=False):
+    def ProcessDirectoryWithEndpoint(self, itempath, file_hash, endpoint_index,):
 
         if not os.path.isdir(itempath):
             return False
@@ -86,7 +86,7 @@ class Loops(object):
 
         try:
             file_processing = File_Processing(events, self.events_elastic, self.report_elastic, self.analysis_elastic, meta_service)
-            if not file_processing.processDirectory(endpoint, itempath, use_rebuild_zip):
+            if not file_processing.processDirectory(endpoint, itempath, True):
                 events.add_log("CANNOT be processed")
                 return False
 
@@ -116,13 +116,13 @@ class Loops(object):
             return False
 
 
-    def ProcessDirectory(self, thread_data, use_rebuild_zip=False):
+    def ProcessDirectory(self, thread_data):
         (itempath, file_hash, process_index) = thread_data
         endpoint_index = process_index % self.config.endpoints_count
         if not Loops.continue_processing:
             return False
         tik = datetime.now()
-        process_result = self.ProcessDirectoryWithEndpoint(itempath, file_hash, endpoint_index, use_rebuild_zip)
+        process_result = self.ProcessDirectoryWithEndpoint(itempath, file_hash, endpoint_index)
 
         if process_result:
             self.status.add_completed()
@@ -198,7 +198,7 @@ class Loops(object):
 
                         shutil.move(source_path, destination_path)
 
-    def LoopHashDirectoriesInternal(self, thread_count, do_single, use_rebuild_zip=False):
+    def LoopHashDirectoriesInternal(self, thread_count, do_single):
 
         if folder_exists(self.storage.hd2_data()) is False:
             log_message = "ERROR: rootdir does not exist: " + self.storage.hd2_data()
@@ -241,7 +241,7 @@ class Loops(object):
                 continue
 
             process_index += 1
-            thread_data.append((itempath, file_hash, process_index, use_rebuild_zip, ))
+            thread_data.append((itempath, file_hash, process_index, ))
             # # limit the number of parallel threads
             #
             # if process_index % int(thread_count) == 0:                      # todo: refactor this workflow to use multiprocess and queues
@@ -283,7 +283,7 @@ class Loops(object):
             Loops.continue_processing = True
             Loops.processing_started = True
             self.status.set_started()
-            self.LoopHashDirectoriesInternal(thread_count, do_single, True)
+            self.LoopHashDirectoriesInternal(thread_count, do_single)
         finally:
             Loops.processing_started = False
             Loops.lock.release()
