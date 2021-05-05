@@ -239,6 +239,9 @@ class File_Processing:
     @log_duration
     def do_rebuild_zip(self, endpoint, hash, source_path, dir):
         log_info(message=f"Starting rebuild for file {hash} on endpoint {endpoint}")
+
+        retvalue = False
+
         with Duration() as duration:
             event_data = {"endpoint": endpoint, "hash": hash, "source_path": source_path, "dir": dir } # todo: see if we can use a variable that holds the params data
             self.add_event_log('Starting File rebuild', event_data)
@@ -262,73 +265,82 @@ class File_Processing:
             headers = response.headers
             fileIdKey = "X-Adaptation-File-Id"
 
+            unzip_folder_path = path_append(dir, headers[fileIdKey])
+
             try:
                 with open(zip_file_path, 'wb') as file:
                     file.write(response.content)
 
                 file_unzip(zip_file_path, dir)
-                file_delete(zip_file_path)
 
-                unzip_folder_path = path_append(dir, headers[fileIdKey])
-                if not folder_exists(unzip_folder_path):
-                    log_error (f"folder not found {unzip_folder_path}")
-                    return False
+                while True:
+                    if not folder_exists(unzip_folder_path):
+                        log_error (f"folder not found {unzip_folder_path}")
+                        break
 
-                clean_folder_path = path_append(unzip_folder_path, "clean")
-                if not folder_exists(clean_folder_path):
-                    log_error (f"folder not found {clean_folder_path}")
-                    return False
+                    # Hadle the report
+                    report_folder_path = path_append(unzip_folder_path, "report")
+                    if not folder_exists(report_folder_path):
+                        log_error (f"folder not found {report_folder_path}")
+                        break
 
-                clean_files = folder_files(clean_folder_path)
-                if len(clean_files) != 1:
-                    log_error(f"Unexpected number of files in clean folder: {len(clean_files)}")
-                    return False
+                    xmlreport_path = os.path.join(report_folder_path, "report.xml")
+                    if not file_exists(xmlreport_path):
+                        log_error (f"file not found {xmlreport_path}")
+                        break
 
-                clean_file_path = path_append(clean_folder_path, clean_files[0])
-                if not file_exists(clean_file_path):
-                    log_error (f"file not found {clean_file_path}")
-                    return False
+                    self.get_xmlreport_from_file(xmlreport_path, dir)
 
-                report_folder_path = path_append(unzip_folder_path, "report")
-                if not folder_exists(report_folder_path):
-                    log_error (f"folder not found {report_folder_path}")
-                    return False
+                    # Handle the clean file
+                    clean_folder_path = path_append(unzip_folder_path, "clean")
+                    if not folder_exists(clean_folder_path):
+                        log_error (f"folder not found {clean_folder_path}")
+                        break
 
-                xmlreport_path = os.path.join(report_folder_path, "report.xml")
-                if not file_exists(xmlreport_path):
-                    log_error (f"file not found {xmlreport_path}")
-                    return False
+                    clean_files = folder_files(clean_folder_path)
+                    if len(clean_files) != 1:
+                        log_error(f"Unexpected number of files in clean folder: {len(clean_files)}")
+                        break
 
-                self.get_xmlreport_from_file(xmlreport_path, dir)
+                    clean_file_path = path_append(clean_folder_path, clean_files[0])
+                    if not file_exists(clean_file_path):
+                        log_error (f"file not found {clean_file_path}")
+                        break
 
-                file_size    = os.path.getsize(clean_file_path)                 # calculate rebuilt file fize
-                rebuild_hash = self.meta_service.file_hash(clean_file_path)     # calculate hash of final_rebuild_file_path
+                    file_size    = os.path.getsize(clean_file_path)                 # calculate rebuilt file fize
+                    rebuild_hash = self.meta_service.file_hash(clean_file_path)     # calculate hash of final_rebuild_file_path
 
-                self.meta_service.set_rebuild_file_size(dir, file_size)
-                self.meta_service.set_rebuild_file_path(dir, clean_file_path)   # capture final_rebuild_file_path
-                self.meta_service.set_rebuild_hash(dir, rebuild_hash)           # capture it
+                    self.meta_service.set_rebuild_file_size(dir, file_size)
+                    self.meta_service.set_rebuild_file_path(dir, clean_file_path)   # capture final_rebuild_file_path
+                    self.meta_service.set_rebuild_hash(dir, rebuild_hash)           # capture it
 
-                for path in self.meta_service.get_original_file_paths(dir):
-                    if path.startswith(self.config.hd1_location):
-                        rebuild_file_path = path.replace(self.config.hd1_location, self.config.hd3_location)
-                    else:
-                        rebuild_file_path = os.path.join(self.config.hd3_location, path)
+                    for path in self.meta_service.get_original_file_paths(dir):
+                        if path.startswith(self.config.hd1_location):
+                            rebuild_file_path = path.replace(self.config.hd1_location, self.config.hd3_location)
+                        else:
+                            rebuild_file_path = os.path.join(self.config.hd3_location, path)
 
-                    folder_create(parent_folder(rebuild_file_path))                         # make sure parent folder exists
+                        folder_create(parent_folder(rebuild_file_path))                         # make sure parent folder exists
 
-                    file_copy(clean_file_path, rebuild_file_path)     # returns actual file saved (which could be .html)
+                        file_copy(clean_file_path, rebuild_file_path)     # returns actual file saved (which could be .html)
 
-                folder_delete_all(unzip_folder_path)
+                    retvalue = True
+                    log_info(message=f"rebuild ok for file {hash} on endpoint {endpoint} took {duration.seconds()} seconds")
+                    break
 
             except Exception as error:
                 message=f"Error in do_rebuild_zip for {hash} : {error}"
                 log_error(message=message)
                 self.meta_service.set_xml_report_status(dir, "No Report")
                 self.meta_service.set_error(dir,message)
-                return False
+            finally:
+                # clean it up
+                if file_exists(zip_file_path):
+                    file_delete(zip_file_path)
+                if folder_exists(unzip_folder_path):
+                    folder_delete_all(unzip_folder_path)
 
-        log_info(message=f"rebuild ok for file {hash} on endpoint {endpoint} took {duration.seconds()} seconds")
-        return True
+        return retvalue
 
     @log_duration
     def processDirectory (self, endpoint, dir):
