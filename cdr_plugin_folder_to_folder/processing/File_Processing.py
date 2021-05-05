@@ -9,7 +9,7 @@ import zipfile
 
 from osbot_utils.testing.Duration import Duration
 from osbot_utils.utils.Files import folder_create, parent_folder, file_delete, \
-    folder_delete_all, file_unzip, path_append, folder_exists
+    folder_delete_all, file_unzip, path_append, folder_exists, file_exists
 from osbot_utils.utils.Json import json_save_file_pretty
 from datetime import datetime, timedelta
 
@@ -285,6 +285,10 @@ class File_Processing:
                     return False
 
                 xmlreport_path = os.path.join(report_folder_path, "report.xml")
+                if not file_exists(xmlreport_path):
+                    print (f"file not found {xmlreport_path}")
+                    return False
+
                 self.get_xmlreport_from_file(xmlreport_path, dir)
 
                 folder_delete_all(unzip_folder_path)
@@ -339,8 +343,8 @@ class File_Processing:
 
         self.add_event_log("Sending to rebuild")
         tik = datetime.now()
-        status = self.do_rebuild(endpoint, hash, source_path, dir)
-#        status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
+#        status = self.do_rebuild(endpoint, hash, source_path, dir)
+        status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
 #        if status:
 #            self.meta_service.set_status(dir, FileStatus.COMPLETED)
 #            self.meta_service.set_error(dir, "none")
