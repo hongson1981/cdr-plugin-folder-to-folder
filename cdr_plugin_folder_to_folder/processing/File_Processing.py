@@ -29,6 +29,8 @@ from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 
 class File_Processing:
 
+    RESP_CODE_NOT_DECODED = "Engine response could not be decoded"
+
     def __init__(self, events_log, events_elastic, report_elastic, analysis_elastic, meta_service):
         self.meta_service   = meta_service
         self.events_log     = events_log
@@ -193,7 +195,7 @@ class File_Processing:
                     self.meta_service.set_rebuild_file_path(dir, final_rebuild_file_path)   # capture final_rebuild_file_path
                     self.meta_service.set_rebuild_hash(dir, rebuild_hash)                   # capture it
                 if not FileService.base64decode(result):
-                    message = f"Engine response could not be decoded"
+                    message = File_Processing.RESP_CODE_NOT_DECODED
                     log_error(message=message, data=f"{result}")
                     self.meta_service.set_error(dir,message)
                     return False

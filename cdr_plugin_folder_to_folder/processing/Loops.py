@@ -188,15 +188,13 @@ class Loops(object):
                 meta_service = Metadata_Service()
                 meta_service.get_from_file(source_path)
                 metadata = meta_service.metadata
-                if ("Engine response could not be decoded" == metadata.get_error()) and \
-                    metadata.get_original_file_extension() in ['.xml', '.json']:
-                        destination_path = self.storage.hd2_not_processed(key)
+                if metadata.get_original_file_extension() in ['.xml', '.json']:
+                    destination_path = self.storage.hd2_not_processed(key)
 
-                        if folder_exists(destination_path):
-                            folder_delete_all(destination_path)
+                    if folder_exists(destination_path):
+                        folder_delete_all(destination_path)
 
-
-                        shutil.move(source_path, destination_path)
+                    shutil.move(source_path, destination_path)
 
     def LoopHashDirectoriesInternal(self, thread_count, do_single):
 
