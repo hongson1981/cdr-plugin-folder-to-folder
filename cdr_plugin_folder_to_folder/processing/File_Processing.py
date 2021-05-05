@@ -343,7 +343,7 @@ class File_Processing:
         return retvalue
 
     @log_duration
-    def processDirectory (self, endpoint, dir):
+    def processDirectory (self, endpoint, dir, use_rebuild_zip=False):
         self.add_event_log("Processing Directory: " + dir)
         hash = ntpath.basename(dir)
         if len(hash) != 64:
@@ -373,8 +373,11 @@ class File_Processing:
 
         self.add_event_log("Sending to rebuild")
         tik = datetime.now()
-#        status = self.do_rebuild(endpoint, hash, source_path, dir)
-        status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
+        if use_rebuild_zip:
+            status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
+        else:
+            status = self.do_rebuild(endpoint, hash, source_path, dir)
+
 #        if status:
 #            self.meta_service.set_status(dir, FileStatus.COMPLETED)
 #            self.meta_service.set_error(dir, "none")
