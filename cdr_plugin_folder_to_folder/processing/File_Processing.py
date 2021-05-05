@@ -280,7 +280,7 @@ class File_Processing:
                         log_error (f"folder not found {unzip_folder_path}")
                         break
 
-                    # Handle the report
+                    ## Handle the report
                     report_folder_path = path_append(unzip_folder_path, "report")
                     if not folder_exists(report_folder_path):
                         log_error (f"folder not found {report_folder_path}")
@@ -293,7 +293,7 @@ class File_Processing:
 
                     self.get_xmlreport_from_file(xmlreport_path, dir)
 
-                    # Handle the file
+                    ## Handle the file
                     clean_folder_path = path_append(unzip_folder_path, "clean")
                     if not folder_exists(clean_folder_path):
                         log_error (f"folder not found {clean_folder_path}")
