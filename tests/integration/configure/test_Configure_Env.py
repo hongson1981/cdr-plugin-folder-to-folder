@@ -14,7 +14,7 @@ class test_Configure_Env(TestCase):
     def test_get_valid_endpoints(self):
 
         test_ips =  [
-                        "52.51.76.83",
+                        "52.17.73.226",
                         "34.245.236.153",
                         "34.242.222.23"
                     ]
