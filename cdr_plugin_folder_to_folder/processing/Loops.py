@@ -86,7 +86,7 @@ class Loops(object):
 
         try:
             file_processing = File_Processing(events, self.events_elastic, self.report_elastic, self.analysis_elastic, meta_service)
-            if not file_processing.processDirectory(endpoint, itempath, True):
+            if not file_processing.processDirectory(endpoint, itempath, self.config.rebuild_zip):
                 events.add_log("CANNOT be processed")
                 return False
 

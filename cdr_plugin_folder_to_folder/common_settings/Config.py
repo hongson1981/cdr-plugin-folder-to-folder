@@ -29,6 +29,7 @@ DEFAULT_THREAD_COUNT     = 10
 DEFAULT_TEST_SDK         = '52.17.73.226'
 DEFAULT_ENDPOINTS        = '{"Endpoints":[{"IP":"' + DEFAULT_TEST_SDK + '", "Port":"8080"}]}'
 DEFAULT_REQUEST_TIMEOUT  = 600
+DEFAULT_REBUILD_ZIP      = True
 API_VERSION              = "v0.5.64"
 
 
@@ -59,6 +60,7 @@ class Config:
             self.endpoints              = None
             self.endpoints_count        = None
             self.request_timeout        = None
+            self.rebuild_zip            = None
             self.load_values()                                      # due to the singleton pattern this will only be executed once
 
     def load_values(self):
@@ -72,6 +74,7 @@ class Config:
         self.kibana_port         = os.getenv    ("KIBANA_PORT"     , DEFAULT_KIBANA_PORT    )
         self.thread_count        = os.getenv    ("THREAD_COUNT"    , DEFAULT_THREAD_COUNT   )
         self.request_timeout     = os.getenv    ("REQUEST_TIMEOUT" , DEFAULT_REQUEST_TIMEOUT)
+        self.rebuild_zip         = os.getenv    ("REBUILD_ZIP"     , DEFAULT_REBUILD_ZIP    )
         self.test_sdk            = os.getenv    ("DEFAULT_TEST_SDK", DEFAULT_TEST_SDK       )
 
         json_string          = os.getenv("ENDPOINTS", DEFAULT_ENDPOINTS)
