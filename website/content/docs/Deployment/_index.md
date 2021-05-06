@@ -1,6 +1,6 @@
 ---
 title: Deployment and Usage
-weight: 20
+weight: 0
 ---
 
 ## Deployments
