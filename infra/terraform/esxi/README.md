@@ -111,11 +111,9 @@ terraform apply -var-file=./tfvars/secret.auto.tfvars
 
 6.4. Terraform_destroy
 
-once the value is updated in secret.auto.tfvars run
-
 ```shell
 cd $HOME/ubuntu/cdr-plugin-folder-to-folder/infra/terraform/esxi
-terraform destroy -var-file=./tfvars/secret.auto.tfvars
+terraform destroy
 ```
 ===
 
