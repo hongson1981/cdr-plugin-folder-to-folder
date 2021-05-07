@@ -26,11 +26,11 @@ DEFAULT_ELASTIC_SCHEMA   = "http"
 DEFAULT_KIBANA_HOST      = "kib01"
 DEFAULT_KIBANA_PORT      = "5601"
 DEFAULT_THREAD_COUNT     = 10
-DEFAULT_TEST_SDK         = '52.17.73.226'
+DEFAULT_TEST_SDK         = '3.249.16.227'
 DEFAULT_ENDPOINTS        = '{"Endpoints":[{"IP":"' + DEFAULT_TEST_SDK + '", "Port":"8080"}]}'
 DEFAULT_REQUEST_TIMEOUT  = 600
 DEFAULT_REBUILD_ZIP      = True
-API_VERSION              = "v0.5.64"
+API_VERSION              = "v0.5.65"
 
 
 
