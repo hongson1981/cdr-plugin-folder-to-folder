@@ -234,7 +234,7 @@ class File_Processing:
             # if SDKAPIVersionKey in headers:
             #     self.sdk_api_version = headers[SDKAPIVersionKey]
             #
-            # self.meta_service.set_server_version(dir, "Engine:" + self.sdk_engine_version + " API:" + self.sdk_api_version )
+            self.meta_service.set_server_version(dir, "Engine:" + self.sdk_engine_version + " API:" + self.sdk_api_version )
         log_info(message=f"rebuild ok for file {hash} on endpoint {endpoint} took {duration.seconds()} seconds")
         return True
 

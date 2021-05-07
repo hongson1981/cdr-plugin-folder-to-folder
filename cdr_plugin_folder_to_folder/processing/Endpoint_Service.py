@@ -2,8 +2,11 @@ import threading
 import logging as logger
 from time import sleep
 
-from cdr_plugin_folder_to_folder.storage.Storage    import Storage
-from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
+from cdr_plugin_folder_to_folder.common_settings.Config    import Config
+from cdr_plugin_folder_to_folder.storage.Storage           import Storage
+from cdr_plugin_folder_to_folder.utils.Log_Duration        import log_duration
+
+from osbot_utils.utils.Http import GET_json, GET
 
 logger.basicConfig(level=logger.INFO)
 
@@ -20,13 +23,29 @@ class Endpoint_Service:
     def __init__(self):
         if hasattr(self, 'instantiated') is False:                     # only set these values first time around
             self.instantiated   = True
+            self.config         = Config()
             self.storage        = Storage()
             self.service_thread_on = False
             self.service_thread = threading.Thread()
+            self.endpoints      =  []
+
 
     @classmethod
     def clear_instance(cls):
         del cls.instance
+
+    def get_endpoints(self):
+        url = self.config.sdk_servers_api
+        ips = []
+        try:
+            ips = str(GET_json(url).get('live_ips'))
+        except:
+            pass
+        self.endpoints =  []
+        for ip in ips:
+            self.endpoints.append({'IP': ip , "Port": "8080"})
+        if 0 == len(self.endpoints):
+            self.endpoints = self.config.endpoints["Endpoints"]
 
     def ServiceThread(self, update_interval):
         while self.service_thread_on:
