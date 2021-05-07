@@ -72,6 +72,7 @@ jobs:
 
           elif [ $branch == 'main' ]; then
             major=`expr $major + 1`
+            minio=0
             
           elif [ $branch == 'develop' ]; then
               prerelease=true
