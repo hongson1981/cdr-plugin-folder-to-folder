@@ -53,6 +53,10 @@ class test_Endpoint_Service(Temp_Config):
             endpoints.append(endpoint)
         assert endpoints == self.endpoint_service.endpoints
 
+        endpoint_url = self.endpoint_service.get_endpoint_url()
+        expected_url = "http://" + self.endpoint_service.endpoints[0]['IP'] + ":" + self.endpoint_service.endpoints[0]['Port']
+        assert endpoint_url == expected_url
+
     def test_get_endpoints_bad(self):
         config_sdk_servers_url = self.endpoint_service.config.sdk_servers_api
         self.endpoint_service.config.sdk_servers_api = 'http://not-exising-domain.xyz'

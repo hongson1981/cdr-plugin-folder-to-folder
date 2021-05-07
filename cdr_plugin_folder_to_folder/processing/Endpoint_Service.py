@@ -57,6 +57,12 @@ class Endpoint_Service:
         self.endpoint_index = (self.endpoint_index + 1) % self.endpoints_count()
         return endpoint
 
+    def get_endpoint_url(self):
+        endpoint = self.get_endpoint()
+        if not endpoint:
+            return None
+        return "http://" + endpoint['IP'] + ":" + endpoint['Port']
+
     def ServiceThread(self, update_interval):
         while self.service_thread_on:
             self.update_endpoints_list()
