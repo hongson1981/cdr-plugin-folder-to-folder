@@ -7,6 +7,7 @@ from cdr_plugin_folder_to_folder.common_settings.Config    import Config
 from cdr_plugin_folder_to_folder.utils.Log_Duration        import log_duration
 
 from osbot_utils.utils.Http import GET_json, GET
+from osbot_utils.utils.Json import str_to_json, json_to_str
 
 logger.basicConfig(level=logger.INFO)
 
@@ -40,9 +41,10 @@ class Endpoint_Service:
         try:
             ips = str(GET_json(url).get('live_ips'))
         except:
-            pass
+            ips = ""
+        ips = ips.replace("'", '"')
         self.endpoints =  []
-        for ip in ips:
+        for ip in str_to_json(ips):
             self.endpoints.append({'IP': ip , "Port": "8080"})
         if 0 == len(self.endpoints):
             self.endpoints = self.config.endpoints["Endpoints"]

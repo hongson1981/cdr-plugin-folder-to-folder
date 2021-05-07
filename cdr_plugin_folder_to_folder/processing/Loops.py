@@ -19,6 +19,7 @@ from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
 from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 from cdr_plugin_folder_to_folder.processing.Report_Elastic import Report_Elastic
 from cdr_plugin_folder_to_folder.storage.Storage import Storage
+from cdr_plugin_folder_to_folder.processing.Endpoint_Service import Endpoint_Service
 
 from elasticsearch import Elasticsearch
 from datetime import datetime
@@ -44,6 +45,7 @@ class Loops(object):
         self.hash=None
         self.report_elastic = Report_Elastic()
         self.analysis_elastic = Analysis_Elastic()
+        self.endpoint_service = Endpoint_Service()
         self.report_elastic.setup()
         self.analysis_elastic.setup()
         create_folder(self.storage.hd2_processed())
@@ -78,11 +80,17 @@ class Loops(object):
         original_file_path = meta_service.get_original_file_paths(itempath)
         events = Events_Log(itempath)
 
-        endpoint = "http://" + self.config.endpoints['Endpoints'][endpoint_index]['IP'] + ":" + self.config.endpoints['Endpoints'][endpoint_index]['Port']
-        events.add_log("Processing with: " + endpoint)
-
         meta_service.set_f2f_plugin_version(itempath, API_VERSION)
         meta_service.set_f2f_plugin_git_commit(itempath, self.git_commit())
+
+        endpoint = self.endpoint_service.get_endpoint_url()
+        if not endpoint:
+            meta_service.set_status(itempath, FileStatus.FAILED)
+            meta_service.set_error(itempath, "No valid endpoints while processing the file")
+            return False
+
+        events.add_log("Processing with: " + endpoint)
+
 
         try:
             file_processing = File_Processing(events, self.events_elastic, self.report_elastic, self.analysis_elastic, meta_service)
@@ -281,6 +289,7 @@ class Loops(object):
             Loops.continue_processing = True
             Loops.processing_started = True
             self.status.set_started()
+            self.endpoint_service.get_endpoints()
             self.LoopHashDirectoriesInternal(thread_count, do_single)
         finally:
             Loops.processing_started = False
