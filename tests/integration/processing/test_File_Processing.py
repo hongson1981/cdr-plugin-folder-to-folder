@@ -97,6 +97,17 @@ class test_File_Processing(Temp_Config):
         assert metadata.data.get('rebuild_status') == 'Completed with errors'
         assert metadata.data.get('error')          == File_Processing.RESP_CODE_NOT_DECODED
 
+    def test_processDirectory__bad_zip_file(self):
+        bad_file = temp_file(contents=random_text())
+        metadata = self.meta_service.create_metadata(bad_file)
+        endpoint = f'http://{self.sdk_server}:{self.sdk_port}'
+        dir = metadata.metadata_folder_path()
+        result = self.file_processing.processDirectory(endpoint=endpoint, dir=dir, use_rebuild_zip=True)
+        assert result == False
+        metadata.load()
+        assert metadata.data.get('rebuild_status') == 'Completed with errors'
+        assert metadata.data.get('error')          == "Error while processing the request. See details in 'errors.json'"
+
     def test_pdf_rebuild(self,):            # refactor into separate test file
         server          = self.config.test_sdk
         url             = f"http://{server}:8080/api/rebuild/base64"

@@ -332,6 +332,12 @@ class File_Processing:
 
             except Exception as error:
                 message=f"Error in do_rebuild_zip for {hash} : {error}"
+                if "is not a zip file" in message:
+                    message = "Error while processing the request. See details in 'errors.json'"
+                    try:
+                        file_copy(zip_file_path, os.path.join(dir, "error.json"))
+                    except:
+                        pass
                 log_error(message=message)
                 self.meta_service.set_xml_report_status(dir, "No Report")
                 self.meta_service.set_error(dir,message)
