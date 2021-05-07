@@ -51,6 +51,8 @@ class Endpoint_Service:
         return len(self.endpoints)
 
     def get_endpoint(self):
+        if not self.endpoints_count():
+            return None
         endpoint = self.endpoints[self.endpoint_index]
         self.endpoint_index = (self.endpoint_index + 1) % self.endpoints_count()
         return endpoint
