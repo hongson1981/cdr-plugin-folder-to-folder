@@ -3,7 +3,7 @@ import logging as logger
 from time import sleep
 
 from cdr_plugin_folder_to_folder.common_settings.Config    import Config
-from cdr_plugin_folder_to_folder.storage.Storage           import Storage
+#from cdr_plugin_folder_to_folder.storage.Storage           import Storage
 from cdr_plugin_folder_to_folder.utils.Log_Duration        import log_duration
 
 from osbot_utils.utils.Http import GET_json, GET
@@ -24,11 +24,11 @@ class Endpoint_Service:
         if hasattr(self, 'instantiated') is False:                     # only set these values first time around
             self.instantiated   = True
             self.config         = Config()
-            self.storage        = Storage()
+            #self.storage        = Storage()
             self.service_thread_on = False
             self.service_thread = threading.Thread()
             self.endpoints      =  []
-
+            self.endpoint_index =  0
 
     @classmethod
     def clear_instance(cls):
@@ -46,6 +46,14 @@ class Endpoint_Service:
             self.endpoints.append({'IP': ip , "Port": "8080"})
         if 0 == len(self.endpoints):
             self.endpoints = self.config.endpoints["Endpoints"]
+
+    def endpoints_count(self):
+        return len(self.endpoints)
+
+    def get_endpoint(self):
+        endpoint = self.endpoints[self.endpoint_index]
+        self.endpoint_index = (self.endpoint_index + 1) % self.endpoints_count()
+        return endpoint
 
     def ServiceThread(self, update_interval):
         while self.service_thread_on:
@@ -68,6 +76,7 @@ class Endpoint_Service:
         return self
 
     def reset(self):
+        self.endpoints =  []
         return self
 
     def save(self):
