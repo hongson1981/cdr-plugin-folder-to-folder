@@ -39,10 +39,9 @@ Automated deployment of OVAs in to ESXi
  5.1. Open terminal from Installer VM and Create directory OVAs under $HOME
           mkdir $HOME/OVAs
           cd $HOME/OVAs
- 5.2. Install sshfs and mount datastore
-          sudo apt -y install sshfs
+ 5.2. Validate sshfs tool and mount datastore
           sshfs --version
-          sshfs root@esxi01.glasswall-icap.com:/vmfs/volumes/datastore1/Installer/OVAs /home/glasswall/OVAs/
+          sshfs root@esxi01.glasswall-icap.com:/vmfs/volumes/datastore1/Installer/OVAs /home/ubuntu/OVAs/
           cd $HOME
           ls /home/ubuntu/OVAs/
 ```
