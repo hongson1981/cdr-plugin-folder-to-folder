@@ -16,46 +16,47 @@ Automated deployment of OVAs in to ESXi
  2.4. Select storage and click Next,
  2.5. Select VM network and click next
  2.6. Click on Finish
- 2.7. Once the VM is deployed, select it and Power on, then configure the network by entering below details,
-       IP address
-       Subnet mask
-       Gateway
 ```
-## 3. Copy SDK and Workflow OVAs to ESXi datastore
+## 3. Configure Network
 ```shell
- 3.1. Login to ESXi web console 
- 3.1.1. Click on Storage-->datastore1 (or any storage of your choice)-->Datastore Browse-->Select the Installer folder and create directory with name "OVAs" 
- 3.1.2. Click on OVAs directory and click on Upload, and then upload sdk.ova and workflow.ova
+ 3.1.In cmd run nmcli con mod Wired\ connection\ 1 ipv4.addresses <GW SDK IP> ipv4.gateway 192.168.30.1 ipv4.dns 8.8.8.8 ipv4.method auto
+        Example: nmcli con mod Wired\ connection\ 1 ipv4.addresses 192.168.30.112/24 ipv4.gateway 192.168.30.1 ipv4.dns 8.8.8.8 ipv4.method auto
+        This will configure VM IP and Default Gateway
+
+ 3.2.In cmd run ip -4 a to verify that correct IP is set
+       
 ```
-## 4. Install sshfs and mount datastore to Installer VM
+![ConfigureNetwork-new-7May21](https://user-images.githubusercontent.com/70108899/114048052-7faec100-988a-11eb-819f-ddf211b916f6.png)
+
+## 4. Copy SDK and Workflow OVAs to ESXi datastore
 ```shell
- 4.1. Open terminal from Installer VM and Create directory OVAs under $HOME
+ 4.1. Login to ESXi web console 
+ 4.1.1. Click on Storage-->datastore1 (or any storage of your choice)-->Datastore Browse-->Select the Installer folder and create directory with name "OVAs" 
+ 4.1.2. Click on OVAs directory and click on Upload, and then upload sdk.ova and workflow.ova
+```
+## 5. Install sshfs and mount datastore to Installer VM
+```shell
+ 5.1. Open terminal from Installer VM and Create directory OVAs under $HOME
           mkdir $HOME/OVAs
           cd $HOME/OVAs
- 4.2. Install sshfs and mount datastore
+ 5.2. Install sshfs and mount datastore
           sudo apt -y install sshfs
           sshfs --version
           sshfs root@esxi01.glasswall-icap.com:/vmfs/volumes/datastore1/Installer/OVAs /home/glasswall/OVAs/
           cd $HOME
-          ls /home/glasswall/OVAs/
+          ls /home/ubuntu/OVAs/
 ```
-## 5. Terraform Deployment
+## 6. Terraform Deployment
  ```shell
- 5.1. Validate ovftool
+ 6.1. Validate ovftool
 Login to Installer VM and issue below command,
           ovftool --version
-          If ovftool is not installed then download it from ./artifacts folder and install it using below command,
-
-sudo bash ./VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle
 ```
  ```shell
- 5.2. Download terraform code
-         cd $HOME
-         mkdir terraform && cd terraform
-         git clone https://github.com/filetrust/cdr-plugin-folder-to-folder.git
-         cd cdr-plugin-folder-to-folder/infra/terraform/esxi/tfvars/
+ 6.2. Make a copy of *secret.auto.tfvars.example* and place your credentials.
+         cd $HOME/ubuntu/cdr-plugin-folder-to-folder/infra/terraform/esxi/tfvars/
          
-Make a copy of *secret.auto.tfvars.example* and place your credentials.
+
 cp secret.auto.tfvars.example secret.auto.tfvars
 ```
 update details as require in secret.auto.tfvars
@@ -64,22 +65,33 @@ Now, we have to initialize Terraform.
 
 Configure VMs details using secret.auto.tfvars. See an example at *infra/terraform/esxi/tfvars/secret.auto.tfvars.example*. See the list of variables below.
 
-|        Variable | Description                      |
-| --------------: | -------------------------------- |
-| ssh_credentials | ESXi SSH connection details      |
-|  instance_count | Count of instances               |
-|     name_prefix | Name prefix for the instances    |
-|       datastore | Datastore name                   |
-|      ovf_source | Local path or URL to OVF         |
-|         network | Network name                     |
-|      vcpu_count | Count of vCPU per instance       |
-|      memory_mib | Count of RAM per instance in MiB |
-|   auto_power_on | Will power on instances if true  |
-|  boot_disk_size | HDD size of GiB                  |
-
+|        Variable             |     Description                           |
+| ---------------------------:| ------------------------------------------|
+| ssh_credentials             | ESXi SSH connection details               |
+| instance_count              | Count of instances                        |
+| name_prefix                 | Name prefix for the instances             |
+| datastore                   | Datastore name                            |
+| ovf_source                  | Local path or URL to OVF                  |
+| network                     | Network name                              |
+| vcpu_count                  | Count of vCPU per instance                |
+| memory_mib                  | Count of RAM per instance in MiB          |
+| auto_power_on               | Will power on instances if true           |
+| boot_disk_size              | HDD size of GiB                           |
+| sdk_ip_addresses_esxi1      | Enter SDK IP address of esxi1             |     
+| sdk_gateway_esxi1           | Enter SDK gateway of esxi1                |         
+| workflow_ip_addresses_esxi1 | Enter Workflow IP address of esxi1        |
+| workflow_gateway_esxi1      | Enter Workflow gateway of esxi1           |   
+| od_ip_addresses_esxi1       | Enter OD IP address of esxi1              |     
+| od_gateway_esxi1            | Enter OD gateway of esxi1                 |          
+| sdk_ip_addresses_esxi2      | Enter SDK IP address of esxi2             |    
+| sdk_gateway_esxi2           | Enter SDK gateway of esxi2                |       
+| od_ip_addresses_esxi2       | Enter OD IP address of esxi2              |    
+| od_gateway_esxi2            | Enter OD gateway of esxi2                 |         
+| workflow_gateway_esxi2      | Enter Workflow IP address of esxi2        |  
+| workflow_ip_addresses_esxi2 | Enter Workflow gateway of esxi2           |
 
  
- 5.3. Terraform_apply
+ 6.3. Terraform_apply
 
 once the value is updated in secret.auto.tfvars run
 
@@ -96,6 +108,15 @@ run terraform apply to deploy the VMs
 
 ```shell
 terraform apply -var-file=./tfvars/secret.auto.tfvars
+```
+
+6.4. Terraform_destroy
+
+once the value is updated in secret.auto.tfvars run
+
+```shell
+cd $HOME/ubuntu/cdr-plugin-folder-to-folder/infra/terraform/esxi
+terraform destroy -var-file=./tfvars/secret.auto.tfvars
 ```
 ===
 
