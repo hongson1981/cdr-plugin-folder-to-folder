@@ -102,6 +102,10 @@ class Configure_Env:
 
     def get_valid_endpoints(self, endpoint_string):
         self.reset_last_error()
+
+        SDKEngineVersionKey = "X-SDK-Engine-Version"
+        SDKAPIVersionKey = "X-SDK-Api-Version"
+
         try:
             valid_endpoints   =  {'Endpoints' : [] }
             endpoint_json     =  json.loads(endpoint_string)
@@ -113,7 +117,9 @@ class Configure_Env:
 
                 response = self.gw_sdk_healthcheck(server_url)
                 if response:
-                    if response.status_code == 200:
+                    if response.status_code == 200 and \
+                       SDKEngineVersionKey in response.headers and \
+                       SDKAPIVersionKey in response.headers:
                         valid_endpoints['Endpoints'].append(endpoint_json['Endpoints'][idx])
 
             valid_endpoints_count = len(valid_endpoints['Endpoints'])
