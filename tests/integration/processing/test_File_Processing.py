@@ -95,7 +95,6 @@ class test_File_Processing(Temp_Config):
         assert result == False
         metadata.load()
         assert metadata.data.get('rebuild_status') == 'Completed with errors'
-        assert metadata.data.get('error')          == File_Processing.RESP_CODE_NOT_DECODED
 
     def test_processDirectory__bad_zip_file(self):
         bad_file = temp_file(contents=random_text())
