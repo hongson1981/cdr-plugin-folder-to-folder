@@ -9,6 +9,8 @@ on:
     branches:
       - main
       - develop
+    paths-ignore:
+      - '.github/workflows/auto_tagging.yml'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -46,7 +48,8 @@ jobs:
           if [ -z "$tags" ]; then
             latest_tag="v0.0.0"
           else
-            latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
+            repo_name=$(git config --get remote.origin.url | sed 's/.*\/\([^ ]*\/[^.]*\).*/\1/')
+            latest_tag=$(curl -sL https://api.github.com/repos/$repo_name/releases/latest | jq -r ".tag_name")
           fi
           
           echo "previous latest tag : $latest_tag"
@@ -66,20 +69,22 @@ jobs:
             echo $version
 
           elif [ $branch == 'main' ]; then
+            prerelease=true
+            minor=0
             major=`expr $major + 1`
             
           elif [ $branch == 'develop' ]; then
               prerelease=true
               echo $branch
               if [ -z "$minor" ]; then
-                 minor=0
+                 minor=1
               else
                   minor=`expr $minor + 1`
               fi
           fi
 
           tag_name=$version.$major.$minor
-          echo "new tag : $tag_name"
+          echo "new tag is : $tag_name"
 
           echo ::set-output name=prerelease::$prerelease
           echo ::set-output name=tag_id::$tag_name
@@ -94,7 +99,4 @@ jobs:
           release_name: ${{ steps.tagging.outputs.tag_id }}
           draft: false
           prerelease: ${{ steps.tagging.outputs.prerelease }}
-<<<<<<< HEAD
-=======
 
->>>>>>> develop
