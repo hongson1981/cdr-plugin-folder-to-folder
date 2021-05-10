@@ -69,6 +69,7 @@ jobs:
             echo $version
 
           elif [ $branch == 'main' ]; then
+            prerelease=true
             minor=0
             major=`expr $major + 1`
             
