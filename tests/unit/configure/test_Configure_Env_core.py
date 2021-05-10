@@ -96,9 +96,6 @@ class test_Configure_Env(TestCase):
     def test_get_valid_endpoints(self,mock_gw_sdk_healthcheck):
         endpoint_string = '{"Endpoints":[{"IP":"0.0.0.0", "Port":"8080"}]}'
 
-        response = self.configure.get_valid_endpoints(endpoint_string=endpoint_string)
-        assert response is None
-
         mock_gw_sdk_healthcheck.return_value.status_code = 200
         response = self.configure.get_valid_endpoints(endpoint_string=endpoint_string)
         self.assertEqual(json.loads(response)  , json.loads(endpoint_string))
@@ -110,8 +107,8 @@ class test_Configure_Env(TestCase):
         server_url="http://0.0.0.1:8800"
         response = self.configure.gw_sdk_healthcheck(server_url)
 
-        assert response is not None
-        assert response.status_code == 404
+        assert response is None
+
 
 
 
