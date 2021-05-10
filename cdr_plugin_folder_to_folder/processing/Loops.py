@@ -206,6 +206,8 @@ class Loops(object):
 
     def LoopHashDirectoriesInternal(self, thread_count, do_single):
 
+        self.endpoint_service.get_endpoints()
+
         if folder_exists(self.storage.hd2_data()) is False:
             log_message = "ERROR: rootdir does not exist: " + self.storage.hd2_data()
             log_error(log_message)
@@ -289,7 +291,6 @@ class Loops(object):
             Loops.continue_processing = True
             Loops.processing_started = True
             self.status.set_started()
-            self.endpoint_service.get_endpoints()
             self.LoopHashDirectoriesInternal(thread_count, do_single)
         finally:
             Loops.processing_started = False

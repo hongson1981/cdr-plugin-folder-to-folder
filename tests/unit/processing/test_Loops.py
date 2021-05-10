@@ -69,12 +69,17 @@ class test_Loops(Temp_Config):
         with patch.object(File_Processing, 'do_rebuild', return_value=True):
             self.loops.LoopHashDirectoriesInternal(thread_count=10, do_single=False)
 
-        metadatas = self.storage.hd2_metadatas()
-
         Loops.continue_processing = False
+
+        metadatas = self.storage.hd2_metadatas()
+        # whatever remains in 'data' folder has failed
+        for metadata in metadatas:
+            assert metadata.get('rebuild_status') ==  FileStatus.FAILED
+
+        metadatas = self.storage.hd2_processed_metadatas()
+        # whatever remains in 'processed' folder has completed successfully
         for metadata in metadatas:
             assert metadata.get('rebuild_status') ==  FileStatus.COMPLETED
-
 
         #metadata = metadatas[0]
         #hd3_file = hd3_files[0]
