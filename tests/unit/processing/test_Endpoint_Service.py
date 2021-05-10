@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import file_contents_as_bytes, folder_exists
+from osbot_utils.utils.Json import str_to_json, json_to_str, json_parse
 
 #from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 #from cdr_plugin_folder_to_folder.processing.File_Processing import File_Processing
@@ -62,9 +63,11 @@ class test_Endpoint_Service(Temp_Config):
 
     def test_get_endpoints_bad(self):
         config_sdk_servers_url = self.endpoint_service.config.sdk_servers_api
+        config_endpoints = self.endpoint_service.config.endpoints
+        self.endpoint_service.config.endpoints = json_parse("{\"Endpoints\": [{\"IP\": \"1.1.1.1\", \"Port\": \"8080\"}]}")
         self.endpoint_service.config.sdk_servers_api = 'http://not-exising-domain.xyz'
         self.endpoint_service.get_endpoints()
         assert not self.endpoint_service.endpoints
         self.endpoint_service.config.sdk_servers_api = config_sdk_servers_url
-
+        self.endpoint_service.config.endpoints = config_endpoints
 

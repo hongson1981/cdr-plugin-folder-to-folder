@@ -12,15 +12,6 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-<<<<<<< HEAD
-    inputs:
-      create_new_tag:
-        description: create_new_tag?
-        required: true
-        default: 'false'
-=======
-
->>>>>>> develop
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
