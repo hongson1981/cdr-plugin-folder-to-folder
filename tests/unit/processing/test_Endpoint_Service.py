@@ -17,6 +17,7 @@ from cdr_plugin_folder_to_folder.utils.testing.Temp_Config import Temp_Config
 #from cdr_plugin_folder_to_folder.pre_processing.Status import FileStatus
 from cdr_plugin_folder_to_folder.processing.Endpoint_Service import Endpoint_Service
 
+from unittest.mock import create_autospec, MagicMock
 
 class test_Endpoint_Service(Temp_Config):
 
@@ -33,8 +34,10 @@ class test_Endpoint_Service(Temp_Config):
     def setUp(self) -> None:
         Setup_Testing()
         self.endpoint_service = Endpoint_Service()
+        self.mock_ips = '{"live_ips":[10.1.1.10, 10.1.1.11, 10.1.11.12]}'
 
     def test_get_endpoints(self):
+        #with patch.object(Endpoint_Service, 'get_ips', return_value=self.mock_ips):
         self.endpoint_service.reset()
         assert self.endpoint_service.endpoints_count() == 0
         self.endpoint_service.get_endpoints()
@@ -61,7 +64,7 @@ class test_Endpoint_Service(Temp_Config):
         config_sdk_servers_url = self.endpoint_service.config.sdk_servers_api
         self.endpoint_service.config.sdk_servers_api = 'http://not-exising-domain.xyz'
         self.endpoint_service.get_endpoints()
-        assert len(self.endpoint_service.endpoints) > 0
+        assert not self.endpoint_service.endpoints
         self.endpoint_service.config.sdk_servers_api = config_sdk_servers_url
 
 

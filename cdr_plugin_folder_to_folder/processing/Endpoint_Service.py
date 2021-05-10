@@ -3,11 +3,12 @@ import logging as logger
 from time import sleep
 
 from cdr_plugin_folder_to_folder.common_settings.Config    import Config
+from cdr_plugin_folder_to_folder.configure.Configure_Env   import Configure_Env
 #from cdr_plugin_folder_to_folder.storage.Storage           import Storage
 from cdr_plugin_folder_to_folder.utils.Log_Duration        import log_duration
 
 from osbot_utils.utils.Http import GET_json, GET
-from osbot_utils.utils.Json import str_to_json, json_to_str
+from osbot_utils.utils.Json import str_to_json, json_to_str, json_parse
 
 logger.basicConfig(level=logger.INFO)
 
@@ -25,6 +26,7 @@ class Endpoint_Service:
         if hasattr(self, 'instantiated') is False:                     # only set these values first time around
             self.instantiated   = True
             self.config         = Config()
+            self.configure_env  = Configure_Env()
             #self.storage        = Storage()
             self.service_thread_on = False
             self.service_thread = threading.Thread()
@@ -35,7 +37,7 @@ class Endpoint_Service:
     def clear_instance(cls):
         del cls.instance
 
-    def get_endpoints(self):
+    def get_ips(self):
         url = self.config.sdk_servers_api
         ips = []
         try:
@@ -43,11 +45,20 @@ class Endpoint_Service:
         except:
             ips = ""
         ips = ips.replace("'", '"')
+        return ips
+
+    def get_endpoints(self):
+        ips = self.get_ips()
         self.endpoints =  []
         for ip in str_to_json(ips):
             self.endpoints.append({'IP': ip , "Port": "8080"})
         if 0 == len(self.endpoints):
             self.endpoints = self.config.endpoints["Endpoints"]
+
+        valid_endpoints = {'Endpoints' : self.endpoints }
+        endpoint_string = json_to_str(valid_endpoints)
+        result = self.configure_env.get_valid_endpoints(endpoint_string)
+        self.endpoints = json_parse(result).get('Endpoints')
 
     def endpoints_count(self):
         return len(self.endpoints)
