@@ -98,6 +98,7 @@ class Endpoint_Service:
 
     def reset(self):
         self.endpoints =  []
+        self.endpoint_index = 0
         return self
 
     def save(self):
