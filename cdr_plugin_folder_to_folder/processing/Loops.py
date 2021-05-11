@@ -207,8 +207,6 @@ class Loops(object):
 
         self.endpoint_service.get_endpoints()
 
-        self.endpoint_service.StartServiceThread()
-
         if folder_exists(self.storage.hd2_data()) is False:
             log_message = "ERROR: rootdir does not exist: " + self.storage.hd2_data()
             log_error(log_message)
@@ -236,6 +234,9 @@ class Loops(object):
 
         log_info(message=f'before Mapping thread_data for {len(json_list)} files')
         thread_data = []
+
+        self.endpoint_service.StartServiceThread()
+
         for key in json_list:
             file_hash   =  key
 
@@ -283,7 +284,7 @@ class Loops(object):
 
         self.moveProcessedFiles()
 
-        self.endpoint_service.StartServiceThread()
+        self.endpoint_service.StopServiceThread()
 
         self.events.add_log("LoopHashDirectoriesInternal finished")
         return True

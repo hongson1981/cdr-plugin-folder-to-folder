@@ -67,3 +67,9 @@ class test_Endpoint_Service(Temp_Config):
         self.endpoint_service.config.sdk_servers_api = config_sdk_servers_url
         self.endpoint_service.config.endpoints = config_endpoints
 
+    def test_thread_start_stop(self):
+        self.endpoint_service.StartServiceThread()
+        self.endpoint_service.StopServiceThread()
+        assert self.endpoint_service.service_thread_on is False
+
+

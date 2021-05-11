@@ -96,7 +96,7 @@ class Endpoint_Service:
             return
 
         self.service_thread_on = True
-        self.service_thread = threading.Thread(target=self.ServiceThread, args=(1,))
+        self.service_thread = threading.Thread(target=self.ServiceThread, args=(10,))
         self.service_thread.start()
 
     def StopServiceThread(self):
