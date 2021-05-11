@@ -163,7 +163,7 @@ class Configure_Env:
                 return response
 
         except Exception as e:
-            self.last_error_message = f'Configure_Env : gw_sdk_healthcheck : {e}'
-            log_error(f'Configure_Env : gw_sdk_healthcheck : {e}')
+            self.last_error_message = f'Configure_Env : gw_sdk_health_and_version_check : {e}'
+            log_error(f'Configure_Env : gw_sdk_health_and_version_check : {e}')
 
         return None
