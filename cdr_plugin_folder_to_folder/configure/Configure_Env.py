@@ -3,6 +3,7 @@ import json
 from cdr_plugin_folder_to_folder.common_settings.Config import Config, DEFAULT_HD2_DATA_NAME, DEFAULT_HD2_STATUS_NAME
 
 from os import environ,path
+from packaging import version
 import dotenv
 
 import logging as logger
@@ -16,6 +17,8 @@ logger.basicConfig(level=logger.INFO)
 
 SDKEngineVersionKey = "X-SDK-Engine-Version"
 SDKAPIVersionKey = "X-SDK-Api-Version"
+LowestEngineVersion = "1.157"
+LowestAPIVersion = "0.1.11"
 
 class Configure_Env:
     def __init__(self):
@@ -115,7 +118,7 @@ class Configure_Env:
                 server_url = "http://" + endpoint_json['Endpoints'][idx]['IP'] + ":" + \
                               endpoint_json['Endpoints'][idx]['Port']
 
-                response = self.gw_sdk_healthcheck(server_url)
+                response = self.gw_sdk_health_and_version_check(server_url)
                 if response:
                     valid_endpoints['Endpoints'].append(endpoint_json['Endpoints'][idx])
 
@@ -131,7 +134,7 @@ class Configure_Env:
             log_error(f'Configure_Env : get_valid_endpoints : {e}')
             raise ValueError(str(e))
 
-    def gw_sdk_healthcheck(self, server_url):
+    def gw_sdk_health_and_version_check(self, server_url):
         self.reset_last_error()
         try:
             api_route = "api/health/"
@@ -139,9 +142,24 @@ class Configure_Env:
 
             response = requests.request("GET", url , verify=False, timeout=10)
 
-            if response.status_code == 200 and \
-               SDKEngineVersionKey in response.headers and \
-               SDKAPIVersionKey in response.headers:
+            while True:
+
+                sdk_engine_version = ""
+                sdk_api_version = ""
+
+                if response.status_code != 200 or \
+                   not SDKEngineVersionKey in response.headers or \
+                   not SDKAPIVersionKey in response.headers:
+                    break
+
+                sdk_engine_version = response.headers[SDKEngineVersionKey]
+                sdk_api_version = response.headers[SDKAPIVersionKey]
+
+                if version.parse(sdk_engine_version) < version.parse(LowestEngineVersion) or \
+                   version.parse(sdk_api_version) < version.parse(LowestAPIVersion):
+                    break
+
+                # all the checks have passed, return the response
                 return response
 
         except Exception as e:

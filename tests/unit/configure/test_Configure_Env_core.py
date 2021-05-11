@@ -105,7 +105,7 @@ class test_Configure_Env(TestCase):
         mock_request.return_value.status_code=404
 
         server_url="http://0.0.0.1:8800"
-        response = self.configure.gw_sdk_healthcheck(server_url)
+        response = self.configure.gw_sdk_health_and_version_check(server_url)
 
         assert response is None
 
