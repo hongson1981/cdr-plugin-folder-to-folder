@@ -4,16 +4,18 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Json import str_to_json, json_to_str, json_parse
 from osbot_utils.utils.Http import GET_json, GET
 
+from cdr_plugin_folder_to_folder.common_settings.Config  import Config
 from cdr_plugin_folder_to_folder.configure.Configure_Env import Configure_Env
 
 class test_Configure_Env(TestCase):
 
     def setUp(self):
+        self.config        = Config()
         self.configure_env = Configure_Env()
 
 
     def test_get_valid_endpoints(self):
-        url = 'https://tmol8zkg3c.execute-api.eu-west-1.amazonaws.com/prod/sdk-servers/ip_addresses'
+        url = self.config.sdk_servers_api
         ips = []
         try:
             ips = str(GET_json(url).get('live_ips'))

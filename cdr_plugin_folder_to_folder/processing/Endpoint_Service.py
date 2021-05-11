@@ -4,7 +4,6 @@ from time import sleep
 
 from cdr_plugin_folder_to_folder.common_settings.Config    import Config
 from cdr_plugin_folder_to_folder.configure.Configure_Env   import Configure_Env
-#from cdr_plugin_folder_to_folder.storage.Storage           import Storage
 from cdr_plugin_folder_to_folder.utils.Log_Duration        import log_duration
 
 from osbot_utils.utils.Http import GET_json, GET
@@ -27,7 +26,6 @@ class Endpoint_Service:
             self.instantiated   = True
             self.config         = Config()
             self.configure_env  = Configure_Env()
-            #self.storage        = Storage()
             self.service_thread_on = False
             self.service_thread = threading.Thread()
             self.endpoints      =  []

@@ -6,16 +6,10 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import file_contents_as_bytes, folder_exists
 from osbot_utils.utils.Json import str_to_json, json_to_str, json_parse
 
-#from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
-#from cdr_plugin_folder_to_folder.processing.File_Processing import File_Processing
-#from cdr_plugin_folder_to_folder.processing.Loops import Loops
 #from cdr_plugin_folder_to_folder.utils.Logging import log_info, log_debug
 #from cdr_plugin_folder_to_folder.utils.Logging_Process import start_logging
 from cdr_plugin_folder_to_folder.utils.testing.Setup_Testing import Setup_Testing
 from cdr_plugin_folder_to_folder.utils.testing.Temp_Config import Temp_Config
-#from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import Pre_Processor
-#from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
-#from cdr_plugin_folder_to_folder.pre_processing.Status import FileStatus
 from cdr_plugin_folder_to_folder.processing.Endpoint_Service import Endpoint_Service
 
 from unittest.mock import create_autospec, MagicMock
@@ -25,12 +19,6 @@ class test_Endpoint_Service(Temp_Config):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
-        #cls.test_data = Test_Data()
-        #cls.test_file = cls.test_data.image()
-        #cls.pre_processor = Pre_Processor()
-        #cls.pre_processor.clear_data_and_status_folders()
-        #cls.stage_1 = cls.pre_processor.process(cls.test_file)
-        pass
 
     def setUp(self) -> None:
         Setup_Testing()
@@ -38,7 +26,6 @@ class test_Endpoint_Service(Temp_Config):
         self.mock_ips = '{"live_ips":[10.1.1.10, 10.1.1.11, 10.1.11.12]}'
 
     def test_get_endpoints(self):
-        #with patch.object(Endpoint_Service, 'get_ips', return_value=self.mock_ips):
         self.endpoint_service.reset()
         assert self.endpoint_service.endpoints_count() == 0
         self.endpoint_service.get_endpoints()
