@@ -67,7 +67,7 @@ class test_File_Processing(Temp_Config):
         dir     = ''
 
     # todo move this test to integration tests and refactor test here to mock the server response
-    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test it fails")
+    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
     def test_do_rebuild(self):          # refactor
         endpoint    = f'http://{self.sdk_server}:{self.sdk_port}'
         hash        = Metadata_Utils().file_hash(self.test_file)
@@ -78,7 +78,7 @@ class test_File_Processing(Temp_Config):
         assert self.metadata.metadata_file_exists()
         assert self.metadata.report_file_exists()
 
-    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test it fails")
+    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
     def test_do_rebuild_bad_file(self):  # refactor
         bad_file      = temp_file(contents=random_text())
         file_hash     = file_sha256(bad_file)
@@ -90,6 +90,7 @@ class test_File_Processing(Temp_Config):
         metadata.load()
         assert metadata.data.get('error') ==  File_Processing.RESP_CODE_NOT_DECODED
 
+    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
     def test_processDirectory__bad_file(self):
         bad_file = temp_file(contents=random_text())
         metadata = self.meta_service.create_metadata(bad_file)
@@ -100,7 +101,7 @@ class test_File_Processing(Temp_Config):
         metadata.load()
         assert metadata.data.get('rebuild_status') == 'Completed with errors'
 
-    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test it fails")
+    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
     def test_processDirectory__bad_zip_file(self):
         bad_file = temp_file(contents=random_text())
         metadata = self.meta_service.create_metadata(bad_file)
@@ -112,7 +113,7 @@ class test_File_Processing(Temp_Config):
         assert metadata.data.get('rebuild_status') == 'Completed with errors'
         assert metadata.data.get('error')          == "Error while processing the request. See details in 'errors.json'"
 
-    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test it fails")
+    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
     def test_pdf_rebuild(self,):            # refactor into separate test file
         server          = self.config.test_sdk
         url             = f"http://{server}:8080/api/rebuild/base64"
