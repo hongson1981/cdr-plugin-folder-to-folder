@@ -103,9 +103,6 @@ class Endpoint_Service:
         self.service_thread_on = False
         self.service_thread.join()
 
-    def load_data(self):
-        return self
-
     def reset(self):
         self.endpoints =  []
         self.endpoint_index = 0

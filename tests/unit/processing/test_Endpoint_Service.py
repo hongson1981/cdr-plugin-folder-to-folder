@@ -45,13 +45,9 @@ class test_Endpoint_Service(Temp_Config):
         assert self.endpoint_service.endpoints_count() > 0
 
     def test_get_endpoint(self):
-
-        self.endpoint_service.reset()
-        endpoint = self.endpoint_service.get_endpoint()
-        assert endpoint is None
-
         endpoints = []
-        self.endpoint_service.get_endpoints()
+        self.endpoint_service.reset()
+        self.endpoint_service.update_endpoints_list()
         for i in range(self.endpoint_service.endpoints_count()):
             endpoint = self.endpoint_service.get_endpoint()
             endpoints.append(endpoint)
