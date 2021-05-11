@@ -91,7 +91,6 @@ class Loops(object):
 
         events.add_log("Processing with: " + endpoint)
 
-
         try:
             file_processing = File_Processing(events, self.events_elastic, self.report_elastic, self.analysis_elastic, meta_service)
             if not file_processing.processDirectory(endpoint, itempath, self.config.rebuild_zip):
@@ -208,6 +207,8 @@ class Loops(object):
 
         self.endpoint_service.get_endpoints()
 
+        self.endpoint_service.StartServiceThread()
+
         if folder_exists(self.storage.hd2_data()) is False:
             log_message = "ERROR: rootdir does not exist: " + self.storage.hd2_data()
             log_error(log_message)
@@ -281,6 +282,8 @@ class Loops(object):
         pool.join()
 
         self.moveProcessedFiles()
+
+        self.endpoint_service.StartServiceThread()
 
         self.events.add_log("LoopHashDirectoriesInternal finished")
         return True

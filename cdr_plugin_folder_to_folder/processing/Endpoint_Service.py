@@ -49,16 +49,20 @@ class Endpoint_Service:
 
     def get_endpoints(self):
         ips = self.get_ips()
-        self.endpoints =  []
+        endpoints =  []
         for ip in str_to_json(ips):
-            self.endpoints.append({'IP': ip , "Port": "8080"})
-        if 0 == len(self.endpoints):
-            self.endpoints = self.config.endpoints["Endpoints"]
+            endpoints.append({'IP': ip , "Port": "8080"})
+        if 0 == len(endpoints):
+            endpoints = self.config.endpoints["Endpoints"]
 
-        valid_endpoints = {'Endpoints' : self.endpoints }
+        valid_endpoints = {'Endpoints' : endpoints }
         endpoint_string = json_to_str(valid_endpoints)
         result = self.configure_env.get_valid_endpoints(endpoint_string)
-        self.endpoints = json_parse(result).get('Endpoints')
+        endpoints = json_parse(result).get('Endpoints')
+
+        if self.endpoints != endpoints:
+            self.reset()
+            self.endpoints = endpoints
 
     def endpoints_count(self):
         return len(self.endpoints)
@@ -113,7 +117,7 @@ class Endpoint_Service:
     def update_endpoints_list(self):
         Endpoint_Service.lock.acquire()
         try:
-            pass
+            self.get_endpoints()
         finally:
             Endpoint_Service.lock.release()
 
