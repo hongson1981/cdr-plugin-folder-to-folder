@@ -99,3 +99,4 @@ jobs:
           release_name: ${{ steps.tagging.outputs.tag_id }}
           draft: false
           prerelease: ${{ steps.tagging.outputs.prerelease }}
+

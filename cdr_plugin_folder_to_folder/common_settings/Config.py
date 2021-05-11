@@ -26,11 +26,12 @@ DEFAULT_ELASTIC_SCHEMA   = "http"
 DEFAULT_KIBANA_HOST      = "kib01"
 DEFAULT_KIBANA_PORT      = "5601"
 DEFAULT_THREAD_COUNT     = 10
-DEFAULT_TEST_SDK         = '52.17.73.226'
+DEFAULT_TEST_SDK         = '54.171.39.142'
 DEFAULT_ENDPOINTS        = '{"Endpoints":[{"IP":"' + DEFAULT_TEST_SDK + '", "Port":"8080"}]}'
 DEFAULT_REQUEST_TIMEOUT  = 600
 DEFAULT_REBUILD_ZIP      = True
-API_VERSION              = "v0.5.64"
+DEFAULT_SDK_SERVERS_API  = 'https://tmol8zkg3c.execute-api.eu-west-1.amazonaws.com/prod/sdk-servers/ip_addresses'
+API_VERSION              = "v0.5.66"
 
 
 
@@ -61,6 +62,7 @@ class Config:
             self.endpoints_count        = None
             self.request_timeout        = None
             self.rebuild_zip            = None
+            self.sdk_servers_api        = None
             self.load_values()                                      # due to the singleton pattern this will only be executed once
 
     def load_values(self):
@@ -75,7 +77,8 @@ class Config:
         self.thread_count        = os.getenv    ("THREAD_COUNT"    , DEFAULT_THREAD_COUNT   )
         self.request_timeout     = os.getenv    ("REQUEST_TIMEOUT" , DEFAULT_REQUEST_TIMEOUT)
         self.rebuild_zip         = os.getenv    ("REBUILD_ZIP"     , DEFAULT_REBUILD_ZIP    )
-        self.test_sdk            = os.getenv    ("DEFAULT_TEST_SDK", DEFAULT_TEST_SDK       )
+        self.test_sdk            = os.getenv    ("TEST_SDK"        , DEFAULT_TEST_SDK       )
+        self.sdk_servers_api     = os.getenv    ("SDK_SERVERS_API" , DEFAULT_SDK_SERVERS_API)
 
         json_string          = os.getenv("ENDPOINTS", DEFAULT_ENDPOINTS)
         self.endpoints       = json.loads(json_string)
@@ -85,7 +88,7 @@ class Config:
         self.set_hd1_location(os.getenv("HD1_LOCATION", DEFAULT_HD1_LOCATION))       # set hd1, hd2 and hd3 values
         self.set_hd2_location(os.getenv("HD2_LOCATION", DEFAULT_HD2_LOCATION))
         self.set_hd3_location(os.getenv("HD3_LOCATION", DEFAULT_HD3_LOCATION))
-        #pprint(self.values())
+
         return self
 
     def ensure_last_char_is_not_forward_slash(self, path: str):
