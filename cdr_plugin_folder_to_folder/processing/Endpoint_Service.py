@@ -64,10 +64,16 @@ class Endpoint_Service:
         return len(self.endpoints)
 
     def get_endpoint(self):
-        if not self.endpoints_count():
-            return None
-        endpoint = self.endpoints[self.endpoint_index]
-        self.endpoint_index = (self.endpoint_index + 1) % self.endpoints_count()
+        endpoint = None
+
+        Endpoint_Service.lock.acquire()
+        try:
+            if self.endpoints_count():
+                endpoint = self.endpoints[self.endpoint_index]
+                self.endpoint_index = (self.endpoint_index + 1) % self.endpoints_count()
+        finally:
+            Endpoint_Service.lock.release()
+
         return endpoint
 
     def get_endpoint_url(self):
@@ -110,6 +116,5 @@ class Endpoint_Service:
             pass
         finally:
             Endpoint_Service.lock.release()
-            self.save()
 
         return self
