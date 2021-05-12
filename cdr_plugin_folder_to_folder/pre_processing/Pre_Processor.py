@@ -18,6 +18,7 @@ from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
 from cdr_plugin_folder_to_folder.processing.Analysis_Json import Analysis_Json
 from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
 from cdr_plugin_folder_to_folder.metadata.Metadata import DEFAULT_REPORT_FILENAME
+from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 
 logger.basicConfig(level=logger.INFO)
 
@@ -70,6 +71,14 @@ class Pre_Processor:
             if folder_exists(destination_path):
                 folder_delete_all(destination_path)
             shutil.move(source_path, destination_path)
+
+        hash_json_path = path_combine(self.storage.hd2_status(), Hash_Json.HASH_FILE_NAME)
+        if file_exists(hash_json_path):
+            file_delete(hash_json_path)
+
+        events_json_path = path_combine(self.storage.hd2_status(), Events_Log.EVENTS_LOG_FILE_NAME)
+        if file_exists(events_json_path):
+            file_delete(events_json_path)
 
         #an_count = 0
         #ev_count = 0
