@@ -1,7 +1,9 @@
 import os
+import requests
 import logging as logger
 from datetime import datetime
-from osbot_utils.utils.Files import folder_create, folder_delete_all, folder_copy
+from osbot_utils.utils.Files import folder_create, folder_delete_all, folder_copy, path_combine
+#rom osbot_utils.utils.Files import temp_folder,  file_exists, file_copy
 
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Service
@@ -120,4 +122,14 @@ class Pre_Processor:
             self.status.add_file()
 
     def process_downloaded_zip_file(self, url):
-        return False
+        retvalue = "No value"
+
+        zip_path = path_combine(self.storage.hd1(), 'temp.zip')
+        try:
+            r = requests.get(url, allow_redirects=True)
+            open(zip_path, 'wb').write(r.content)
+            retvalue = f"The file from {url} has been processed"
+        except Exception as e:
+            retvalue = str(e)
+
+        return retvalue

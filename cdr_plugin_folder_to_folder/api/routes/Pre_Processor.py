@@ -35,6 +35,6 @@ def pre_process_a_folder(item: DIRECTORY):
 @router.post("/download_and_pre_process_a_zip_file")
 def download_and_pre_process_a_zip_file(item: DOWNLOAD_URL):
     pre_processor = Pre_Processor()
-    if pre_processor.process_downloaded_zip_file(url=item.url):
-        return status_ok(message="Downloaded file added")
-    return status_ok(message="The file at the URL provided cannot be processed")
+    status_message = pre_processor.process_downloaded_zip_file(url=item.url)
+    return status_ok(message=status_message)
+
