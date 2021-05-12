@@ -42,10 +42,11 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install docker-ce docker-ce-cli cont
 curl -sSL https://raw.githubusercontent.com/vmware/cloud-init-vmware-guestinfo/master/install.sh | sudo sh -
 
 #Install OVF Tools 
-#wget https://github.com/filetrust/cdr-plugin-folder-to-folder/tree/main/infra/terraform/esxi/artifacts/VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle
-#chmod 755 VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle
-#echo | sudo ./VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle --eulas-agreed
-#ovftool --version
+wget https://github.com/filetrust/cdr-plugin-folder-to-folder/blob/installer/infra/terraform/esxi/artifacts/VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle?raw=true
+mv 'VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle?raw=true' VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle
+chmod 755 VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle
+sudo ./VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle --eulas-agreed --console
+ovftool --version
 
 #Install Terraform Latest version == verified
 wget https://releases.hashicorp.com/terraform/0.15.3/terraform_0.15.3_linux_amd64.zip
