@@ -118,3 +118,6 @@ class Pre_Processor:
     def update_status(self, file_name, original_hash, status):
         if status == FileStatus.INITIAL:
             self.status.add_file()
+
+    def process_downloaded_zip_file(self, url):
+        return False
