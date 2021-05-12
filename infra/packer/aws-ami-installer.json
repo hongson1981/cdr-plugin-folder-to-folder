@@ -15,7 +15,7 @@
         "type": "amazon-ebs",
         "ami_regions": "{{user `extra_regions`}}",
         "security_group_ids": "{{user `security_group_ids`}}",
-        "source_ami": "ami-0d850498136bfc13c",
+        "source_ami": "ami-0aef57767f5404a3c",
         "tags": {
             "OS_Version": "Ubuntu-20.04",
             "Base_AMI_Name": "{{ .SourceAMIName }}",
