@@ -1,10 +1,11 @@
 import os
 import requests
 import zipfile
+import shutil
 import logging as logger
 from datetime import datetime
-from osbot_utils.utils.Files import folder_create, folder_delete_all, folder_copy, path_combine, file_delete, file_exists
-
+from osbot_utils.utils.Files import folder_create, folder_delete_all, folder_copy, \
+    path_combine, file_delete, file_exists, folder_exists
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Service
 from cdr_plugin_folder_to_folder.storage.Storage import Storage
@@ -49,6 +50,22 @@ class Pre_Processor:
         folder_create(processed_target)
         folder_create(not_processed_target)
         self.status.reset()
+
+    @log_duration
+    def mark_all_hd2_files_unprocessed(self):
+        for key in os.listdir(self.storage.hd2_not_processed()):
+            source_path = self.storage.hd2_not_processed(key)
+            destination_path = self.storage.hd2_data(key)
+            if folder_exists(destination_path):
+                folder_delete_all(destination_path)
+            shutil.move(source_path, destination_path)
+
+        for key in os.listdir(self.storage.hd2_processed()):
+            source_path = self.storage.hd2_processed(key)
+            destination_path = self.storage.hd2_data(key)
+            if folder_exists(destination_path):
+                folder_delete_all(destination_path)
+            shutil.move(source_path, destination_path)
 
     def file_hash(self, file_path):
         return self.meta_service.file_hash(file_path)

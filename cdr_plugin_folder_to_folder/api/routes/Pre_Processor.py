@@ -26,6 +26,12 @@ def clear_data_and_status_folders():
     pre_processor.clear_data_and_status_folders()
     return status_ok(message="Data cleared from HD2")
 
+@router.post("/mark-all-hd2-files-unprocessed")
+def clear_data_and_status_folders():
+    pre_processor = Pre_Processor()
+    pre_processor.mark_all_hd2_files_unprocessed()
+    return status_ok(message="HD2 data restored to the initial state")
+
 @router.post("/pre_process_folder")
 def pre_process_a_folder(item: DIRECTORY):
     pre_processor = Pre_Processor()
