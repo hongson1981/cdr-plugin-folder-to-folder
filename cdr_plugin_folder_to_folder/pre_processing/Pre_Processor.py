@@ -4,8 +4,10 @@ import zipfile
 import shutil
 import logging as logger
 from datetime import datetime
+
 from osbot_utils.utils.Files import folder_create, folder_delete_all, folder_copy, \
     path_combine, file_delete, file_exists, folder_exists
+
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Service
 from cdr_plugin_folder_to_folder.storage.Storage import Storage
@@ -14,6 +16,8 @@ from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
 from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
 
 from cdr_plugin_folder_to_folder.processing.Analysis_Json import Analysis_Json
+from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
+from cdr_plugin_folder_to_folder.metadata.Metadata import DEFAULT_REPORT_FILENAME
 
 logger.basicConfig(level=logger.INFO)
 
@@ -66,6 +70,35 @@ class Pre_Processor:
             if folder_exists(destination_path):
                 folder_delete_all(destination_path)
             shutil.move(source_path, destination_path)
+
+        #an_count = 0
+        #ev_count = 0
+        #re_count = 0
+        #er_count = 0
+
+        for key in os.listdir(self.storage.hd2_data()):
+            analysis_json_path = path_combine(self.storage.hd2_data(key), Analysis_Json.ANALYSIS_FILE_NAME)
+            if file_exists(analysis_json_path):
+                file_delete(analysis_json_path)
+                #an_count += 1
+
+            events_json_path = path_combine(self.storage.hd2_data(key), Events_Log.EVENTS_LOG_FILE_NAME)
+            if file_exists(events_json_path):
+                file_delete(events_json_path)
+                #ev_count += 1
+
+            report_json_path = path_combine(self.storage.hd2_data(key), DEFAULT_REPORT_FILENAME)
+            if file_exists(report_json_path):
+                file_delete(report_json_path)
+                #re_count += 1
+
+            errors_json_path = path_combine(self.storage.hd2_data(key), "error.json")
+            if file_exists(errors_json_path):
+                file_delete(errors_json_path)
+                #er_count += 1
+
+        #print (f"Files deleted: {an_count} {ev_count} {re_count} {er_count}")
+
 
     def file_hash(self, file_path):
         return self.meta_service.file_hash(file_path)
