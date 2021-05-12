@@ -123,11 +123,14 @@ class Pre_Processor:
 
     def process_downloaded_zip_file(self, url):
         retvalue = "No value"
-
-        zip_path = path_combine(self.storage.hd1(), 'temp.zip')
+        folder_name = url.replace('/', '_').replace(':', '').replace('.','_')
+        zip_file_name = folder_name + '.zip'
+        zip_path = path_combine(self.storage.hd1(), zip_file_name)
         try:
             r = requests.get(url, allow_redirects=True)
             open(zip_path, 'wb').write(r.content)
+
+
             retvalue = f"The file from {url} has been processed"
         except Exception as e:
             retvalue = str(e)
