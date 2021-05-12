@@ -86,22 +86,27 @@ class Pre_Processor:
         #er_count = 0
 
         for key in os.listdir(self.storage.hd2_data()):
-            analysis_json_path = path_combine(self.storage.hd2_data(key), Analysis_Json.ANALYSIS_FILE_NAME)
+
+            metadata_folder = self.storage.hd2_data(key)
+            self.meta_service.reset_metadata(metadata_folder)
+
+            # delete supplementary files in the metadata folder
+            analysis_json_path = path_combine(metadata_folder, Analysis_Json.ANALYSIS_FILE_NAME)
             if file_exists(analysis_json_path):
                 file_delete(analysis_json_path)
                 #an_count += 1
 
-            events_json_path = path_combine(self.storage.hd2_data(key), Events_Log.EVENTS_LOG_FILE_NAME)
+            events_json_path = path_combine(metadata_folder, Events_Log.EVENTS_LOG_FILE_NAME)
             if file_exists(events_json_path):
                 file_delete(events_json_path)
                 #ev_count += 1
 
-            report_json_path = path_combine(self.storage.hd2_data(key), DEFAULT_REPORT_FILENAME)
+            report_json_path = path_combine(metadata_folder, DEFAULT_REPORT_FILENAME)
             if file_exists(report_json_path):
                 file_delete(report_json_path)
                 #re_count += 1
 
-            errors_json_path = path_combine(self.storage.hd2_data(key), "error.json")
+            errors_json_path = path_combine(metadata_folder, "error.json")
             if file_exists(errors_json_path):
                 file_delete(errors_json_path)
                 #er_count += 1
