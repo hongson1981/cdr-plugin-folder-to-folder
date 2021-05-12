@@ -9,7 +9,7 @@ fi
 # set hostname
 sudo hostnamectl set-hostname glasswall
 
-# get source code
+# get the source code
 cd ~
 BRANCH=${BRANCH:-main}
 GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-filetrust/cdr-plugin-folder-to-folder}
