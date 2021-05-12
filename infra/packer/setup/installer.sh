@@ -44,7 +44,7 @@ curl -sSL https://raw.githubusercontent.com/vmware/cloud-init-vmware-guestinfo/m
 #Install OVF Tools 
 wget https://github.com/filetrust/cdr-plugin-folder-to-folder/tree/main/infra/terraform/esxi/artifacts/VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle
 chmod 755 VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle
-sudo ./VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle
+echo | sudo ./VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle --eulas-agreed
 ovftool --version
 
 #Install Terraform Latest version == verified
