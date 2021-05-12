@@ -1,7 +1,9 @@
 import os
+import requests
+import zipfile
 import logging as logger
 from datetime import datetime
-from osbot_utils.utils.Files import folder_create, folder_delete_all, folder_copy
+from osbot_utils.utils.Files import folder_create, folder_delete_all, folder_copy, path_combine, file_delete, file_exists
 
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Service
@@ -118,3 +120,27 @@ class Pre_Processor:
     def update_status(self, file_name, original_hash, status):
         if status == FileStatus.INITIAL:
             self.status.add_file()
+
+    def process_downloaded_zip_file(self, url):
+        retvalue = "No value"
+        directory_name = url.replace('/', '_').replace(':', '').replace('.','_')
+        zip_file_name = directory_name + '.zip'
+        path_to_zip_file = path_combine(self.storage.hd1(), zip_file_name)
+        path_to_extracted_folder = path_combine(self.storage.hd1(), directory_name)
+        try:
+            r = requests.get(url, allow_redirects=True)
+            open(path_to_zip_file, 'wb').write(r.content)
+
+            with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
+                zip_ref.extractall(path_to_extracted_folder)
+
+            self.process_folder(path_to_extracted_folder)
+
+            retvalue = f"The file from {url} has been processed"
+        except Exception as e:
+            retvalue = str(e)
+
+        if file_exists(path_to_zip_file):
+            file_delete(path_to_zip_file)
+
+        return retvalue
