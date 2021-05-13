@@ -36,7 +36,7 @@ class Pre_Processor:
         self.dst_file_name  = None
 
         self.status = Status()
-        self.status.reset()
+        #self.status.reset()
 
         #self.analysis_json = Analysis_Json()
 
@@ -57,10 +57,6 @@ class Pre_Processor:
         self.status.reset()
 
     def reset_data_folder_to_the_initial_state(self):
-
-        # if Processing_Status.STOPPED != self.status.get_current_status():
-        #     # do nothing if the processing has not been completed
-        #     return False
 
         hash_json_path = path_combine(self.storage.hd2_status(), Hash_Json.HASH_FILE_NAME)
         if file_exists(hash_json_path):
@@ -118,6 +114,9 @@ class Pre_Processor:
 
         self.status.set_files_count(files_count)
 
+        for idx in range(files_count):
+            self.status.add_file()
+
         for key in os.listdir(self.storage.hd2_data()):
             self.status.add_to_be_processed()
 
@@ -125,10 +124,11 @@ class Pre_Processor:
 
     @log_duration
     def mark_all_hd2_files_unprocessed(self):
+        print(f'mark_all_hd2_files_unprocessed {self.status.get_current_status()}')
 
-        # if Processing_Status.STOPPED != self.status.get_current_status():
-        #     # do nothing if the processing has not been completed
-        #     return
+        if Processing_Status.STOPPED != self.status.get_current_status():
+            # do nothing if the processing has not been completed
+            return
 
         for key in os.listdir(self.storage.hd2_not_processed()):
             source_path = self.storage.hd2_not_processed(key)
