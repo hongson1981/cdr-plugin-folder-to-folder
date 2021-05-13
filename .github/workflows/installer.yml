@@ -64,6 +64,6 @@ jobs:
         sed -i 's/<vm_name>/installer/g' ova-export.json
         RANDOM_STR=${{ github.sha }}-${{ github.run_number }}
         mv setup/installer.sh setup/setup.sh
-        packer build -color=false -on-error=cleanup -var github_sha=$RANDOM_STR -var vm_name=installer -var create_ova=${{ github.event.inputs.create_ova }} -var region=${{ env.AWS_DEFAULT_REGION }} -var extra_regions=${{ github.event.inputs.extra_regions }} -var aws_access_key=${{ secrets.AWS_ACCESS_KEY }} -var aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }} -var elastic_host=${{ github.event.inputs.monitoring_ip }} -var elastic_port=9200 -var elastic_user=${{ secrets.MONITORING_USER }} -var elastic_password=${{ secrets.MONITORING_PASSWORD }} -var team_tag=k8-proxy -var owner_tag=githubactionAMIpacker aws-ami-installer.json
+        packer build -color=false -on-error=cleanup -var github_sha=$RANDOM_STR -var vm_name=installer -var create_ova=true -var region=${{ env.AWS_DEFAULT_REGION }} -var extra_regions=${{ github.event.inputs.extra_regions }} -var aws_access_key=${{ secrets.AWS_ACCESS_KEY }} -var aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }} -var elastic_host=${{ github.event.inputs.monitoring_ip }} -var elastic_port=9200 -var elastic_user=${{ secrets.MONITORING_USER }} -var elastic_password=${{ secrets.MONITORING_PASSWORD }} -var team_tag=k8-proxy -var owner_tag=githubactionAMIpacker aws-ami-installer.json
   
   
