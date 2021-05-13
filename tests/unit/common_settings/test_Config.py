@@ -61,7 +61,7 @@ class test_Config(Temp_Config):
     def test_get_values(self):
         values = self.config.values()
         assert self.config.values().get('root_folder') == self.config.root_folder
-        assert list_set(values) == ['elastic_host', 'elastic_port', 'elastic_schema', 'endpoints', 'hd1_location', 'hd2_todo_location', 'hd2_location', 'hd2_processed_location', 'hd2_status_location', 'hd3_location', 'kibana_host', 'kibana_port', 'request_timeout', 'root_folder', 'thread_count']
+        assert list_set(values) == ['elastic_host', 'elastic_port', 'elastic_schema', 'endpoints', 'hd1_location', 'hd2_location', 'hd2_processed_location', 'hd2_status_location', 'hd2_todo_location', 'hd3_location', 'kibana_host', 'kibana_port', 'request_timeout', 'root_folder', 'thread_count']
 
     def test_set_root_folder(self):
         root_folder = temp_folder()
