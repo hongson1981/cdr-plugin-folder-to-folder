@@ -1,3 +1,4 @@
+import os
 import threading
 import psutil
 import logging as logger
@@ -236,6 +237,38 @@ class Status:
 
             data[Status.VAR_FILES_TO_PROCESS]      = count
             data[Status.VAR_FILES_LEFT_TO_PROCESS] = count
+
+        finally:
+            Status.lock.release()
+            self.save()
+
+        return self
+
+    def reset_phase2(self):
+
+        Status.lock.acquire()
+        try:
+            self.reset()
+            data = self.data()
+
+            files_count = 0
+            for folderName, subfolders, filenames in os.walk(self.storage.hd1()):
+                for filename in filenames:
+                    file_path =  os.path.join(folderName, filename)
+                    if os.path.isfile(file_path):
+                        files_count += 1
+
+            data[Status.VAR_FILES_COUNT] = files_count
+            data[Status.VAR_FILES_COPIED] = files_count
+
+            files_count = 0
+            for key in os.listdir(self.storage.hd2_data()):
+                files_count += 1
+
+            data[Status.VAR_FILES_TO_PROCESS] = files_count
+            data[Status.VAR_FILES_LEFT_TO_PROCESS] = files_count
+
+            data[Status.VAR_CURRENT_STATUS] = Processing_Status.PHASE_2
 
         finally:
             Status.lock.release()

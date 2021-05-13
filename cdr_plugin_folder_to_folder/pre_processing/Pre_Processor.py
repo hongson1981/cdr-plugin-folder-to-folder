@@ -35,10 +35,6 @@ class Pre_Processor:
         self.dst_folder     = None
         self.dst_file_name  = None
 
-        self.status = Status()
-        #self.status.reset()
-
-        #self.analysis_json = Analysis_Json()
 
     @log_duration
     def clear_data_and_status_folders(self):
@@ -101,27 +97,6 @@ class Pre_Processor:
 
         return True
 
-    def reset_status_data(self):
-
-        self.status.reset()
-
-        files_count = 0
-        for folderName, subfolders, filenames in os.walk(self.storage.hd1()):
-            for filename in filenames:
-                file_path =  os.path.join(folderName, filename)
-                if os.path.isfile(file_path):
-                    files_count += 1
-
-        self.status.set_files_count(files_count)
-
-        for idx in range(files_count):
-            self.status.add_file()
-
-        for key in os.listdir(self.storage.hd2_data()):
-            self.status.add_to_be_processed()
-
-        self.status.set_phase_2()
-
     @log_duration
     def mark_all_hd2_files_unprocessed(self):
         print(f'mark_all_hd2_files_unprocessed {self.status.get_current_status()}')
@@ -145,7 +120,7 @@ class Pre_Processor:
             shutil.move(source_path, destination_path)
 
         self.reset_data_folder_to_the_initial_state()
-        self.reset_status_data()
+        self.status.reset_phase2()
 
     def file_hash(self, file_path):
         return self.meta_service.file_hash(file_path)
