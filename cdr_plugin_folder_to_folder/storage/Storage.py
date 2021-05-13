@@ -42,13 +42,13 @@ class Storage:
         return abspath(self.config.hd2_location                   )   # convert to absolute paths
 
     def hd2_data(self, path=''):
-        return path_combine(self.config.hd2_data_location, path   )   # add path and convert to absolute paths
+        return path_combine(self.config.hd2_todo_location, path   )   # add path and convert to absolute paths
 
     def hd2_processed(self, path=''):
         return path_combine(self.config.hd2_processed_location, path   )   # add path and convert to absolute paths
 
     def hd2_not_processed(self, path=''):
-        return path_combine(self.config.hd2_not_processed_location, path   )   # add path and convert to absolute paths
+        return path_combine(self.config.hd2_not_supported_location, path   )   # add path and convert to absolute paths
 
     def hd2_delete_all_files(self):
         folder_delete_all(self.hd2_data())

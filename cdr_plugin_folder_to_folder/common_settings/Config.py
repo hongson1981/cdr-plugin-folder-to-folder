@@ -12,10 +12,10 @@ from cdr_plugin_folder_to_folder.utils.testing.Setup_Testing import Setup_Testin
 DEFAULT_HD1_NAME         = 'hd1'
 DEFAULT_HD2_NAME         = 'hd2'
 DEFAULT_HD3_NAME         = 'hd3'
-DEFAULT_HD2_DATA_NAME    = 'data'
+DEFAULT_HD2_TODO_NAME    = 'todo'
 DEFAULT_HD2_STATUS_NAME  = 'status'
 DEFAULT_HD2_PROCESSED_NAME      = 'processed'
-DEFAULT_HD2_NOT_PROCESSED_NAME  = 'cannot_be_processed'
+DEFAULT_HD2_NOT_SUPPORTED_NAME  = 'files_not_supported'
 DEFAULT_ROOT_FOLDER      = path_combine(__file__                , '../../../test_data/scenario-1' )
 DEFAULT_HD1_LOCATION     = path_combine(DEFAULT_ROOT_FOLDER     , DEFAULT_HD1_NAME                )
 DEFAULT_HD2_LOCATION     = path_combine(DEFAULT_ROOT_FOLDER     , DEFAULT_HD2_NAME                )
@@ -46,7 +46,7 @@ class Config:
         if hasattr(self, 'root_folder') is False:                     # only set these values first time around
             self.hd1_location           = None
             self.hd2_location           = None
-            self.hd2_data_location      = None
+            self.hd2_todo_location      = None
             self.hd2_status_location    = None
             self.hd2_processed_location = None
             self.hd3_location           = None
@@ -102,12 +102,12 @@ class Config:
 
     def set_hd2_location(self, hd2_location):
         self.hd2_location           = self.ensure_last_char_is_not_forward_slash(hd2_location)
-        self.hd2_data_location      = path_combine(self.hd2_location, DEFAULT_HD2_DATA_NAME)
+        self.hd2_todo_location      = path_combine(self.hd2_location, DEFAULT_HD2_TODO_NAME)
         self.hd2_status_location    = path_combine(self.hd2_location, DEFAULT_HD2_STATUS_NAME)
         self.hd2_processed_location     = path_combine(self.hd2_location, DEFAULT_HD2_PROCESSED_NAME)
-        self.hd2_not_processed_location = path_combine(self.hd2_location, DEFAULT_HD2_NOT_PROCESSED_NAME)
+        self.hd2_not_supported_location = path_combine(self.hd2_location, DEFAULT_HD2_NOT_SUPPORTED_NAME)
         folder_create(self.hd2_location       )
-        folder_create(self.hd2_data_location  )
+        folder_create(self.hd2_todo_location  )
         folder_create(self.hd2_status_location)
         folder_create(self.hd2_processed_location)
 
@@ -134,7 +134,7 @@ class Config:
         return {
             "hd1_location"           : self.hd1_location        ,
             "hd2_location"           : self.hd2_location        ,
-            "hd2_data_location"      : self.hd2_data_location   ,
+            "hd2_todo_location"      : self.hd2_todo_location   ,
             "hd2_status_location"    : self.hd2_status_location ,
             "hd2_processed_location" : self.hd2_processed_location,
             "hd3_location"           : self.hd3_location        ,
