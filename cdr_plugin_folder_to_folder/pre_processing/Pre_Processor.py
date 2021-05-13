@@ -13,7 +13,7 @@ from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Servi
 from cdr_plugin_folder_to_folder.storage.Storage import Storage
 from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
 
-from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
+from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus, Processing_Status
 
 from cdr_plugin_folder_to_folder.processing.Analysis_Json import Analysis_Json
 from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
@@ -56,21 +56,11 @@ class Pre_Processor:
         folder_create(not_processed_target)
         self.status.reset()
 
-    @log_duration
-    def mark_all_hd2_files_unprocessed(self):
-        for key in os.listdir(self.storage.hd2_not_processed()):
-            source_path = self.storage.hd2_not_processed(key)
-            destination_path = self.storage.hd2_data(key)
-            if folder_exists(destination_path):
-                folder_delete_all(destination_path)
-            shutil.move(source_path, destination_path)
+    def reset_data_folder_to_the_initial_state(self):
 
-        for key in os.listdir(self.storage.hd2_processed()):
-            source_path = self.storage.hd2_processed(key)
-            destination_path = self.storage.hd2_data(key)
-            if folder_exists(destination_path):
-                folder_delete_all(destination_path)
-            shutil.move(source_path, destination_path)
+        # if Processing_Status.STOPPED != self.status.get_current_status():
+        #     # do nothing if the processing has not been completed
+        #     return False
 
         hash_json_path = path_combine(self.storage.hd2_status(), Hash_Json.HASH_FILE_NAME)
         if file_exists(hash_json_path):
@@ -113,6 +103,49 @@ class Pre_Processor:
 
         #print (f"Files deleted: {an_count} {ev_count} {re_count} {er_count}")
 
+        return True
+
+    def reset_status_data(self):
+
+        self.status.reset()
+
+        files_count = 0
+        for folderName, subfolders, filenames in os.walk(self.storage.hd1()):
+            for filename in filenames:
+                file_path =  os.path.join(folderName, filename)
+                if os.path.isfile(file_path):
+                    files_count += 1
+
+        self.status.set_files_count(files_count)
+
+        for key in os.listdir(self.storage.hd2_data()):
+            self.status.add_to_be_processed()
+
+        self.status.set_phase_2()
+
+    @log_duration
+    def mark_all_hd2_files_unprocessed(self):
+
+        # if Processing_Status.STOPPED != self.status.get_current_status():
+        #     # do nothing if the processing has not been completed
+        #     return
+
+        for key in os.listdir(self.storage.hd2_not_processed()):
+            source_path = self.storage.hd2_not_processed(key)
+            destination_path = self.storage.hd2_data(key)
+            if folder_exists(destination_path):
+                folder_delete_all(destination_path)
+            shutil.move(source_path, destination_path)
+
+        for key in os.listdir(self.storage.hd2_processed()):
+            source_path = self.storage.hd2_processed(key)
+            destination_path = self.storage.hd2_data(key)
+            if folder_exists(destination_path):
+                folder_delete_all(destination_path)
+            shutil.move(source_path, destination_path)
+
+        self.reset_data_folder_to_the_initial_state()
+        self.reset_status_data()
 
     def file_hash(self, file_path):
         return self.meta_service.file_hash(file_path)
