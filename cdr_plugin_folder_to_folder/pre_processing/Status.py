@@ -1,3 +1,4 @@
+import os
 import threading
 import psutil
 import logging as logger
@@ -21,6 +22,7 @@ class FileStatus:                                     # todo move to separate fi
 
 
 class Processing_Status:
+    NONE    = "None"
     STOPPED = "Stopped"
     STARTED = "Started"
     PHASE_1 = "PHASE 1 - Copying Files"
@@ -225,17 +227,31 @@ class Status:
 
         return self
 
-    def set_processing_counters(self, count):
+    def reset_phase2(self):
+
         Status.lock.acquire()
         try:
+            self.reset()
             data = self.data()
 
-            data[Status.VAR_IN_PROGRESS] = 0
-            data[Status.VAR_FAILED]      = 0
-            data[Status.VAR_COMPLETED]   = 0
+            files_count = 0
+            for folderName, subfolders, filenames in os.walk(self.storage.hd1()):
+                for filename in filenames:
+                    file_path =  os.path.join(folderName, filename)
+                    if os.path.isfile(file_path):
+                        files_count += 1
 
-            data[Status.VAR_FILES_TO_PROCESS]      = count
-            data[Status.VAR_FILES_LEFT_TO_PROCESS] = count
+            data[Status.VAR_FILES_COUNT] = files_count
+            data[Status.VAR_FILES_COPIED] = files_count
+
+            files_count = 0
+            for key in os.listdir(self.storage.hd2_data()):
+                files_count += 1
+
+            data[Status.VAR_FILES_TO_PROCESS] = files_count
+            data[Status.VAR_FILES_LEFT_TO_PROCESS] = files_count
+
+            data[Status.VAR_CURRENT_STATUS] = Processing_Status.PHASE_2
 
         finally:
             Status.lock.release()

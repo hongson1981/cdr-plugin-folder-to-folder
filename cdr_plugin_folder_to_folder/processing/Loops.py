@@ -15,7 +15,8 @@ from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
 from cdr_plugin_folder_to_folder.processing.Events_Log_Elastic import Events_Log_Elastic
 from cdr_plugin_folder_to_folder.processing.File_Processing import File_Processing
 from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Service
-from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
+from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus, Processing_Status
+from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import reset_data_folder_to_the_initial_state
 from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 from cdr_plugin_folder_to_folder.processing.Report_Elastic import Report_Elastic
 from cdr_plugin_folder_to_folder.storage.Storage import Storage
@@ -172,7 +173,11 @@ class Loops(object):
                 self.hash_json.add_file(original_hash, file_name)
 
         self.hash_json.save()
-        self.status.set_processing_counters(len(self.hash_json.data()))
+
+        if Processing_Status.PHASE_2 != self.status.get_current_status():
+            self.status.reset_phase2()
+            reset_data_folder_to_the_initial_state()
+
         return self.hash_json.data()
 
     def moveProcessedFiles(self):

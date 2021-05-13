@@ -345,7 +345,7 @@ class File_Processing:
             except Exception as error:
                 message=f"Error in do_rebuild_zip for {hash} : {error}"
                 if "is not a zip file" in message:
-                    message = "Error while processing the request. See details in 'errors.json'"
+                    message = "Error while processing the request. See details in 'error.json'"
                     try:
                         file_copy(zip_file_path, os.path.join(dir, "error.json"))
                     except:
