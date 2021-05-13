@@ -149,6 +149,24 @@ class File_Processing:
             self.add_event_log('Decoding FAILED. The HTML file has been saved')
             return processed_path + '.html'                                                 # todo: refactor this workflow and how this is calculated
 
+    def get_server_version(self, dir, headers):
+
+        SDKEngineVersionKey = "X-SDK-Engine-Version"
+        SDKAPIVersionKey = "X-SDK-Api-Version"
+
+        sdk_engine_version = ""
+        sdk_api_version = ""
+
+        if SDKEngineVersionKey in headers:
+            sdk_engine_version = headers[SDKEngineVersionKey]
+        if SDKAPIVersionKey in headers:
+            sdk_api_version = headers[SDKAPIVersionKey]
+
+        if not sdk_engine_version and not sdk_api_version:
+            return
+
+        self.meta_service.set_server_version(dir, "Engine:" + sdk_engine_version + " API:" + sdk_api_version )
+
     @log_duration
     def do_rebuild(self, endpoint, hash, source_path, dir):
         log_info(message=f"Starting rebuild for file {hash} on endpoint {endpoint}")
@@ -225,16 +243,8 @@ class File_Processing:
                 return False
                 #raise ValueError("No X-Adaptation-File-Id header found in the response")
 
-            # todo: add when server side supports this
-            # SDKEngineVersionKey = "X-SDK-Engine-Version"
-            # SDKAPIVersionKey = "X-SDK-Api-Version"
-            #
-            # if SDKEngineVersionKey in headers:
-            #     self.sdk_engine_version = headers[SDKEngineVersionKey]
-            # if SDKAPIVersionKey in headers:
-            #     self.sdk_api_version = headers[SDKAPIVersionKey]
-            #
-            # self.meta_service.set_server_version(dir, "Engine:" + self.sdk_engine_version + " API:" + self.sdk_api_version )
+            self.get_server_version(dir, headers)
+
         log_info(message=f"rebuild ok for file {hash} on endpoint {endpoint} took {duration.seconds()} seconds")
         return True
 
@@ -265,6 +275,8 @@ class File_Processing:
             zip_file_path = os.path.join(dir, "rebuild.zip")
 
             headers = response.headers
+            self.get_server_version(dir, headers)
+
             fileIdKey = "X-Adaptation-File-Id"
 
             unzip_folder_path = path_append(dir, headers[fileIdKey])

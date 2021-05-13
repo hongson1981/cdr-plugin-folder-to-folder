@@ -99,6 +99,10 @@ class test_Pre_Processor(TestCase):
         self.pre_processor.process(self.test_file)
         assert metadata.exists() is True
 
+    def test_process_downloaded_zip_file(self):
+        retvalue = self.pre_processor.process_downloaded_zip_file("http://google.com/")
+        assert retvalue == "File is not a zip file"
+
 
 
 

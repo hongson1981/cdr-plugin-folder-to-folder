@@ -11,6 +11,9 @@ router = APIRouter(**router_params)
 class DIRECTORY(BaseModel):
     folder     : str = "./test_data/scenario-1/hd1"
 
+class DOWNLOAD_URL(BaseModel):
+    url        : str = "http:/download.zip"
+
 @router.post("/pre-process")
 def pre_process_hd1_data_to_hd2():
     pre_processor = Pre_Processor()
@@ -28,3 +31,10 @@ def pre_process_a_folder(item: DIRECTORY):
     pre_processor = Pre_Processor()
     pre_processor.process_folder(folder_to_process=item.folder)
     return status_ok(message="Directory added")
+
+@router.post("/download_and_pre_process_a_zip_file")
+def download_and_pre_process_a_zip_file(item: DOWNLOAD_URL):
+    pre_processor = Pre_Processor()
+    status_message = pre_processor.process_downloaded_zip_file(url=item.url)
+    return status_ok(message=status_message)
+

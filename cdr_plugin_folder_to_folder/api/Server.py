@@ -92,7 +92,8 @@ tags_metadata = [
 ]
 
 # we need to do this here so that when unicorn reload is enabled the "cdr_plugin_folder_to_folder.api.Server:app" has an fully setup instance of the Server object
-app     = FastAPI(openapi_tags=tags_metadata)
+app     = FastAPI(title="GW Folder-to-Folder API",
+                  openapi_tags=tags_metadata)
 server  = Server(app)
 server.add_routes()
 if "PYTEST_CURRENT_TEST" not in os.environ:
