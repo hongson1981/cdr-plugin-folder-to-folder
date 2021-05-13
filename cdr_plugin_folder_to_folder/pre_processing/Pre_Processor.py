@@ -52,56 +52,12 @@ class Pre_Processor:
         folder_create(not_processed_target)
         self.status.reset()
 
-    def reset_data_folder_to_the_initial_state(self):
-
-        hash_json_path = path_combine(self.storage.hd2_status(), Hash_Json.HASH_FILE_NAME)
-        if file_exists(hash_json_path):
-            file_delete(hash_json_path)
-
-        events_json_path = path_combine(self.storage.hd2_status(), Events_Log.EVENTS_LOG_FILE_NAME)
-        if file_exists(events_json_path):
-            file_delete(events_json_path)
-
-        #an_count = 0
-        #ev_count = 0
-        #re_count = 0
-        #er_count = 0
-
-        for key in os.listdir(self.storage.hd2_data()):
-
-            metadata_folder = self.storage.hd2_data(key)
-            self.meta_service.reset_metadata(metadata_folder)
-
-            # delete supplementary files in the metadata folder
-            analysis_json_path = path_combine(metadata_folder, Analysis_Json.ANALYSIS_FILE_NAME)
-            if file_exists(analysis_json_path):
-                file_delete(analysis_json_path)
-                #an_count += 1
-
-            events_json_path = path_combine(metadata_folder, Events_Log.EVENTS_LOG_FILE_NAME)
-            if file_exists(events_json_path):
-                file_delete(events_json_path)
-                #ev_count += 1
-
-            report_json_path = path_combine(metadata_folder, DEFAULT_REPORT_FILENAME)
-            if file_exists(report_json_path):
-                file_delete(report_json_path)
-                #re_count += 1
-
-            errors_json_path = path_combine(metadata_folder, "error.json")
-            if file_exists(errors_json_path):
-                file_delete(errors_json_path)
-                #er_count += 1
-
-        #print (f"Files deleted: {an_count} {ev_count} {re_count} {er_count}")
-
-        return True
-
     @log_duration
     def mark_all_hd2_files_unprocessed(self):
         print(f'mark_all_hd2_files_unprocessed {self.status.get_current_status()}')
 
-        if Processing_Status.STOPPED != self.status.get_current_status():
+        if Processing_Status.NONE != self.status.get_current_status() and \
+           Processing_Status.STOPPED != self.status.get_current_status():
             # do nothing if the processing has not been completed
             return
 
@@ -119,8 +75,8 @@ class Pre_Processor:
                 folder_delete_all(destination_path)
             shutil.move(source_path, destination_path)
 
-        self.reset_data_folder_to_the_initial_state()
         self.status.reset_phase2()
+        reset_data_folder_to_the_initial_state()
 
     def file_hash(self, file_path):
         return self.meta_service.file_hash(file_path)
@@ -216,3 +172,41 @@ class Pre_Processor:
             file_delete(path_to_zip_file)
 
         return retvalue
+
+def reset_data_folder_to_the_initial_state():
+
+    storage = Storage()
+    meta_service = Metadata_Service()
+
+    hash_json_path = path_combine(storage.hd2_status(), Hash_Json.HASH_FILE_NAME)
+    if file_exists(hash_json_path):
+        file_delete(hash_json_path)
+
+    events_json_path = path_combine(storage.hd2_status(), Events_Log.EVENTS_LOG_FILE_NAME)
+    if file_exists(events_json_path):
+        file_delete(events_json_path)
+
+    for key in os.listdir(storage.hd2_data()):
+
+        metadata_folder = storage.hd2_data(key)
+        meta_service.reset_metadata(metadata_folder)
+
+        # delete supplementary files in the metadata folder
+        analysis_json_path = path_combine(metadata_folder, Analysis_Json.ANALYSIS_FILE_NAME)
+        if file_exists(analysis_json_path):
+            file_delete(analysis_json_path)
+
+        events_json_path = path_combine(metadata_folder, Events_Log.EVENTS_LOG_FILE_NAME)
+        if file_exists(events_json_path):
+            file_delete(events_json_path)
+
+        report_json_path = path_combine(metadata_folder, DEFAULT_REPORT_FILENAME)
+        if file_exists(report_json_path):
+            file_delete(report_json_path)
+
+        errors_json_path = path_combine(metadata_folder, "error.json")
+        if file_exists(errors_json_path):
+            file_delete(errors_json_path)
+
+
+    return True

@@ -22,6 +22,7 @@ class FileStatus:                                     # todo move to separate fi
 
 
 class Processing_Status:
+    NONE    = "None"
     STOPPED = "Stopped"
     STARTED = "Started"
     PHASE_1 = "PHASE 1 - Copying Files"
