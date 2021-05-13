@@ -12,27 +12,30 @@ from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
 logger.basicConfig(level=logger.INFO)
 
 class FileStatus:                                     # todo move to separate file (either per enum or with all enums)
-    INITIAL     = "Initial"
-    NOT_COPIED  = "Will not be copied"
-    IN_PROGRESS = "In Progress"
-    COMPLETED   = "Completed Successfully"
-    FAILED      = "Completed with errors"
-    TO_PROCESS  = "To Process"
-    NONE        = "None"
+    INITIAL       = "Initial"
+    NOT_COPIED    = "Will not be copied"
+    IN_PROGRESS   = "In Progress"
+    COMPLETED     = "Completed Successfully"
+    NOT_SUPPORTED = "The file type in not currently supported"
+    FAILED        = "Completed with errors"
+    TO_PROCESS    = "To Process"
+    NONE          = "None"
 
 
 class Processing_Status:
-    NONE    = "None"
-    STOPPED = "Stopped"
-    STARTED = "Started"
-    PHASE_1 = "PHASE 1 - Copying Files"
-    PHASE_2 = "PHASE 2 - Rebuilding Files"
+    NONE     = "None"
+    STOPPED  = "Stopped"
+    STOPPING = "Stopping"
+    STARTED  = "Started"
+    PHASE_1  = "PHASE 1 - Copying Files"
+    PHASE_2  = "PHASE 2 - Rebuilding Files"
 
 class Status:
 
     STATUS_FILE_NAME             = "status.json"
     VAR_COMPLETED                = "completed"
     VAR_CURRENT_STATUS           = "current_status"
+    VAR_NOT_SUPPORTED            = "not_supported"
     VAR_FAILED                   = "failed"
     VAR_FILES_TO_PROCESS         = "files_to_process"
     VAR_FILES_LEFT_TO_PROCESS    = "files_left_to_process"
@@ -97,6 +100,7 @@ class Status:
                     Status.VAR_FILES_TO_PROCESS       : 0               ,
                     Status.VAR_FILES_LEFT_TO_PROCESS  : 0               ,
                     Status.VAR_COMPLETED              : 0               ,
+                    Status.VAR_NOT_SUPPORTED          : 0               ,
                     Status.VAR_FAILED                 : 0               ,
                     Status.VAR_IN_PROGRESS            : 0               ,
                     Status.VAR_NUMBER_OF_CPUS         : psutil.cpu_count()            ,
@@ -210,6 +214,13 @@ class Status:
                 if data[Status.VAR_FILES_LEFT_TO_PROCESS] > 0:
                     data[Status.VAR_FILES_LEFT_TO_PROCESS] -= 1
 
+            elif updated_status == FileStatus.NOT_SUPPORTED:
+                data[Status.VAR_NOT_SUPPORTED] += 1
+                if data[Status.VAR_IN_PROGRESS] > 0:
+                    data[Status.VAR_IN_PROGRESS] -= 1
+                if data[Status.VAR_FILES_LEFT_TO_PROCESS] > 0:
+                    data[Status.VAR_FILES_LEFT_TO_PROCESS] -= 1
+
             elif updated_status == FileStatus.FAILED:
                 data[Status.VAR_FAILED] += 1
                 if data[Status.VAR_IN_PROGRESS] > 0:
@@ -260,6 +271,7 @@ class Status:
         return self
 
     def add_completed       (self       ): return self.update_counters(FileStatus.COMPLETED          )
+    def add_not_supported   (self       ): return self.update_counters(FileStatus.NOT_SUPPORTED      )
     def add_failed          (self       ): return self.update_counters(FileStatus.FAILED             )
     def add_file            (self       ): return self.update_counters(FileStatus.INITIAL            )
     def set_files_count     (self, count): return self.update_counters(FileStatus.NONE        , count)
@@ -269,6 +281,7 @@ class Status:
 
     def get_completed       (self): return self.data().get(Status.VAR_COMPLETED)
     def get_current_status  (self): return self.data().get(Status.VAR_CURRENT_STATUS)
+    def get_not_supported   (self): return self.data().get(Status.VAR_NOT_SUPPORTED)
     def get_failed          (self): return self.data().get(Status.VAR_FAILED)
     def get_files_count     (self): return self.data().get(Status.VAR_FILES_COUNT)
     def get_files_copied    (self): return self.data().get(Status.VAR_FILES_COPIED)
