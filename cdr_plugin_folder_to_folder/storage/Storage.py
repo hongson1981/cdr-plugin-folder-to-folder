@@ -47,7 +47,7 @@ class Storage:
     def hd2_processed(self, path=''):
         return path_combine(self.config.hd2_processed_location, path   )   # add path and convert to absolute paths
 
-    def hd2_not_processed(self, path=''):
+    def hd2_not_supported(self, path=''):
         return path_combine(self.config.hd2_not_supported_location, path   )   # add path and convert to absolute paths
 
     def hd2_delete_all_files(self):

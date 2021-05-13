@@ -50,7 +50,7 @@ class Loops(object):
         self.report_elastic.setup()
         self.analysis_elastic.setup()
         create_folder(self.storage.hd2_processed())
-        create_folder(self.storage.hd2_not_processed())
+        create_folder(self.storage.hd2_not_supported())
 
 
     def IsProcessing(self):
@@ -200,8 +200,8 @@ class Loops(object):
                 meta_service = Metadata_Service()
                 meta_service.get_from_file(source_path)
                 metadata = meta_service.metadata
-                if metadata.get_original_file_extension() in ['.xml', '.json']:
-                    destination_path = self.storage.hd2_not_processed(key)
+                if not metadata.get_original_file_extension() in self.config.supported_file_types:
+                    destination_path = self.storage.hd2_not_supported(key)
 
                     if folder_exists(destination_path):
                         folder_delete_all(destination_path)

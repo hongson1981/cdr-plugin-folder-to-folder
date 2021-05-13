@@ -28,6 +28,8 @@ DEFAULT_KIBANA_PORT      = "5601"
 DEFAULT_THREAD_COUNT     = 10
 DEFAULT_TEST_SDK         = '54.171.39.142'
 DEFAULT_ENDPOINTS        = '{"Endpoints":[{"IP":"' + DEFAULT_TEST_SDK + '", "Port":"8080"}]}'
+DEFAULT_SUPPORTED_FILE_TYPES = '.doc .dot .xls .xlt .xlm .ppt .pot .pps .docx .dotx .docm .dotm .xlsx .xltx .xlsm .xltm .pptx .potx .ppsx .pptm .potm .ppsm .pdf .jpeg .jpg .jpe .png .gif'
+DEFUALT_SAVE_UNSUPPORTED_FILE_TYPES = True
 DEFAULT_REQUEST_TIMEOUT  = 600
 DEFAULT_REBUILD_ZIP      = True
 DEFAULT_SDK_SERVERS_API  = 'https://tmol8zkg3c.execute-api.eu-west-1.amazonaws.com/prod/sdk-servers/ip_addresses'
@@ -63,6 +65,8 @@ class Config:
             self.request_timeout        = None
             self.rebuild_zip            = None
             self.sdk_servers_api        = None
+            self.supported_file_types   = None
+            self.save_unsupported_fyle_types = None
             self.load_values()                                      # due to the singleton pattern this will only be executed once
 
     def load_values(self):
@@ -84,6 +88,11 @@ class Config:
         self.endpoints       = json.loads(json_string)
 
         self.endpoints_count = len(self.endpoints['Endpoints'])
+
+        file_types      = os.getenv("SUPPORTED_FILE_TYPES", DEFAULT_SUPPORTED_FILE_TYPES)
+        self.supported_file_types = file_types.split()
+
+        self.save_unsupported_fyle_types = os.getenv("SAVE_UNSUPPORTED_FILE_TYPES", DEFUALT_SAVE_UNSUPPORTED_FILE_TYPES)
 
         self.set_hd1_location(os.getenv("HD1_LOCATION", DEFAULT_HD1_LOCATION))       # set hd1, hd2 and hd3 values
         self.set_hd2_location(os.getenv("HD2_LOCATION", DEFAULT_HD2_LOCATION))
