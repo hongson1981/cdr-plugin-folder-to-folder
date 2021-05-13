@@ -63,6 +63,12 @@ sshfs --version
 #Install Postman
 sudo snap install postman
 
+#Install Glasswall Desktop on Desktop/Glasswall Desktop App
+wget https://github.com/k8-proxy/glasswall-desktop/releases/download/v1.0.5/glasswall-desktop-1.0.5.AppImage?raw=true
+mv 'glasswall-desktop-1.0.5.AppImage?raw=true' $HOME/glasswall-desktop-1.0.5.AppImage
+cd $HOME
+chmod a+x glasswall-desktop-1.0.5.AppImage
+
 # allow password login (useful when deployed to esxi)
 SSH_PASSWORD=${SSH_PASSWORD:-glasswall}
 printf "${SSH_PASSWORD}\n${SSH_PASSWORD}" | sudo passwd ubuntu
