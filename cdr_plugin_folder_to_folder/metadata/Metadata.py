@@ -119,7 +119,7 @@ class Metadata:
         if not self.file_hash:
             return
 
-        path = self.storage.hd2_not_processed(self.file_hash)
+        path = self.storage.hd2_not_supported(self.file_hash)
         if folder_exists(path):
             return path
 
@@ -137,8 +137,8 @@ class Metadata:
     def is_in_processed(self):
         folder_exists(self.storage.hd2_processed(self.file_hash))
 
-    def is_in_not_processed(self):
-        folder_exists(self.storage.hd2_not_processed(self.file_hash))
+    def is_in_not_supported(self):
+        folder_exists(self.storage.hd2_not_supported(self.file_hash))
 
     def save(self):
         if self.exists():

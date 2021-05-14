@@ -1,6 +1,6 @@
 import json
 
-from cdr_plugin_folder_to_folder.common_settings.Config import Config, DEFAULT_HD2_DATA_NAME, DEFAULT_HD2_STATUS_NAME
+from cdr_plugin_folder_to_folder.common_settings.Config import Config, DEFAULT_HD2_TODO_NAME, DEFAULT_HD2_STATUS_NAME
 
 from os import environ,path
 from packaging import version
@@ -48,7 +48,7 @@ class Configure_Env:
             if hd2_path:
                 if not path.exists(hd2_path):
                     folder_create( hd2_path )
-                    folder_create( path_combine( hd2_path , DEFAULT_HD2_DATA_NAME  ))
+                    folder_create( path_combine( hd2_path , DEFAULT_HD2_TODO_NAME  ))
                     folder_create( path_combine( hd2_path , DEFAULT_HD2_STATUS_NAME ))
 
                 environ['HD2_LOCATION'] = hd2_path

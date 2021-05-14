@@ -50,7 +50,7 @@ class Loops(object):
         self.report_elastic.setup()
         self.analysis_elastic.setup()
         create_folder(self.storage.hd2_processed())
-        create_folder(self.storage.hd2_not_processed())
+        create_folder(self.storage.hd2_not_supported())
 
 
     def IsProcessing(self):
@@ -58,6 +58,7 @@ class Loops(object):
 
     def StopProcessing(self):
         Loops.continue_processing = False
+        self.status.set_stopping()
 
     def HasBeenStopped(self):
         return not Loops.continue_processing
@@ -105,9 +106,6 @@ class Loops(object):
                     'timestamp': datetime.now(),
                 }
             log_info('ProcessDirectoryWithEndpoint', data=log_data)
-            meta_service.set_error(itempath, "none")
-            meta_service.set_status(itempath, FileStatus.COMPLETED)
-            self.hash_json.update_status(file_hash, FileStatus.COMPLETED)
             events.add_log("Has been processed")
             return True
         except Exception as error:
@@ -131,16 +129,13 @@ class Loops(object):
             return False
         tik = datetime.now()
         process_result = self.ProcessDirectoryWithEndpoint(itempath, file_hash, endpoint_index)
+        tok = datetime.now()
 
-        if process_result:
-            self.status.add_completed()
+        delta = tok - tik
+        meta_service = Metadata_Service()
+        meta_service.set_hd2_to_hd3_copy_time(itempath, delta.total_seconds())
 
-            tok = datetime.now()
-            delta = tok - tik
-
-            meta_service = Metadata_Service()
-            meta_service.set_hd2_to_hd3_copy_time(itempath, delta.total_seconds())
-        else:
+        if not process_result:
             self.status.add_failed()
 
         return process_result
@@ -186,27 +181,17 @@ class Loops(object):
         for key in json_list:
 
             source_path = self.storage.hd2_data(key)
+            destination_path = ""
 
             if (FileStatus.COMPLETED == json_list[key]["file_status"]):
                 destination_path = self.storage.hd2_processed(key)
+            elif (FileStatus.NOT_SUPPORTED == json_list[key]["file_status"]):
+                destination_path = self.storage.hd2_not_supported(key)
 
+            if destination_path:
                 if folder_exists(destination_path):
                     folder_delete_all(destination_path)
-
                 shutil.move(source_path, destination_path)
-
-            if (FileStatus.FAILED == json_list[key]["file_status"]):
-
-                meta_service = Metadata_Service()
-                meta_service.get_from_file(source_path)
-                metadata = meta_service.metadata
-                if metadata.get_original_file_extension() in ['.xml', '.json']:
-                    destination_path = self.storage.hd2_not_processed(key)
-
-                    if folder_exists(destination_path):
-                        folder_delete_all(destination_path)
-
-                    shutil.move(source_path, destination_path)
 
     def LoopHashDirectoriesInternal(self, thread_count, do_single):
 

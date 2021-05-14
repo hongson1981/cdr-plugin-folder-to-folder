@@ -66,7 +66,7 @@ class test_Loops(Temp_Config):
         count = 20
         self.add_test_files(count=count, execute_stage_1=True)
 
-        with patch.object(File_Processing, 'do_rebuild', return_value=True):
+        with patch.object(File_Processing, 'do_rebuild_zip', return_value=True):
             self.loops.LoopHashDirectoriesInternal(thread_count=10, do_single=False)
 
         Loops.continue_processing = False
@@ -96,10 +96,10 @@ class test_Loops(Temp_Config):
         assert self.loops.ProcessDirectoryWithEndpoint(itempath, filehash, 0) is False
 
     def test_LoopHashDirectoriesInternal_bad(self):
-        hd2_data_location = self.loops.config.hd2_data_location
-        self.loops.config.hd2_data_location = '/not_existing'
+        hd2_todo_location = self.loops.config.hd2_todo_location
+        self.loops.config.hd2_todo_location = '/not_existing'
         assert self.loops.LoopHashDirectoriesInternal(thread_count=30, do_single=False) is False
-        self.loops.config.hd2_data_location = hd2_data_location
+        self.loops.config.hd2_todo_location = hd2_todo_location
 
 
 
