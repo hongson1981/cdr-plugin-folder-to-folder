@@ -66,7 +66,7 @@ class test_Loops(Temp_Config):
         count = 20
         self.add_test_files(count=count, execute_stage_1=True)
 
-        with patch.object(File_Processing, 'do_rebuild', return_value=True):
+        with patch.object(File_Processing, 'do_rebuild_zip', return_value=True):
             self.loops.LoopHashDirectoriesInternal(thread_count=10, do_single=False)
 
         Loops.continue_processing = False

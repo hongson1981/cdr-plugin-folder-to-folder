@@ -67,28 +67,28 @@ class test_File_Processing(Temp_Config):
         dir     = ''
 
     # todo move this test to integration tests and refactor test here to mock the server response
-    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
-    def test_do_rebuild(self):          # refactor
-        endpoint    = f'http://{self.sdk_server}:{self.sdk_port}'
-        hash        = Metadata_Utils().file_hash(self.test_file)
-        assert self.analysis_json.add_file(hash, self.test_file_name) is True
-        dir         = self.metadata.metadata_folder_path()
-        result = self.file_processing.do_rebuild(endpoint=endpoint, hash=hash, source_path=self.test_file, dir=dir)
-        assert result is True
-        assert self.metadata.metadata_file_exists()
-        assert self.metadata.report_file_exists()
+    # @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
+    # def test_do_rebuild(self):          # refactor
+    #     endpoint    = f'http://{self.sdk_server}:{self.sdk_port}'
+    #     hash        = Metadata_Utils().file_hash(self.test_file)
+    #     assert self.analysis_json.add_file(hash, self.test_file_name) is True
+    #     dir         = self.metadata.metadata_folder_path()
+    #     result = self.file_processing.do_rebuild(endpoint=endpoint, hash=hash, source_path=self.test_file, dir=dir)
+    #     assert result is True
+    #     assert self.metadata.metadata_file_exists()
+    #     assert self.metadata.report_file_exists()
 
-    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
-    def test_do_rebuild_bad_file(self):  # refactor
-        bad_file      = temp_file(contents=random_text())
-        file_hash     = file_sha256(bad_file)
-        metadata      = self.meta_service.create_metadata(bad_file)
-        endpoint    = f'http://{self.sdk_server}:{self.sdk_port}'
-        dir         = metadata.metadata_folder_path()
-        result      = self.file_processing.do_rebuild(endpoint=endpoint, hash=file_hash, source_path=bad_file, dir=dir)
-        assert result == False
-        metadata.load()
-        assert metadata.data.get('error') ==  File_Processing.RESP_CODE_NOT_DECODED
+    # @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
+    # def test_do_rebuild_bad_file(self):  # refactor
+    #     bad_file      = temp_file(contents=random_text())
+    #     file_hash     = file_sha256(bad_file)
+    #     metadata      = self.meta_service.create_metadata(bad_file)
+    #     endpoint    = f'http://{self.sdk_server}:{self.sdk_port}'
+    #     dir         = metadata.metadata_folder_path()
+    #     result      = self.file_processing.do_rebuild(endpoint=endpoint, hash=file_hash, source_path=bad_file, dir=dir)
+    #     assert result == False
+    #     metadata.load()
+    #     assert metadata.data.get('error') ==  File_Processing.RESP_CODE_NOT_DECODED
 
     @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
     def test_processDirectory__bad_file(self):
