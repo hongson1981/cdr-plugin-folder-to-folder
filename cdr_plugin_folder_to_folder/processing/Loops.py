@@ -105,9 +105,6 @@ class Loops(object):
                     'timestamp': datetime.now(),
                 }
             log_info('ProcessDirectoryWithEndpoint', data=log_data)
-            meta_service.set_error(itempath, "none")
-            meta_service.set_status(itempath, FileStatus.COMPLETED)
-            self.hash_json.update_status(file_hash, FileStatus.COMPLETED)
             events.add_log("Has been processed")
             return True
         except Exception as error:
@@ -131,16 +128,13 @@ class Loops(object):
             return False
         tik = datetime.now()
         process_result = self.ProcessDirectoryWithEndpoint(itempath, file_hash, endpoint_index)
+        tok = datetime.now()
 
-        if process_result:
-            self.status.add_completed()
+        delta = tok - tik
+        meta_service = Metadata_Service()
+        meta_service.set_hd2_to_hd3_copy_time(itempath, delta.total_seconds())
 
-            tok = datetime.now()
-            delta = tok - tik
-
-            meta_service = Metadata_Service()
-            meta_service.set_hd2_to_hd3_copy_time(itempath, delta.total_seconds())
-        else:
+        if not process_result:
             self.status.add_failed()
 
         return process_result

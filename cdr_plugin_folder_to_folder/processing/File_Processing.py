@@ -398,17 +398,21 @@ class File_Processing:
         else:
             status = self.do_rebuild(endpoint, hash, source_path, dir)
 
-#        if status:
-#            self.meta_service.set_status(dir, FileStatus.COMPLETED)
-#            self.meta_service.set_error(dir, "none")
-#        else:
-        if not status:
-            self.meta_service.get_from_file(dir)
-            metadata = self.meta_service.metadata
+        self.meta_service.get_from_file(dir)
+        metadata = self.meta_service.metadata
+
+        if status:
+            self.status.add_completed()
+            self.meta_service.set_status(dir, FileStatus.COMPLETED)
+            self.hash_json.update_status(hash, FileStatus.COMPLETED)
+            self.meta_service.set_error(dir, "none")
+        else:
             if not metadata.get_original_file_extension() in self.config.supported_file_types:
+                self.status.add_not_supported()
                 self.meta_service.set_status(dir, FileStatus.NOT_SUPPORTED)
                 self.hash_json.update_status(hash, FileStatus.NOT_SUPPORTED)
             else:
+                self.status.add_failed()
                 self.meta_service.set_status(dir, FileStatus.FAILED)
                 self.hash_json.update_status(hash, FileStatus.FAILED)
 
@@ -416,6 +420,6 @@ class File_Processing:
         delta = tok - tik
         self.meta_service.set_rebuild_file_duration(dir, delta.total_seconds())
 
-        return status
+        return True
 
 
