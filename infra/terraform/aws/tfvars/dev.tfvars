@@ -2,8 +2,8 @@ project              = "cdr-test"
 
 sdk_image_id         = "ami-0471bf568e56156a8"
 
-vpc_id               = "vpc-03341bc20173d3962"
-public_subnets       = ["subnet-08c9ab8d0806dc584","subnet-06c2a9498991f6078","subnet-0cdf52baff149c47e"]
+vpc_id               = "vpc-id-here"
+public_subnets       = ["subnet-1 here","subnet-2 here","subnet-3 here"]
 
 sdk_desired_capacity = 2
 sdk_min_instances    = 2
