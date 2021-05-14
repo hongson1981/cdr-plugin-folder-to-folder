@@ -1,5 +1,6 @@
 variable "project_name" {
   type = string
+  default = "cdr-test"
 }
 
 variable "subnets" {

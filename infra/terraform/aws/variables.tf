@@ -25,14 +25,14 @@ variable "common_tags" {
     "Name": "cdr-gw-sdk",
     "Delete": "No",
     "Scope": "cdr-plugin-f2f",
-    "Owner": "Pranay",
+    "Owner": "Dharam",
     "Team": "k8-proxy"
   } 
 }
 
 # glasswall cloud sdk
 variable "sdk_image_id" {
-  default = "ami-0fa43c31f53049a8e"
+  default = "ami-0f9ca86402ab7ce91"
 }
 
 variable "sdk_lb_sgs" {
