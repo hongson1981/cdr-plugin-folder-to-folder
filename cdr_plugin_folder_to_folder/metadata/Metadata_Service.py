@@ -108,3 +108,20 @@ class Metadata_Service:
 
     def set_hd2_to_hd3_copy_time(self,metadata_folder, seconds):
         self.set_metadata_field(metadata_folder, 'hd2_to_hd3_copy_time', seconds)
+
+    def reset_metadata(self, metadata_folder):
+        self.set_xml_report_status(metadata_folder, None)
+        self.set_rebuild_server(metadata_folder, None)
+        self.set_server_version(metadata_folder, None)
+        self.set_error(metadata_folder, None)
+        self.set_rebuild_file_path(metadata_folder, None)
+        self.set_rebuild_hash(metadata_folder, None)
+        self.set_status(metadata_folder, FileStatus.INITIAL)
+        self.set_rebuild_file_extension(metadata_folder, None)
+        self.set_rebuild_file_size(metadata_folder, None)
+        self.set_rebuild_file_duration(metadata_folder, None)
+        self.set_f2f_plugin_version(metadata_folder, None)
+        self.set_f2f_plugin_git_commit(metadata_folder, None)
+        self.set_hd1_to_hd2_copy_time(metadata_folder, None)
+        self.set_hd2_to_hd3_copy_time(metadata_folder, None)
+

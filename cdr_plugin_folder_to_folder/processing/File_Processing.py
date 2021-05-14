@@ -149,94 +149,104 @@ class File_Processing:
             self.add_event_log('Decoding FAILED. The HTML file has been saved')
             return processed_path + '.html'                                                 # todo: refactor this workflow and how this is calculated
 
-    @log_duration
-    def do_rebuild(self, endpoint, hash, source_path, dir):
-        log_info(message=f"Starting rebuild for file {hash} on endpoint {endpoint}")
-        with Duration() as duration:
-            event_data = {"endpoint": endpoint, "hash": hash, "source_path": source_path, "dir": dir } # todo: see if we can use a variable that holds the params data
-            self.add_event_log('Starting File rebuild', event_data)
+    def get_server_version(self, dir, headers):
 
-            self.meta_service.set_rebuild_server(dir, endpoint)
+        SDKEngineVersionKey = "X-SDK-Engine-Version"
+        SDKAPIVersionKey = "X-SDK-Api-Version"
 
-            encodedFile = FileService.base64encode(source_path)
-            if not encodedFile:
-                message = f"Failed to encode the file: {hash}"
-                log_error(message=message)
-                self.add_event_log(message)
-                self.meta_service.set_error(dir,message)
-                return False
+        sdk_engine_version = ""
+        sdk_api_version = ""
 
-            response = self.rebuild(endpoint, encodedFile)
-            result = response.text
-            if not result:
-                message = f"Failed to rebuild the file : {hash}"
-                log_error(message=message)
-                self.add_event_log(message)
-                self.meta_service.set_error(dir, message)
-                return False
+        if SDKEngineVersionKey in headers:
+            sdk_engine_version = headers[SDKEngineVersionKey]
+        if SDKAPIVersionKey in headers:
+            sdk_api_version = headers[SDKAPIVersionKey]
 
-            try:
-                for path in self.meta_service.get_original_file_paths(dir):
-                    #rebuild_file_path = path
-                    if path.startswith(self.config.hd1_location):
-                        rebuild_file_path = path.replace(self.config.hd1_location, self.config.hd3_location)
-                    else:
-                        rebuild_file_path = os.path.join(self.config.hd3_location, path)
+        if not sdk_engine_version and not sdk_api_version:
+            return
 
-                    folder_create(parent_folder(rebuild_file_path))                         # make sure parent folder exists
+        self.meta_service.set_server_version(dir, "Engine:" + sdk_engine_version + " API:" + sdk_api_version )
 
-                    final_rebuild_file_path = self.save_file(result, rebuild_file_path)     # returns actual file saved (which could be .html)
+    # @log_duration
+    # def do_rebuild(self, endpoint, hash, source_path, dir):
+    #     log_info(message=f"Starting rebuild for file {hash} on endpoint {endpoint}")
+    #     with Duration() as duration:
+    #         event_data = {"endpoint": endpoint, "hash": hash, "source_path": source_path, "dir": dir } # todo: see if we can use a variable that holds the params data
+    #         self.add_event_log('Starting File rebuild', event_data)
 
-                    # todo: improve the performance of these update since each will trigger a save
-                    file_size    = os.path.getsize(final_rebuild_file_path)                 # calculate rebuilt file fize
-                    rebuild_hash = self.meta_service.file_hash(final_rebuild_file_path)     # calculate hash of final_rebuild_file_path
+    #         self.meta_service.set_rebuild_server(dir, endpoint)
 
-                    self.meta_service.set_rebuild_file_size(dir, file_size)
-                    self.meta_service.set_rebuild_file_path(dir, final_rebuild_file_path)   # capture final_rebuild_file_path
-                    self.meta_service.set_rebuild_hash(dir, rebuild_hash)                   # capture it
-                if not FileService.base64decode(result):
-                    message = File_Processing.RESP_CODE_NOT_DECODED
-                    log_error(message=message, data=f"{result}")
-                    self.meta_service.set_error(dir,message)
-                    return False
-            except Exception as error:
-                message=f"Error Saving file for {hash} : {error}"
-                log_error(message=message)
-                self.meta_service.set_xml_report_status(dir, "No Report")
-                self.meta_service.set_error(dir,message)
-                return False
+    #         encodedFile = FileService.base64encode(source_path)
+    #         if not encodedFile:
+    #             message = f"Failed to encode the file: {hash}"
+    #             log_error(message=message)
+    #             self.add_event_log(message)
+    #             self.meta_service.set_error(dir,message)
+    #             return False
 
-            headers = response.headers
-            fileIdKey = "X-Adaptation-File-Id"
+    #         response = self.rebuild(endpoint, encodedFile)
+    #         result = response.text
+    #         if not result:
+    #             message = f"Failed to rebuild the file : {hash}"
+    #             log_error(message=message)
+    #             self.add_event_log(message)
+    #             self.meta_service.set_error(dir, message)
+    #             return False
 
-            # get XML report
-            if fileIdKey in headers:
-                if self.get_xmlreport(endpoint, headers[fileIdKey], dir):
-                    self.add_event_log('The XML report has been saved')
-                    self.meta_service.set_xml_report_status(dir, "Obtained")
-                else:
-                    self.meta_service.set_xml_report_status(dir, "No XML Report")
-            else:
-                self.meta_service.set_xml_report_status(dir, "Failed to obtain")
-                message = f'No X-Adaptation-File-Id header found in the response for {hash}'
-                log_error(message)
-                self.add_event_log(message)
-                self.meta_service.set_error(dir, message)
-                return False
-                #raise ValueError("No X-Adaptation-File-Id header found in the response")
+    #         try:
+    #             for path in self.meta_service.get_original_file_paths(dir):
+    #                 #rebuild_file_path = path
+    #                 if path.startswith(self.config.hd1_location):
+    #                     rebuild_file_path = path.replace(self.config.hd1_location, self.config.hd3_location)
+    #                 else:
+    #                     rebuild_file_path = os.path.join(self.config.hd3_location, path)
 
-            # todo: add when server side supports this
-            # SDKEngineVersionKey = "X-SDK-Engine-Version"
-            # SDKAPIVersionKey = "X-SDK-Api-Version"
-            #
-            # if SDKEngineVersionKey in headers:
-            #     self.sdk_engine_version = headers[SDKEngineVersionKey]
-            # if SDKAPIVersionKey in headers:
-            #     self.sdk_api_version = headers[SDKAPIVersionKey]
-            #
-            # self.meta_service.set_server_version(dir, "Engine:" + self.sdk_engine_version + " API:" + self.sdk_api_version )
-        log_info(message=f"rebuild ok for file {hash} on endpoint {endpoint} took {duration.seconds()} seconds")
-        return True
+    #                 folder_create(parent_folder(rebuild_file_path))                         # make sure parent folder exists
+
+    #                 final_rebuild_file_path = self.save_file(result, rebuild_file_path)     # returns actual file saved (which could be .html)
+
+    #                 # todo: improve the performance of these update since each will trigger a save
+    #                 file_size    = os.path.getsize(final_rebuild_file_path)                 # calculate rebuilt file fize
+    #                 rebuild_hash = self.meta_service.file_hash(final_rebuild_file_path)     # calculate hash of final_rebuild_file_path
+
+    #                 self.meta_service.set_rebuild_file_size(dir, file_size)
+    #                 self.meta_service.set_rebuild_file_path(dir, final_rebuild_file_path)   # capture final_rebuild_file_path
+    #                 self.meta_service.set_rebuild_hash(dir, rebuild_hash)                   # capture it
+    #             if not FileService.base64decode(result):
+    #                 message = File_Processing.RESP_CODE_NOT_DECODED
+    #                 log_error(message=message, data=f"{result}")
+    #                 self.meta_service.set_error(dir,message)
+    #                 return False
+    #         except Exception as error:
+    #             message=f"Error Saving file for {hash} : {error}"
+    #             log_error(message=message)
+    #             self.meta_service.set_xml_report_status(dir, "No Report")
+    #             self.meta_service.set_error(dir,message)
+    #             return False
+
+    #         headers = response.headers
+    #         fileIdKey = "X-Adaptation-File-Id"
+
+    #         # get XML report
+    #         if fileIdKey in headers:
+    #             if self.get_xmlreport(endpoint, headers[fileIdKey], dir):
+    #                 self.add_event_log('The XML report has been saved')
+    #                 self.meta_service.set_xml_report_status(dir, "Obtained")
+    #             else:
+    #                 self.meta_service.set_xml_report_status(dir, "No XML Report")
+    #         else:
+    #             self.meta_service.set_xml_report_status(dir, "Failed to obtain")
+    #             message = f'No X-Adaptation-File-Id header found in the response for {hash}'
+    #             log_error(message)
+    #             self.add_event_log(message)
+    #             self.meta_service.set_error(dir, message)
+    #             return False
+    #             #raise ValueError("No X-Adaptation-File-Id header found in the response")
+
+    #         self.get_server_version(dir, headers)
+
+    #     log_info(message=f"rebuild ok for file {hash} on endpoint {endpoint} took {duration.seconds()} seconds")
+    #     return True
 
     @log_duration
     def do_rebuild_zip(self, endpoint, hash, source_path, dir):
@@ -265,6 +275,8 @@ class File_Processing:
             zip_file_path = os.path.join(dir, "rebuild.zip")
 
             headers = response.headers
+            self.get_server_version(dir, headers)
+
             fileIdKey = "X-Adaptation-File-Id"
 
             unzip_folder_path = path_append(dir, headers[fileIdKey])
@@ -333,7 +345,7 @@ class File_Processing:
             except Exception as error:
                 message=f"Error in do_rebuild_zip for {hash} : {error}"
                 if "is not a zip file" in message:
-                    message = "Error while processing the request. See details in 'errors.json'"
+                    message = "Error while processing the request. See details in 'error.json'"
                     try:
                         file_copy(zip_file_path, os.path.join(dir, "error.json"))
                     except:
@@ -349,6 +361,40 @@ class File_Processing:
                     folder_delete_all(unzip_folder_path)
 
         return retvalue
+
+    def finalize_completed(self, dir, hash):
+        self.status.add_completed()
+        self.meta_service.set_status(dir, FileStatus.COMPLETED)
+        self.hash_json.update_status(hash, FileStatus.COMPLETED)
+        self.meta_service.set_error(dir, "none")
+
+    def finalize_failed(self, dir, hash):
+        self.status.add_failed()
+        self.meta_service.set_status(dir, FileStatus.FAILED)
+        self.hash_json.update_status(hash, FileStatus.FAILED)
+
+    def finalize_not_supported(self, dir, hash):
+        self.status.add_not_supported()
+        self.meta_service.set_status(dir, FileStatus.NOT_SUPPORTED)
+        self.hash_json.update_status(hash, FileStatus.NOT_SUPPORTED)
+
+        if not self.config.save_unsupported_file_types:
+            self.events_log.add_log("Will not be copied to hd3")
+            return
+
+        for path in self.meta_service.get_original_file_paths(dir):
+
+            rebuild_file_path = self.config.hd3_location
+            if path.startswith(self.config.hd1_location):
+                rebuild_file_path = path.replace(self.config.hd1_location, self.config.hd3_location)
+            else:
+                rebuild_file_path = self.storage.hd3(path)
+
+            self.events_log.add_log(f"Copying {path} to {rebuild_file_path}")
+
+            # make sure parent folder exists
+            folder_create(parent_folder(rebuild_file_path))
+            file_copy(path, rebuild_file_path)
 
     @log_duration
     def processDirectory (self, endpoint, dir, use_rebuild_zip=False):
@@ -381,23 +427,28 @@ class File_Processing:
 
         self.add_event_log("Sending to rebuild")
         tik = datetime.now()
-        if use_rebuild_zip:
-            status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
-        else:
-            status = self.do_rebuild(endpoint, hash, source_path, dir)
+        # if use_rebuild_zip:
+        #     status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
+        # else:
+        #     status = self.do_rebuild(endpoint, hash, source_path, dir)
 
-#        if status:
-#            self.meta_service.set_status(dir, FileStatus.COMPLETED)
-#            self.meta_service.set_error(dir, "none")
-#        else:
-        if not status:
-            self.meta_service.set_status(dir, FileStatus.FAILED)
-            self.hash_json.update_status(hash, FileStatus.FAILED)
+        status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
+
+        self.meta_service.get_from_file(dir)
+        metadata = self.meta_service.metadata
+
+        if status:
+            self.finalize_completed(dir,hash)
+        else:
+            if not metadata.get_original_file_extension() in self.config.supported_file_types:
+                self.finalize_not_supported(dir,hash)
+            else:
+                self.finalize_failed(dir,hash)
 
         tok = datetime.now()
         delta = tok - tik
         self.meta_service.set_rebuild_file_duration(dir, delta.total_seconds())
 
-        return status
+        return True
 
 

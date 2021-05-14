@@ -17,7 +17,7 @@ class test_Configure(TestCase):
     def test_config(self):
         path = f"{self.prefix}/config/"
         response = self.client.GET(path)
-        assert list_set(response) == ['elastic_host', 'elastic_port', 'elastic_schema', 'endpoints', 'hd1_location', 'hd2_data_location', 'hd2_location', 'hd2_processed_location', 'hd2_status_location', 'hd3_location', 'kibana_host', 'kibana_port', 'request_timeout', 'root_folder', 'thread_count']
+        assert list_set(response) == ['elastic_host', 'elastic_port', 'elastic_schema', 'endpoints', 'hd1_location', 'hd2_location', 'hd2_processed_location', 'hd2_status_location', 'hd2_todo_location', 'hd3_location', 'kibana_host', 'kibana_port', 'request_timeout', 'root_folder', 'thread_count']
 
     @pytest.mark.skip("this is breaking current .env file (this needs to run on a temp .env file)")
     def test_configure(self):

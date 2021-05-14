@@ -12,10 +12,10 @@ from cdr_plugin_folder_to_folder.utils.testing.Setup_Testing import Setup_Testin
 DEFAULT_HD1_NAME         = 'hd1'
 DEFAULT_HD2_NAME         = 'hd2'
 DEFAULT_HD3_NAME         = 'hd3'
-DEFAULT_HD2_DATA_NAME    = 'data'
+DEFAULT_HD2_TODO_NAME    = 'todo'
 DEFAULT_HD2_STATUS_NAME  = 'status'
 DEFAULT_HD2_PROCESSED_NAME      = 'processed'
-DEFAULT_HD2_NOT_PROCESSED_NAME  = 'cannot_be_processed'
+DEFAULT_HD2_NOT_SUPPORTED_NAME  = 'not_supported'
 DEFAULT_ROOT_FOLDER      = path_combine(__file__                , '../../../test_data/scenario-1' )
 DEFAULT_HD1_LOCATION     = path_combine(DEFAULT_ROOT_FOLDER     , DEFAULT_HD1_NAME                )
 DEFAULT_HD2_LOCATION     = path_combine(DEFAULT_ROOT_FOLDER     , DEFAULT_HD2_NAME                )
@@ -26,11 +26,14 @@ DEFAULT_ELASTIC_SCHEMA   = "http"
 DEFAULT_KIBANA_HOST      = "kib01"
 DEFAULT_KIBANA_PORT      = "5601"
 DEFAULT_THREAD_COUNT     = 10
-DEFAULT_TEST_SDK         = '3.249.16.227'
+DEFAULT_TEST_SDK         = '54.171.39.142'
 DEFAULT_ENDPOINTS        = '{"Endpoints":[{"IP":"' + DEFAULT_TEST_SDK + '", "Port":"8080"}]}'
+DEFAULT_SUPPORTED_FILE_TYPES = '.doc .dot .xls .xlt .xlm .ppt .pot .pps .docx .dotx .docm .dotm .xlsx .xltx .xlsm .xltm .pptx .potx .ppsx .pptm .potm .ppsm .pdf .jpeg .jpg .jpe .png .gif'
+DEFUALT_SAVE_UNSUPPORTED_FILE_TYPES = True
 DEFAULT_REQUEST_TIMEOUT  = 600
 DEFAULT_REBUILD_ZIP      = True
-API_VERSION              = "v0.5.65"
+DEFAULT_SDK_SERVERS_API  = 'https://tmol8zkg3c.execute-api.eu-west-1.amazonaws.com/prod/sdk-servers/ip_addresses'
+API_VERSION              = "v0.6.4"
 
 
 
@@ -45,7 +48,7 @@ class Config:
         if hasattr(self, 'root_folder') is False:                     # only set these values first time around
             self.hd1_location           = None
             self.hd2_location           = None
-            self.hd2_data_location      = None
+            self.hd2_todo_location      = None
             self.hd2_status_location    = None
             self.hd2_processed_location = None
             self.hd3_location           = None
@@ -61,6 +64,9 @@ class Config:
             self.endpoints_count        = None
             self.request_timeout        = None
             self.rebuild_zip            = None
+            self.sdk_servers_api        = None
+            self.supported_file_types   = None
+            self.save_unsupported_file_types = None
             self.load_values()                                      # due to the singleton pattern this will only be executed once
 
     def load_values(self):
@@ -75,17 +81,23 @@ class Config:
         self.thread_count        = os.getenv    ("THREAD_COUNT"    , DEFAULT_THREAD_COUNT   )
         self.request_timeout     = os.getenv    ("REQUEST_TIMEOUT" , DEFAULT_REQUEST_TIMEOUT)
         self.rebuild_zip         = os.getenv    ("REBUILD_ZIP"     , DEFAULT_REBUILD_ZIP    )
-        self.test_sdk            = os.getenv    ("DEFAULT_TEST_SDK", DEFAULT_TEST_SDK       )
+        self.test_sdk            = os.getenv    ("TEST_SDK"        , DEFAULT_TEST_SDK       )
+        self.sdk_servers_api     = os.getenv    ("SDK_SERVERS_API" , DEFAULT_SDK_SERVERS_API)
 
         json_string          = os.getenv("ENDPOINTS", DEFAULT_ENDPOINTS)
         self.endpoints       = json.loads(json_string)
 
         self.endpoints_count = len(self.endpoints['Endpoints'])
 
+        file_types      = os.getenv("SUPPORTED_FILE_TYPES", DEFAULT_SUPPORTED_FILE_TYPES)
+        self.supported_file_types = file_types.split()
+
+        self.save_unsupported_file_types = os.getenv("SAVE_UNSUPPORTED_FILE_TYPES", DEFUALT_SAVE_UNSUPPORTED_FILE_TYPES)
+
         self.set_hd1_location(os.getenv("HD1_LOCATION", DEFAULT_HD1_LOCATION))       # set hd1, hd2 and hd3 values
         self.set_hd2_location(os.getenv("HD2_LOCATION", DEFAULT_HD2_LOCATION))
         self.set_hd3_location(os.getenv("HD3_LOCATION", DEFAULT_HD3_LOCATION))
-        #pprint(self.values())
+
         return self
 
     def ensure_last_char_is_not_forward_slash(self, path: str):
@@ -99,12 +111,12 @@ class Config:
 
     def set_hd2_location(self, hd2_location):
         self.hd2_location           = self.ensure_last_char_is_not_forward_slash(hd2_location)
-        self.hd2_data_location      = path_combine(self.hd2_location, DEFAULT_HD2_DATA_NAME)
+        self.hd2_todo_location      = path_combine(self.hd2_location, DEFAULT_HD2_TODO_NAME)
         self.hd2_status_location    = path_combine(self.hd2_location, DEFAULT_HD2_STATUS_NAME)
         self.hd2_processed_location     = path_combine(self.hd2_location, DEFAULT_HD2_PROCESSED_NAME)
-        self.hd2_not_processed_location = path_combine(self.hd2_location, DEFAULT_HD2_NOT_PROCESSED_NAME)
+        self.hd2_not_supported_location = path_combine(self.hd2_location, DEFAULT_HD2_NOT_SUPPORTED_NAME)
         folder_create(self.hd2_location       )
-        folder_create(self.hd2_data_location  )
+        folder_create(self.hd2_todo_location  )
         folder_create(self.hd2_status_location)
         folder_create(self.hd2_processed_location)
 
@@ -131,7 +143,7 @@ class Config:
         return {
             "hd1_location"           : self.hd1_location        ,
             "hd2_location"           : self.hd2_location        ,
-            "hd2_data_location"      : self.hd2_data_location   ,
+            "hd2_todo_location"      : self.hd2_todo_location   ,
             "hd2_status_location"    : self.hd2_status_location ,
             "hd2_processed_location" : self.hd2_processed_location,
             "hd3_location"           : self.hd3_location        ,
