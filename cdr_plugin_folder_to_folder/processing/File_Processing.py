@@ -362,6 +362,40 @@ class File_Processing:
 
         return retvalue
 
+    def finalize_completed(self, dir, hash):
+        self.status.add_completed()
+        self.meta_service.set_status(dir, FileStatus.COMPLETED)
+        self.hash_json.update_status(hash, FileStatus.COMPLETED)
+        self.meta_service.set_error(dir, "none")
+
+    def finalize_failed(self, dir, hash):
+        self.status.add_failed()
+        self.meta_service.set_status(dir, FileStatus.FAILED)
+        self.hash_json.update_status(hash, FileStatus.FAILED)
+
+    def finalize_not_supported(self, dir, hash):
+        self.status.add_not_supported()
+        self.meta_service.set_status(dir, FileStatus.NOT_SUPPORTED)
+        self.hash_json.update_status(hash, FileStatus.NOT_SUPPORTED)
+
+        if not self.config.save_unsupported_file_types:
+            self.events_log.add_log("Will not be copied to hd3")
+            return
+
+        for path in self.meta_service.get_original_file_paths(dir):
+
+            rebuild_file_path = self.config.hd3_location
+            if path.startswith(self.config.hd1_location):
+                rebuild_file_path = path.replace(self.config.hd1_location, self.config.hd3_location)
+            else:
+                rebuild_file_path = self.storage.hd3(path)
+
+            self.events_log.add_log(f"Copying {path} to {rebuild_file_path}")
+
+            # make sure parent folder exists
+            folder_create(parent_folder(rebuild_file_path))
+            file_copy(path, rebuild_file_path)
+
     @log_duration
     def processDirectory (self, endpoint, dir, use_rebuild_zip=False):
         self.add_event_log("Processing Directory: " + dir)
@@ -402,19 +436,12 @@ class File_Processing:
         metadata = self.meta_service.metadata
 
         if status:
-            self.status.add_completed()
-            self.meta_service.set_status(dir, FileStatus.COMPLETED)
-            self.hash_json.update_status(hash, FileStatus.COMPLETED)
-            self.meta_service.set_error(dir, "none")
+            self.finalize_completed(dir,hash)
         else:
             if not metadata.get_original_file_extension() in self.config.supported_file_types:
-                self.status.add_not_supported()
-                self.meta_service.set_status(dir, FileStatus.NOT_SUPPORTED)
-                self.hash_json.update_status(hash, FileStatus.NOT_SUPPORTED)
+                self.finalize_not_supported(dir,hash)
             else:
-                self.status.add_failed()
-                self.meta_service.set_status(dir, FileStatus.FAILED)
-                self.hash_json.update_status(hash, FileStatus.FAILED)
+                self.finalize_failed(dir,hash)
 
         tok = datetime.now()
         delta = tok - tik
