@@ -427,10 +427,12 @@ class File_Processing:
 
         self.add_event_log("Sending to rebuild")
         tik = datetime.now()
-        if True: #use_rebuild_zip:
-            status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
+        # if use_rebuild_zip:
+        #     status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
         # else:
         #     status = self.do_rebuild(endpoint, hash, source_path, dir)
+
+        status = self.do_rebuild_zip(endpoint, hash, source_path, dir)
 
         self.meta_service.get_from_file(dir)
         metadata = self.meta_service.metadata
