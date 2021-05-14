@@ -186,27 +186,17 @@ class Loops(object):
         for key in json_list:
 
             source_path = self.storage.hd2_data(key)
+            destination_path = ""
 
             if (FileStatus.COMPLETED == json_list[key]["file_status"]):
                 destination_path = self.storage.hd2_processed(key)
+            elif (FileStatus.NOT_SUPPORTED == json_list[key]["file_status"]):
+                destination_path = self.storage.hd2_not_supported(key)
 
+            if destination_path:
                 if folder_exists(destination_path):
                     folder_delete_all(destination_path)
-
                 shutil.move(source_path, destination_path)
-
-            if (FileStatus.FAILED == json_list[key]["file_status"]):
-
-                meta_service = Metadata_Service()
-                meta_service.get_from_file(source_path)
-                metadata = meta_service.metadata
-                if not metadata.get_original_file_extension() in self.config.supported_file_types:
-                    destination_path = self.storage.hd2_not_supported(key)
-
-                    if folder_exists(destination_path):
-                        folder_delete_all(destination_path)
-
-                    shutil.move(source_path, destination_path)
 
     def LoopHashDirectoriesInternal(self, thread_count, do_single):
 

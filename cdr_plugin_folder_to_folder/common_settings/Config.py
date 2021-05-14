@@ -66,7 +66,7 @@ class Config:
             self.rebuild_zip            = None
             self.sdk_servers_api        = None
             self.supported_file_types   = None
-            self.save_unsupported_fyle_types = None
+            self.save_unsupported_file_types = None
             self.load_values()                                      # due to the singleton pattern this will only be executed once
 
     def load_values(self):
@@ -92,7 +92,7 @@ class Config:
         file_types      = os.getenv("SUPPORTED_FILE_TYPES", DEFAULT_SUPPORTED_FILE_TYPES)
         self.supported_file_types = file_types.split()
 
-        self.save_unsupported_fyle_types = os.getenv("SAVE_UNSUPPORTED_FILE_TYPES", DEFUALT_SAVE_UNSUPPORTED_FILE_TYPES)
+        self.save_unsupported_file_types = os.getenv("SAVE_UNSUPPORTED_FILE_TYPES", DEFUALT_SAVE_UNSUPPORTED_FILE_TYPES)
 
         self.set_hd1_location(os.getenv("HD1_LOCATION", DEFAULT_HD1_LOCATION))       # set hd1, hd2 and hd3 values
         self.set_hd2_location(os.getenv("HD2_LOCATION", DEFAULT_HD2_LOCATION))

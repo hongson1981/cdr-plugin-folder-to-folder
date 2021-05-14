@@ -403,8 +403,14 @@ class File_Processing:
 #            self.meta_service.set_error(dir, "none")
 #        else:
         if not status:
-            self.meta_service.set_status(dir, FileStatus.FAILED)
-            self.hash_json.update_status(hash, FileStatus.FAILED)
+            self.meta_service.get_from_file(dir)
+            metadata = self.meta_service.metadata
+            if not metadata.get_original_file_extension() in self.config.supported_file_types:
+                self.meta_service.set_status(dir, FileStatus.NOT_SUPPORTED)
+                self.hash_json.update_status(hash, FileStatus.NOT_SUPPORTED)
+            else:
+                self.meta_service.set_status(dir, FileStatus.FAILED)
+                self.hash_json.update_status(hash, FileStatus.FAILED)
 
         tok = datetime.now()
         delta = tok - tik
