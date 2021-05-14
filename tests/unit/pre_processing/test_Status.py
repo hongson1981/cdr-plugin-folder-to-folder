@@ -25,7 +25,7 @@ class test_Status(Temp_Config):
                                                                               ('IN_PROGRESS'    , 'In Progress'                                      ),
                                                                               ('NONE'           , 'None'                                             ),
                                                                               ('NOT_COPIED'     , 'Will not be copied'                               ),
-                                                                              ('NOT_SUPPORTED'  , 'The file type in not currently supported'         ),
+                                                                              ('NOT_SUPPORTED'  , 'The file type is not currently supported'         ),
                                                                               ('TO_PROCESS'     , 'To Process'                                       ),
                                                                               ('__module__'     , 'cdr_plugin_folder_to_folder.pre_processing.Status')]
 

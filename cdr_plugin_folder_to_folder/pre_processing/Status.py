@@ -16,7 +16,7 @@ class FileStatus:                                     # todo move to separate fi
     NOT_COPIED    = "Will not be copied"
     IN_PROGRESS   = "In Progress"
     COMPLETED     = "Completed Successfully"
-    NOT_SUPPORTED = "The file type in not currently supported"
+    NOT_SUPPORTED = "The file type is not currently supported"
     FAILED        = "Completed with errors"
     TO_PROCESS    = "To Process"
     NONE          = "None"
