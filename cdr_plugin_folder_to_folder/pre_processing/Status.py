@@ -182,6 +182,7 @@ class Status:
         return self
 
     def set_started      (self       ): return self.set_processing_status(Processing_Status.STARTED  )
+    def set_stopping     (self       ): return self.set_processing_status(Processing_Status.STOPPING )
     def set_stopped      (self       ): return self.set_processing_status(Processing_Status.STOPPED  )
     def set_phase_1      (self       ): return self.set_processing_status(Processing_Status.PHASE_1  )
     def set_phase_2      (self       ): return self.set_processing_status(Processing_Status.PHASE_2  )

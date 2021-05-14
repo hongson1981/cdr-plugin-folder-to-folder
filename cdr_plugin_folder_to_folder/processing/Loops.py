@@ -58,6 +58,7 @@ class Loops(object):
 
     def StopProcessing(self):
         Loops.continue_processing = False
+        self.status.set_stopping()
 
     def HasBeenStopped(self):
         return not Loops.continue_processing
