@@ -2,7 +2,7 @@
 
 **Repo Workflows**
 
-![](https://github.com/filetrust/cdr-plugin-folder-to-folder/actions/workflows/run-tests.yml/badge.svg)
+![https://coveralls.io/github/filetrust/cdr-plugin-folder-to-folder](https://github.com/filetrust/cdr-plugin-folder-to-folder/actions/workflows/run-tests.yml/badge.svg)
 
 ## Project 
 
