@@ -91,7 +91,7 @@ class Metadata_Elastic:
 
     def reload_kibana_dashboards(self):
         kibana = self.elastic().kibana()
-        dashboard_file_names = ['processed-files-v8.ndjson', 'File-Analysis-Threat-Level.ndjson']
+        dashboard_file_names = ['processed-files-v8.ndjson', 'File-Analysis-Threat-Level-v2.ndjson', 'errors-and-duration.ndjson' ]
         result = []
         for dashboard_file_name in dashboard_file_names:
             result.append(kibana.dashboard_import_from_github(dashboard_file_name=dashboard_file_name))

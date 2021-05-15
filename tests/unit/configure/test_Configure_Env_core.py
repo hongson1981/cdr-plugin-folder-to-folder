@@ -92,12 +92,9 @@ class test_Configure_Env(TestCase):
         assert response is not None
         self.assertEqual(response   , json.loads(expected_return_value))
 
-    @patch("cdr_plugin_folder_to_folder.configure.Configure_Env.Configure_Env.gw_sdk_healthcheck")
+    @patch("cdr_plugin_folder_to_folder.configure.Configure_Env.Configure_Env.gw_sdk_health_and_version_check")
     def test_get_valid_endpoints(self,mock_gw_sdk_healthcheck):
         endpoint_string = '{"Endpoints":[{"IP":"0.0.0.0", "Port":"8080"}]}'
-
-        response = self.configure.get_valid_endpoints(endpoint_string=endpoint_string)
-        assert response is None
 
         mock_gw_sdk_healthcheck.return_value.status_code = 200
         response = self.configure.get_valid_endpoints(endpoint_string=endpoint_string)
@@ -108,10 +105,10 @@ class test_Configure_Env(TestCase):
         mock_request.return_value.status_code=404
 
         server_url="http://0.0.0.1:8800"
-        response = self.configure.gw_sdk_healthcheck(server_url)
+        response = self.configure.gw_sdk_health_and_version_check(server_url)
 
-        assert response is not None
-        assert response.status_code == 404
+        assert response is None
+
 
 
 

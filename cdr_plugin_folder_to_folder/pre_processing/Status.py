@@ -1,3 +1,4 @@
+import os
 import threading
 import psutil
 import logging as logger
@@ -11,26 +12,30 @@ from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
 logger.basicConfig(level=logger.INFO)
 
 class FileStatus:                                     # todo move to separate file (either per enum or with all enums)
-    INITIAL     = "Initial"
-    NOT_COPIED  = "Will not be copied"
-    IN_PROGRESS = "In Progress"
-    COMPLETED   = "Completed Successfully"
-    FAILED      = "Completed with errors"
-    TO_PROCESS  = "To Process"
-    NONE        = "None"
+    INITIAL       = "Initial"
+    NOT_COPIED    = "Will not be copied"
+    IN_PROGRESS   = "In Progress"
+    COMPLETED     = "Completed Successfully"
+    NOT_SUPPORTED = "The file type is not currently supported"
+    FAILED        = "Completed with errors"
+    TO_PROCESS    = "To Process"
+    NONE          = "None"
 
 
 class Processing_Status:
-    STOPPED = "Stopped"
-    STARTED = "Started"
-    PHASE_1 = "PHASE 1 - Copying Files"
-    PHASE_2 = "PHASE 2 - Rebuilding Files"
+    NONE     = "None"
+    STOPPED  = "Stopped"
+    STOPPING = "Stopping"
+    STARTED  = "Started"
+    PHASE_1  = "PHASE 1 - Copying Files"
+    PHASE_2  = "PHASE 2 - Rebuilding Files"
 
 class Status:
 
     STATUS_FILE_NAME             = "status.json"
     VAR_COMPLETED                = "completed"
     VAR_CURRENT_STATUS           = "current_status"
+    VAR_NOT_SUPPORTED            = "not_supported"
     VAR_FAILED                   = "failed"
     VAR_FILES_TO_PROCESS         = "files_to_process"
     VAR_FILES_LEFT_TO_PROCESS    = "files_left_to_process"
@@ -95,6 +100,7 @@ class Status:
                     Status.VAR_FILES_TO_PROCESS       : 0               ,
                     Status.VAR_FILES_LEFT_TO_PROCESS  : 0               ,
                     Status.VAR_COMPLETED              : 0               ,
+                    Status.VAR_NOT_SUPPORTED          : 0               ,
                     Status.VAR_FAILED                 : 0               ,
                     Status.VAR_IN_PROGRESS            : 0               ,
                     Status.VAR_NUMBER_OF_CPUS         : psutil.cpu_count()            ,
@@ -176,6 +182,7 @@ class Status:
         return self
 
     def set_started      (self       ): return self.set_processing_status(Processing_Status.STARTED  )
+    def set_stopping     (self       ): return self.set_processing_status(Processing_Status.STOPPING )
     def set_stopped      (self       ): return self.set_processing_status(Processing_Status.STOPPED  )
     def set_phase_1      (self       ): return self.set_processing_status(Processing_Status.PHASE_1  )
     def set_phase_2      (self       ): return self.set_processing_status(Processing_Status.PHASE_2  )
@@ -208,6 +215,13 @@ class Status:
                 if data[Status.VAR_FILES_LEFT_TO_PROCESS] > 0:
                     data[Status.VAR_FILES_LEFT_TO_PROCESS] -= 1
 
+            elif updated_status == FileStatus.NOT_SUPPORTED:
+                data[Status.VAR_NOT_SUPPORTED] += 1
+                if data[Status.VAR_IN_PROGRESS] > 0:
+                    data[Status.VAR_IN_PROGRESS] -= 1
+                if data[Status.VAR_FILES_LEFT_TO_PROCESS] > 0:
+                    data[Status.VAR_FILES_LEFT_TO_PROCESS] -= 1
+
             elif updated_status == FileStatus.FAILED:
                 data[Status.VAR_FAILED] += 1
                 if data[Status.VAR_IN_PROGRESS] > 0:
@@ -225,17 +239,31 @@ class Status:
 
         return self
 
-    def set_processing_counters(self, count):
+    def reset_phase2(self):
+
         Status.lock.acquire()
         try:
+            self.reset()
             data = self.data()
 
-            data[Status.VAR_IN_PROGRESS] = 0
-            data[Status.VAR_FAILED]      = 0
-            data[Status.VAR_COMPLETED]   = 0
+            files_count = 0
+            for folderName, subfolders, filenames in os.walk(self.storage.hd1()):
+                for filename in filenames:
+                    file_path =  os.path.join(folderName, filename)
+                    if os.path.isfile(file_path):
+                        files_count += 1
 
-            data[Status.VAR_FILES_TO_PROCESS]      = count
-            data[Status.VAR_FILES_LEFT_TO_PROCESS] = count
+            data[Status.VAR_FILES_COUNT] = files_count
+            data[Status.VAR_FILES_COPIED] = files_count
+
+            files_count = 0
+            for key in os.listdir(self.storage.hd2_data()):
+                files_count += 1
+
+            data[Status.VAR_FILES_TO_PROCESS] = files_count
+            data[Status.VAR_FILES_LEFT_TO_PROCESS] = files_count
+
+            data[Status.VAR_CURRENT_STATUS] = Processing_Status.PHASE_2
 
         finally:
             Status.lock.release()
@@ -244,6 +272,7 @@ class Status:
         return self
 
     def add_completed       (self       ): return self.update_counters(FileStatus.COMPLETED          )
+    def add_not_supported   (self       ): return self.update_counters(FileStatus.NOT_SUPPORTED      )
     def add_failed          (self       ): return self.update_counters(FileStatus.FAILED             )
     def add_file            (self       ): return self.update_counters(FileStatus.INITIAL            )
     def set_files_count     (self, count): return self.update_counters(FileStatus.NONE        , count)
@@ -253,6 +282,7 @@ class Status:
 
     def get_completed       (self): return self.data().get(Status.VAR_COMPLETED)
     def get_current_status  (self): return self.data().get(Status.VAR_CURRENT_STATUS)
+    def get_not_supported   (self): return self.data().get(Status.VAR_NOT_SUPPORTED)
     def get_failed          (self): return self.data().get(Status.VAR_FAILED)
     def get_files_count     (self): return self.data().get(Status.VAR_FILES_COUNT)
     def get_files_copied    (self): return self.data().get(Status.VAR_FILES_COPIED)

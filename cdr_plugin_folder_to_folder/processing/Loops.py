@@ -15,10 +15,12 @@ from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
 from cdr_plugin_folder_to_folder.processing.Events_Log_Elastic import Events_Log_Elastic
 from cdr_plugin_folder_to_folder.processing.File_Processing import File_Processing
 from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Service
-from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
+from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus, Processing_Status
+from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import reset_data_folder_to_the_initial_state
 from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 from cdr_plugin_folder_to_folder.processing.Report_Elastic import Report_Elastic
 from cdr_plugin_folder_to_folder.storage.Storage import Storage
+from cdr_plugin_folder_to_folder.processing.Endpoint_Service import Endpoint_Service
 
 from elasticsearch import Elasticsearch
 from datetime import datetime
@@ -44,10 +46,11 @@ class Loops(object):
         self.hash=None
         self.report_elastic = Report_Elastic()
         self.analysis_elastic = Analysis_Elastic()
+        self.endpoint_service = Endpoint_Service()
         self.report_elastic.setup()
         self.analysis_elastic.setup()
         create_folder(self.storage.hd2_processed())
-        create_folder(self.storage.hd2_not_processed())
+        create_folder(self.storage.hd2_not_supported())
 
 
     def IsProcessing(self):
@@ -55,6 +58,7 @@ class Loops(object):
 
     def StopProcessing(self):
         Loops.continue_processing = False
+        self.status.set_stopping()
 
     def HasBeenStopped(self):
         return not Loops.continue_processing
@@ -78,11 +82,16 @@ class Loops(object):
         original_file_path = meta_service.get_original_file_paths(itempath)
         events = Events_Log(itempath)
 
-        endpoint = "http://" + self.config.endpoints['Endpoints'][endpoint_index]['IP'] + ":" + self.config.endpoints['Endpoints'][endpoint_index]['Port']
-        events.add_log("Processing with: " + endpoint)
-
         meta_service.set_f2f_plugin_version(itempath, API_VERSION)
         meta_service.set_f2f_plugin_git_commit(itempath, self.git_commit())
+
+        endpoint = self.endpoint_service.get_endpoint_url()
+        if not endpoint:
+            meta_service.set_status(itempath, FileStatus.FAILED)
+            meta_service.set_error(itempath, "No valid endpoints while processing the file")
+            return False
+
+        events.add_log("Processing with: " + endpoint)
 
         try:
             file_processing = File_Processing(events, self.events_elastic, self.report_elastic, self.analysis_elastic, meta_service)
@@ -97,9 +106,6 @@ class Loops(object):
                     'timestamp': datetime.now(),
                 }
             log_info('ProcessDirectoryWithEndpoint', data=log_data)
-            meta_service.set_error(itempath, "none")
-            meta_service.set_status(itempath, FileStatus.COMPLETED)
-            self.hash_json.update_status(file_hash, FileStatus.COMPLETED)
             events.add_log("Has been processed")
             return True
         except Exception as error:
@@ -123,16 +129,13 @@ class Loops(object):
             return False
         tik = datetime.now()
         process_result = self.ProcessDirectoryWithEndpoint(itempath, file_hash, endpoint_index)
+        tok = datetime.now()
 
-        if process_result:
-            self.status.add_completed()
+        delta = tok - tik
+        meta_service = Metadata_Service()
+        meta_service.set_hd2_to_hd3_copy_time(itempath, delta.total_seconds())
 
-            tok = datetime.now()
-            delta = tok - tik
-
-            meta_service = Metadata_Service()
-            meta_service.set_hd2_to_hd3_copy_time(itempath, delta.total_seconds())
-        else:
+        if not process_result:
             self.status.add_failed()
 
         return process_result
@@ -165,7 +168,11 @@ class Loops(object):
                 self.hash_json.add_file(original_hash, file_name)
 
         self.hash_json.save()
-        self.status.set_processing_counters(len(self.hash_json.data()))
+
+        if Processing_Status.PHASE_2 != self.status.get_current_status():
+            self.status.reset_phase2()
+            reset_data_folder_to_the_initial_state()
+
         return self.hash_json.data()
 
     def moveProcessedFiles(self):
@@ -174,29 +181,21 @@ class Loops(object):
         for key in json_list:
 
             source_path = self.storage.hd2_data(key)
+            destination_path = ""
 
             if (FileStatus.COMPLETED == json_list[key]["file_status"]):
                 destination_path = self.storage.hd2_processed(key)
+            elif (FileStatus.NOT_SUPPORTED == json_list[key]["file_status"]):
+                destination_path = self.storage.hd2_not_supported(key)
 
+            if destination_path:
                 if folder_exists(destination_path):
                     folder_delete_all(destination_path)
-
                 shutil.move(source_path, destination_path)
 
-            if (FileStatus.FAILED == json_list[key]["file_status"]):
-
-                meta_service = Metadata_Service()
-                meta_service.get_from_file(source_path)
-                metadata = meta_service.metadata
-                if metadata.get_original_file_extension() in ['.xml', '.json']:
-                    destination_path = self.storage.hd2_not_processed(key)
-
-                    if folder_exists(destination_path):
-                        folder_delete_all(destination_path)
-
-                    shutil.move(source_path, destination_path)
-
     def LoopHashDirectoriesInternal(self, thread_count, do_single):
+
+        self.endpoint_service.get_endpoints()
 
         if folder_exists(self.storage.hd2_data()) is False:
             log_message = "ERROR: rootdir does not exist: " + self.storage.hd2_data()
@@ -225,6 +224,9 @@ class Loops(object):
 
         log_info(message=f'before Mapping thread_data for {len(json_list)} files')
         thread_data = []
+
+        self.endpoint_service.StartServiceThread()
+
         for key in json_list:
             file_hash   =  key
 
@@ -271,6 +273,8 @@ class Loops(object):
         pool.join()
 
         self.moveProcessedFiles()
+
+        self.endpoint_service.StopServiceThread()
 
         self.events.add_log("LoopHashDirectoriesInternal finished")
         return True

@@ -42,13 +42,13 @@ class Storage:
         return abspath(self.config.hd2_location                   )   # convert to absolute paths
 
     def hd2_data(self, path=''):
-        return path_combine(self.config.hd2_data_location, path   )   # add path and convert to absolute paths
+        return path_combine(self.config.hd2_todo_location, path   )   # add path and convert to absolute paths
 
     def hd2_processed(self, path=''):
         return path_combine(self.config.hd2_processed_location, path   )   # add path and convert to absolute paths
 
-    def hd2_not_processed(self, path=''):
-        return path_combine(self.config.hd2_not_processed_location, path   )   # add path and convert to absolute paths
+    def hd2_not_supported(self, path=''):
+        return path_combine(self.config.hd2_not_supported_location, path   )   # add path and convert to absolute paths
 
     def hd2_delete_all_files(self):
         folder_delete_all(self.hd2_data())
@@ -56,7 +56,7 @@ class Storage:
         folder_create(self.hd2_data())
         folder_create(self.hd2_status())
 
-    def hd2_file_hashes(self):
+    def hd2_data_file_hashes(self):
         hashes = []
         for folder in os.listdir(self.hd2_data()):
             hashes.append(folder)
@@ -67,7 +67,24 @@ class Storage:
     def hd2_metadatas(self):
         from cdr_plugin_folder_to_folder.metadata.Metadata import Metadata
         metadatas = []
-        for file_hash in self.hd2_file_hashes():
+        for file_hash in self.hd2_data_file_hashes():
+            metadata = Metadata(file_hash=file_hash).load()
+            if metadata.exists():
+                metadatas.append(metadata.data)
+        return metadatas
+
+    def hd2_processed_file_hashes(self):
+        hashes = []
+        for folder in os.listdir(self.hd2_processed()):
+            hashes.append(folder)
+        return hashes
+
+    @index_by
+    @group_by
+    def hd2_processed_metadatas(self):
+        from cdr_plugin_folder_to_folder.metadata.Metadata import Metadata
+        metadatas = []
+        for file_hash in self.hd2_processed_file_hashes():
             metadata = Metadata(file_hash=file_hash).load()
             if metadata.exists():
                 metadatas.append(metadata.data)

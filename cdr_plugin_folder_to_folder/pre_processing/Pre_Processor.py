@@ -1,16 +1,24 @@
 import os
+import requests
+import zipfile
+import shutil
 import logging as logger
 from datetime import datetime
-from osbot_utils.utils.Files import folder_create, folder_delete_all, folder_copy
+
+from osbot_utils.utils.Files import folder_create, folder_delete_all, folder_copy, \
+    path_combine, file_delete, file_exists, folder_exists
 
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Service
 from cdr_plugin_folder_to_folder.storage.Storage import Storage
 from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
 
-from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
+from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus, Processing_Status
 
 from cdr_plugin_folder_to_folder.processing.Analysis_Json import Analysis_Json
+from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
+from cdr_plugin_folder_to_folder.metadata.Metadata import DEFAULT_REPORT_FILENAME
+from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 
 logger.basicConfig(level=logger.INFO)
 
@@ -27,26 +35,48 @@ class Pre_Processor:
         self.dst_folder     = None
         self.dst_file_name  = None
 
-        self.status = Status()
-        self.status.reset()
-
-        #self.analysis_json = Analysis_Json()
 
     @log_duration
     def clear_data_and_status_folders(self):
         data_target      = self.storage.hd2_data()       # todo: refactor this clean up to the storage class
         status_target    = self.storage.hd2_status()
         processed_target = self.storage.hd2_processed()
-        not_processed_target = self.storage.hd2_not_processed()
+        not_supported_target = self.storage.hd2_not_supported()
         folder_delete_all(data_target)
         folder_delete_all(status_target)
         folder_delete_all(processed_target)
-        folder_delete_all(not_processed_target)
+        folder_delete_all(not_supported_target)
         folder_create(data_target)
         folder_create(status_target)
         folder_create(processed_target)
-        folder_create(not_processed_target)
+        folder_create(not_supported_target)
         self.status.reset()
+
+    @log_duration
+    def mark_all_hd2_files_unprocessed(self):
+        print(f'mark_all_hd2_files_unprocessed {self.status.get_current_status()}')
+
+        if Processing_Status.NONE != self.status.get_current_status() and \
+           Processing_Status.STOPPED != self.status.get_current_status():
+            # do nothing if the processing has not been completed
+            return
+
+        for key in os.listdir(self.storage.hd2_not_supported()):
+            source_path = self.storage.hd2_not_supported(key)
+            destination_path = self.storage.hd2_data(key)
+            if folder_exists(destination_path):
+                folder_delete_all(destination_path)
+            shutil.move(source_path, destination_path)
+
+        for key in os.listdir(self.storage.hd2_processed()):
+            source_path = self.storage.hd2_processed(key)
+            destination_path = self.storage.hd2_data(key)
+            if folder_exists(destination_path):
+                folder_delete_all(destination_path)
+            shutil.move(source_path, destination_path)
+
+        self.status.reset_phase2()
+        reset_data_folder_to_the_initial_state()
 
     def file_hash(self, file_path):
         return self.meta_service.file_hash(file_path)
@@ -118,3 +148,65 @@ class Pre_Processor:
     def update_status(self, file_name, original_hash, status):
         if status == FileStatus.INITIAL:
             self.status.add_file()
+
+    def process_downloaded_zip_file(self, url):
+        retvalue = "No value"
+        directory_name = url.replace('/', '_').replace(':', '').replace('.','_')
+        zip_file_name = directory_name + '.zip'
+        path_to_zip_file = path_combine(self.storage.hd1(), zip_file_name)
+        path_to_extracted_folder = path_combine(self.storage.hd1(), directory_name)
+        try:
+            r = requests.get(url, allow_redirects=True)
+            open(path_to_zip_file, 'wb').write(r.content)
+
+            with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
+                zip_ref.extractall(path_to_extracted_folder)
+
+            self.process_folder(path_to_extracted_folder)
+
+            retvalue = f"The file from {url} has been processed"
+        except Exception as e:
+            retvalue = str(e)
+
+        if file_exists(path_to_zip_file):
+            file_delete(path_to_zip_file)
+
+        return retvalue
+
+def reset_data_folder_to_the_initial_state():
+
+    storage = Storage()
+    meta_service = Metadata_Service()
+
+    hash_json_path = path_combine(storage.hd2_status(), Hash_Json.HASH_FILE_NAME)
+    if file_exists(hash_json_path):
+        file_delete(hash_json_path)
+
+    events_json_path = path_combine(storage.hd2_status(), Events_Log.EVENTS_LOG_FILE_NAME)
+    if file_exists(events_json_path):
+        file_delete(events_json_path)
+
+    for key in os.listdir(storage.hd2_data()):
+
+        metadata_folder = storage.hd2_data(key)
+        meta_service.reset_metadata(metadata_folder)
+
+        # delete supplementary files in the metadata folder
+        analysis_json_path = path_combine(metadata_folder, Analysis_Json.ANALYSIS_FILE_NAME)
+        if file_exists(analysis_json_path):
+            file_delete(analysis_json_path)
+
+        events_json_path = path_combine(metadata_folder, Events_Log.EVENTS_LOG_FILE_NAME)
+        if file_exists(events_json_path):
+            file_delete(events_json_path)
+
+        report_json_path = path_combine(metadata_folder, DEFAULT_REPORT_FILENAME)
+        if file_exists(report_json_path):
+            file_delete(report_json_path)
+
+        errors_json_path = path_combine(metadata_folder, "error.json")
+        if file_exists(errors_json_path):
+            file_delete(errors_json_path)
+
+
+    return True
