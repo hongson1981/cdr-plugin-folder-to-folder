@@ -10,6 +10,7 @@ from osbot_utils.utils.Misc import datetime_now
 
 from cdr_plugin_folder_to_folder.metadata.Metadata_Utils import Metadata_Utils
 from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
+from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
 from cdr_plugin_folder_to_folder.storage.Storage import Storage
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
 
@@ -107,6 +108,9 @@ class Metadata:
 
     def exists(self):
         return folder_exists(self.metadata_folder_path())
+
+    def events_log(self):
+        return Events_Log(self.metadata_folder_path())
 
     def metadata_file_exists(self):
         return file_exists(self.metadata_file_path())
