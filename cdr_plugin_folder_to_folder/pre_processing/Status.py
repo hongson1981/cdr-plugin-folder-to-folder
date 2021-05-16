@@ -153,11 +153,11 @@ class Status:
             except:
                 pass
 
-        self._status_data[Status.VAR_NUM_OF_THREADS] = thread_count
+        self._status_data[Status.VAR_NUM_OF_THREADS]      = thread_count
 
         self._status_data[Status.VAR_NETWORK_CONNECTIONS] = len(psutil.net_connections(kind='tcp'))
 
-        self._status_data[Status.VAR_DISK_PARTITIONS] = len(psutil.disk_partitions())
+        self._status_data[Status.VAR_DISK_PARTITIONS]     = len(psutil.disk_partitions())
 
 
     def get_server_status(self):

@@ -1,13 +1,13 @@
 import inspect
 
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import path_combine, temp_file
+from osbot_utils.utils.Files import path_combine, temp_file, file_name
 from osbot_utils.utils.Json  import json_load_file
 from osbot_utils.utils.Misc import random_text
 
 from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import Pre_Processor
 from cdr_plugin_folder_to_folder.pre_processing.Status import FileStatus, Processing_Status, Status
-from cdr_plugin_folder_to_folder.utils.Logging import log_info, log_debug
+
 from cdr_plugin_folder_to_folder.utils.Logging_Process import process_all_log_entries_and_end_logging_process
 from cdr_plugin_folder_to_folder.utils.testing.Temp_Config import Temp_Config
 
@@ -30,6 +30,45 @@ class test_Status(Temp_Config):
                                                                               ('__module__'     , 'cdr_plugin_folder_to_folder.pre_processing.Status')]
 
     def test_server_status(self):
+        # todo write test that confirms that the data has been saved and the status file has been created
+        pass
+
+    # error is caused by https://github.com/giampaolo/psutil/issues/1219
+    def test_bug_get_server_data_throws_exception_on_psutil_net_connections(self):
+        import psutil
+        self.assertRaises(psutil.AccessDenied, self.status.get_server_status)
+        try:
+            self.status.get_server_status()
+        except psutil.AccessDenied as error:
+            assert error.__class__.__name__ == 'AccessDenied'
+            traces = inspect.trace()
+            trace_0 = traces[0]
+            trace_0_class_name = trace_0.frame.f_locals["self"].__class__.__name__
+            assert trace_0.code_context         == ['            self.status.get_server_status()\n']
+            assert trace_0.function             == 'test_bug_get_server_data_throws_exception_on_psutil_net_connections'
+            assert trace_0_class_name           == 'test_Status'
+            assert file_name(trace_0.filename)  == 'test_Status.py'
+            assert trace_0.lineno               == 41
+
+            trace_1 = traces[1]
+            assert trace_1.code_context         == ['            self.get_server_data()\n']
+            assert trace_1.function             == 'get_server_status'
+            assert file_name(trace_1.filename)  == 'Status.py'
+            assert trace_1.lineno               == 166
+
+            trace_2 = traces[2]
+            assert trace_2.code_context         == ["        self._status_data[Status.VAR_NETWORK_CONNECTIONS] = len(psutil.net_connections(kind='tcp'))\n"]
+            assert trace_2.function             == 'get_server_data'
+            assert file_name(trace_2.filename)  == 'Status.py'
+            assert trace_2.lineno               == 158
+
+            trace_3 = traces[3]
+            assert trace_3.code_context         == ['    return _psplatform.net_connections(kind)\n']
+            assert trace_3.function             == 'net_connections'
+            assert file_name(trace_3.filename)  == '__init__.py'
+            assert trace_3.lineno               == 2153
+
+    def test_get_server_data(self):
         status = self.status
         status.get_server_status()
         data = status.data()

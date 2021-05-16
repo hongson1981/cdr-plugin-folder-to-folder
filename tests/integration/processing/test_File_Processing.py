@@ -61,10 +61,10 @@ class test_File_Processing(Temp_Config):
         self.file_processing = File_Processing(events_log=self.events_log, events_elastic = self.events_elastic, report_elastic=self.report_elastic, analysis_elastic= self.analysis_elastic, meta_service=self.meta_service )
         self.storage         = Storage()
 
-    def test_get_xmlreport(self):
-        endpoint = ''
-        headers = ''
-        dir     = ''
+    # def test_get_xmlreport(self):
+    #     endpoint = ''
+    #     headers = ''
+    #     dir     = ''
 
     # todo move this test to integration tests and refactor test here to mock the server response
     # @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
