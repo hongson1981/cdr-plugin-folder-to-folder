@@ -131,7 +131,18 @@ class test_File_Processing(Temp_Config):
         assert metadata.data.get('rebuild_file_extension' ) == 'pdf'
         assert metadata.data.get('rebuild_file_size'      ) == 1267
 
+    def test_processDirectory(self):
+        test_sdk = '34.244.120.216'
+        self.endpoint_service.endpoints = [{'IP': test_sdk, 'Port': '8080'}]
+        endpoint    = self.endpoint_service.get_endpoint_url()
+        metadata    = self.test_file_metadata
+        folder_path = metadata.metadata_folder_path()
+        source_path = metadata.source_file_path()
 
+        kwargs = {"endpoint"    : endpoint              ,
+                  "dir"         : folder_path           }
+
+        assert self.file_processing.processDirectory(**kwargs)
 
     # todo move this test to integration tests and refactor test here to mock the server response
     # @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
