@@ -2,7 +2,7 @@ import threading
 import logging as logger
 from time import sleep
 
-from cdr_plugin_folder_to_folder.common_settings.Config    import Config
+from cdr_plugin_folder_to_folder.common_settings.Config import Config, DEFAULT_ENDPOINT_PORT
 from cdr_plugin_folder_to_folder.configure.Configure_Env   import Configure_Env
 from cdr_plugin_folder_to_folder.utils.Log_Duration        import log_duration
 
@@ -46,10 +46,11 @@ class Endpoint_Service:
         return ips
 
     def get_endpoints(self):
-        ips = self.get_ips()
         endpoints =  []
-        for ip in str_to_json(ips):
-            endpoints.append({'IP': ip , "Port": "8080"})
+        if self.config.use_dynamic_endpoints:
+            ips = self.get_ips()
+            for ip in str_to_json(ips):
+                endpoints.append({'IP': ip , "Port": DEFAULT_ENDPOINT_PORT})
         if 0 == len(endpoints):
             endpoints = self.config.endpoints["Endpoints"]
 
