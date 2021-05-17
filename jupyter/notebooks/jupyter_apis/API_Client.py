@@ -41,6 +41,9 @@ class API_Client:
     def clear_data_and_status(self):
         return self._request_post('/pre-processor/clear-data-and-status')
     
+    def clear_elastic_file_analysis(self):
+        return self._request_put('/configuration/clear_elastic_file_analysis/')
+    
     def reload_elastic_file_metadata(self):
         return self._request_put('/configuration/reload_elastic_file_metadata/') 
 
