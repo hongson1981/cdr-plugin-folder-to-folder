@@ -20,7 +20,7 @@ class Storage:
         #self.path_root = None
 
     def hd1(self, path=''):                                     # todo: rename to hd1 path
-        return path_combine(self.config.hd1_location, path)
+        return path_combine(self.config.hd1_location, path.strip("/"))
 
     def hd1_add_file(self, path):       # todo add support for child folders
         if file_exists(path):
@@ -34,7 +34,7 @@ class Storage:
         return FileService.files_in_folder(self.hd1())
 
     def hd1_file_path(self, file_path_in_hd1):
-        full_path = path_combine(self.hd1(), file_path_in_hd1)
+        full_path = path_combine(self.hd1(), file_path_in_hd1.strip("/"))
         if full_path.startswith(self.hd1()) and file_exists(full_path):
             return full_path
 
@@ -42,13 +42,13 @@ class Storage:
         return abspath(self.config.hd2_location                   )   # convert to absolute paths
 
     def hd2_data(self, path=''):
-        return path_combine(self.config.hd2_todo_location, path   )   # add path and convert to absolute paths
+        return path_combine(self.config.hd2_todo_location, path.strip("/")   )   # add path and convert to absolute paths
 
     def hd2_processed(self, path=''):
-        return path_combine(self.config.hd2_processed_location, path   )   # add path and convert to absolute paths
+        return path_combine(self.config.hd2_processed_location, path.strip("/")   )   # add path and convert to absolute paths
 
     def hd2_not_supported(self, path=''):
-        return path_combine(self.config.hd2_not_supported_location, path   )   # add path and convert to absolute paths
+        return path_combine(self.config.hd2_not_supported_location, path.strip("/")   )   # add path and convert to absolute paths
 
     def hd2_delete_all_files(self):
         folder_delete_all(self.hd2_data())
@@ -91,13 +91,13 @@ class Storage:
         return metadatas
 
     def hd2_processed(self, path=''):
-        return path_combine(self.config.hd2_processed_location, path )
+        return path_combine(self.config.hd2_processed_location, path.strip("/") )
 
     def hd2_status(self, path=''):
-        return path_combine(self.config.hd2_status_location, path )  # add path and convert to absolute paths
+        return path_combine(self.config.hd2_status_location, path.strip("/") )  # add path and convert to absolute paths
 
     def hd3(self, path=''):
-        return path_combine(self.config.hd3_location, path        )  # add path and convert to absolute paths
+        return path_combine(self.config.hd3_location, path.strip("/"))  # add path and convert to absolute paths
 
     def hd3_files(self):
         return FileService.files_in_folder(self.hd3())
