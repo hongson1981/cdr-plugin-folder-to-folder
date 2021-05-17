@@ -88,7 +88,7 @@ class test_File_Processing(Temp_Config):
 
         metadata.load()
         #assert metadata.data.get('xml_report_status'      ) == 'Obtained'
-        assert metadata.data.get('file_name'              ) == self.test_file_name
+        #assert metadata.data.get('file_name'              ) == self.test_file_name
         assert metadata.data.get('rebuild_server'         ) == endpoint
         assert metadata.data.get('server_version'         ) == 'Engine:1.157 API:0.1.11'
         assert metadata.data.get('error'                  ) is None
@@ -144,18 +144,6 @@ class test_File_Processing(Temp_Config):
 
         assert self.file_processing.processDirectory(**kwargs)
 
-    # todo move this test to integration tests and refactor test here to mock the server response
-    # @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
-    # def test_do_rebuild(self):          # refactor
-    #     endpoint    = f'http://{self.sdk_server}:{self.sdk_port}'
-    #     hash        = Metadata_Utils().file_hash(self.test_file)
-    #     assert self.analysis_json.add_file(hash, self.test_file_name) is True
-    #     dir         = self.metadata.metadata_folder_path()
-    #     result = self.file_processing.do_rebuild(endpoint=endpoint, hash=hash, source_path=self.test_file, dir=dir)
-    #     assert result is True
-    #     assert self.metadata.metadata_file_exists()
-    #     assert self.metadata.report_file_exists()
-
     # @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
     # def test_do_rebuild_bad_file(self):  # refactor
     #     bad_file      = temp_file(contents=random_text())
@@ -210,10 +198,6 @@ class test_File_Processing(Temp_Config):
 
         assert str_to_bytes(text)     in     rebuild_base64
         assert b'Glasswall'           in     rebuild_base64
-        #pprint(rebuild_base64)
-        #assert b'Glasswall'    in     rebuild_base64
-
-
 
     # def test_server_status(self,):            # refactor into separate test file
     #     server         = "84.16.229.232"  # aws                                            # 5.1 lowest response time
