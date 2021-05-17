@@ -46,10 +46,11 @@ class Endpoint_Service:
         return ips
 
     def get_endpoints(self):
-        ips = self.get_ips()
         endpoints =  []
-        for ip in str_to_json(ips):
-            endpoints.append({'IP': ip , "Port": DEFAULT_ENDPOINT_PORT})
+        if self.config.use_dynamic_endpoints:
+            ips = self.get_ips()
+            for ip in str_to_json(ips):
+                endpoints.append({'IP': ip , "Port": DEFAULT_ENDPOINT_PORT})
         if 0 == len(endpoints):
             endpoints = self.config.endpoints["Endpoints"]
 

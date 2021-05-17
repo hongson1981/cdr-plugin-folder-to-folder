@@ -35,6 +35,7 @@ DEFAULT_SUPPORTED_FILE_TYPES = '.doc .dot .xls .xlt .xlm .ppt .pot .pps .docx .d
 DEFUALT_SAVE_UNSUPPORTED_FILE_TYPES = True
 DEFAULT_REQUEST_TIMEOUT  = 600
 DEFAULT_REBUILD_ZIP      = True
+DEFAULT_USE_DYNAMIC_ENDPOINTS = False
 DEFAULT_SDK_SERVERS_API  = 'https://tmol8zkg3c.execute-api.eu-west-1.amazonaws.com/prod/sdk-servers/ip_addresses'
 API_VERSION              = "v0.6.4.3"
 
@@ -70,6 +71,7 @@ class Config:
             self.sdk_servers_api        = None
             self.supported_file_types   = None
             self.save_unsupported_file_types = None
+            self.use_dynamic_endpoints  = None
             self.load_values()                                      # due to the singleton pattern this will only be executed once
 
     def load_values(self):
@@ -86,6 +88,7 @@ class Config:
         self.use_rebuild_zip     = os.getenv    ("REBUILD_ZIP"     , DEFAULT_REBUILD_ZIP    )
         self.test_sdk            = os.getenv    ("TEST_SDK"        , DEFAULT_TEST_SDK       )
         self.sdk_servers_api     = os.getenv    ("SDK_SERVERS_API" , DEFAULT_SDK_SERVERS_API)
+        self.use_dynamic_endpoints = os.getenv  ("USE_DYNAMIC_ENDPOINTS" , DEFAULT_USE_DYNAMIC_ENDPOINTS)
 
         json_string          = os.getenv("ENDPOINTS", DEFAULT_ENDPOINTS)
         self.endpoints       = json.loads(json_string)
