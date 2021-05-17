@@ -1,16 +1,22 @@
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 
 from cdr_plugin_folder_to_folder.utils.Elastic import Elastic
+from cdr_plugin_folder_to_folder.storage.Storage import Storage
+from cdr_plugin_folder_to_folder.utils.Logging import log_debug
+
+DEFAULT_TIME_FIELD = 'timestamp'
 
 class Analysis_Elastic:
     def __init__(self):
         self.index_name = 'analysis_json'
         self.id_key     = 'original_hash'
         self.enabled    = False
+        self.time_field = DEFAULT_TIME_FIELD
+        self.storage = Storage()
 
     @cache_on_self
     def elastic(self):
-        return Elastic(index_name=self.index_name, id_key=self.id_key)
+        return Elastic(index_name=self.index_name, id_key=self.id_key, time_field=self.time_field)
 
     def setup(self, delete_existing=False):
         elastic = self.elastic()
@@ -37,4 +43,11 @@ class Analysis_Elastic:
 
     def get_analysis(self, original_hash):
         return self.elastic().get_data(record_id=original_hash)
+
+    def clear_elastic_analysis(self):
+        self.delete_all_analysis()
+        return f'Elastic {self.index_name} has been reset'
+
+
+
 
