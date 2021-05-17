@@ -94,8 +94,8 @@ class test_Status(Temp_Config):
 
     def test_load_data(self):
         status = self.status
-        assert status.data()             == status.default_data()
-        assert status.load_data().data() == status.default_data()
+        assert status.reset_system_data().data()             == status.default_data()
+        assert status.load_data().reset_system_data().data() == status.default_data()
         assert status.get_files_count()  == 0
         for i in range(1,100):
             assert status.add_completed()

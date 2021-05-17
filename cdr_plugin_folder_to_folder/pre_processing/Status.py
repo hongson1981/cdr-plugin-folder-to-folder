@@ -120,10 +120,17 @@ class Status:
             self.reset()
         return self
 
-
     def reset(self):
         self._status_data = self.default_data()
         self.save()
+        return self
+
+    def reset_system_data(self):
+        self._status_data[Status.VAR_CPU_UTILIZATION] = None
+        self._status_data[Status.VAR_RAM_UTILIZATION] = None
+        self._status_data[Status.VAR_NUM_OF_PROCESSES] = None
+        self._status_data[Status.VAR_NUM_OF_THREADS] = None
+        self._status_data[Status.VAR_NETWORK_CONNECTIONS] = None
         return self
 
     def save(self):
