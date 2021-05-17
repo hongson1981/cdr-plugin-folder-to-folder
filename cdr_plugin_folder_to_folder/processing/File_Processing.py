@@ -441,7 +441,6 @@ class File_Processing:
                 self.finalize_not_supported(dir,hash)
             else:
                 self.finalize_failed(dir,hash)
-            return False
         tok = datetime.now()
         delta = tok - tik
         self.meta_service.set_rebuild_file_duration(dir, delta.total_seconds())

@@ -111,7 +111,7 @@ class test_File_Processing(Temp_Config):
         except Exception as e:
             traceback.print_exc()
             self.fail("Should not have thrown")
-        assert result == False
+        assert result == True
         metadata.load()
         assert metadata.data.get('rebuild_status') == 'The file type is not currently supported'
 
@@ -127,11 +127,11 @@ class test_File_Processing(Temp_Config):
         except Exception as e:
             traceback.print_exc()
             self.fail("Should not have thrown")
-        assert result == False
+        assert result == True
         metadata.load()
         assert metadata.data.get('rebuild_status') == 'The file type is not currently supported'
 
-    def test_pdf_rebuild(self,):            # refactor into separate test file
+    def test_pdf_rebuild(self):            # refactor into separate test file
         server          = self.config.test_sdk
         url             = f"http://{server}:8080/api/rebuild/base64"
         headers         = { 'accept': 'application/json',
@@ -159,7 +159,7 @@ class test_File_Processing(Temp_Config):
         endpoint = f'http://{self.sdk_server}:{self.sdk_port}'
         dir = metadata.metadata_folder_path()
         result = self.file_processing.processDirectory(endpoint=endpoint, dir=dir, use_rebuild_zip=True)
-        assert result == False
+        assert result == True
         metadata.load()
         assert metadata.data.get('rebuild_status') == 'The file type is not currently supported'
         assert metadata.data.get('error')          == "Error while processing the request. See details in \'error.json\'"
