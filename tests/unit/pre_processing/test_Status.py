@@ -36,6 +36,11 @@ class test_Status(Temp_Config):
     # error is caused by https://github.com/giampaolo/psutil/issues/1219
     def test_bug_get_server_data_throws_exception_on_psutil_net_connections(self):
         import psutil
+        # the issue is MacOS specific. So check if this is MacOS. Stop the test if it is not.
+        from sys import platform
+        if not platform == 'darwin':
+            # Not MacOS
+            return
         self.assertRaises(psutil.AccessDenied, self.status.get_server_status)
         try:
             self.status.get_server_status()
