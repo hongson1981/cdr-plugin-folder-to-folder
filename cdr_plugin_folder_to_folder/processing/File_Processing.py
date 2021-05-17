@@ -257,7 +257,6 @@ class File_Processing:
         with Duration() as duration:
             event_data = {"endpoint": endpoint, "hash": hash, "source_path": source_path, "dir": dir } # todo: see if we can use a variable that holds the params data
             self.add_event_log('Starting File rebuild', event_data)
-
             self.meta_service.set_rebuild_server(dir, endpoint)
 
             encodedFile = FileService.base64encode(source_path)
@@ -389,9 +388,7 @@ class File_Processing:
                 rebuild_file_path = path.replace(self.config.hd1_location, self.config.hd3_location)
             else:
                 rebuild_file_path = self.storage.hd3(path)
-
             self.events_log.add_log(f"Copying {path} to {rebuild_file_path}")
-
             # make sure parent folder exists
             folder_create(parent_folder(rebuild_file_path))
             file_copy(path, rebuild_file_path)
@@ -444,7 +441,6 @@ class File_Processing:
                 self.finalize_not_supported(dir,hash)
             else:
                 self.finalize_failed(dir,hash)
-
         tok = datetime.now()
         delta = tok - tik
         self.meta_service.set_rebuild_file_duration(dir, delta.total_seconds())
