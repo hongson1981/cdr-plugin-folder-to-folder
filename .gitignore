@@ -146,5 +146,6 @@ esxcli.log
 alpine-control-vmdk/bin/*.executable
 alpine-control-vmdk/bin/*.sha256sum
 .terraform*
+dev.tfvars
 
 test
