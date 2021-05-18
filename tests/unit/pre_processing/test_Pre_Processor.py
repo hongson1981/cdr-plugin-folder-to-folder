@@ -57,6 +57,7 @@ class test_Pre_Processor(TestCase):
 
         filename = os.path.basename(self.test_file)
         folder_to_process = self.pre_processor.prepare_folder(self.temp_dir)
+        assert folder_exists(self.temp_dir)
         assert folder_to_process.startswith(self.pre_processor.storage.hd1())
         assert os.path.isdir(folder_to_process)
         assert os.path.isfile(os.path.join(folder_to_process, filename))
