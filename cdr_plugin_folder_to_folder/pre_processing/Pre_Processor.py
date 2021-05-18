@@ -82,7 +82,10 @@ class Pre_Processor:
         return self.meta_service.file_hash(file_path)
 
     def prepare_folder(self, folder_to_process):
-        if folder_to_process.startswith(self.storage.hd1()):
+        abs_path_folder_to_process = os.path.abspath(folder_to_process)
+        abs_path_hd1 = os.path.abspath(self.storage.hd1())
+
+        if abs_path_folder_to_process.startswith(abs_path_hd1):
             return folder_to_process
 
         dirname = os.path.join(self.storage.hd1(), os.path.basename(folder_to_process))
