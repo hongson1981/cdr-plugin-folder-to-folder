@@ -390,12 +390,14 @@ class File_Processing:
             rebuild_file_path = self.config.hd3_location
             if path.startswith(self.config.hd1_location):
                 rebuild_file_path = path.replace(self.config.hd1_location, self.config.hd3_location)
+                original_path     = path
             else:
                 rebuild_file_path = self.storage.hd3(path)
-            self.events_log.add_log(f"Copying {path} to {rebuild_file_path}")
+                original_path     = self.storage.hd1(path)
+            self.events_log.add_log(f"Copying {original_path} to {rebuild_file_path}")
             # make sure parent folder exists
             folder_create(parent_folder(rebuild_file_path))
-            file_copy(path, rebuild_file_path)
+            file_copy(original_path , rebuild_file_path)
 
     @log_duration
     def processDirectory (self, endpoint, dir, use_rebuild_zip=False):
