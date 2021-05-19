@@ -16,7 +16,7 @@ class test_Prometheus_Metrics(TestCase):
         self.config = Config()
         self.metrics = Prometheus_Metrics()
         self.prometheus_url = f'http://{self.config.prometheus_host}:{self.config.prometheus_port}'
-        self.integer_values = [0, 1, 2, 3, 10]
+        self.numeric_values = [0, 1, 2, 3, 10, 1.81, 81.54]
 
     def is_number(self, s):
         try:
@@ -92,7 +92,7 @@ class test_Prometheus_Metrics(TestCase):
     # def test_set_status_current_status(self):
 
     def numeric_metric_set_get_test(self, method, metric_name):
-        for value in self.integer_values:
+        for value in self.numeric_values:
             method(value)
             metric = self.get_metric(metric_name)
             assert metric
