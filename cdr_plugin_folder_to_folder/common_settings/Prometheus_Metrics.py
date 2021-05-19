@@ -17,8 +17,17 @@ from cdr_plugin_folder_to_folder.common_settings.Config import Config
 logger.basicConfig(level=logger.INFO)
 
 class MetricNames:
-    HD1_FILES_COUNT = 'hd1_files_count'
+    GC_OBJECTS_COLLECTED       = 'python_gc_objects_collected_total'
+    GC_OBJECTS_UNCOLLECTABLE   = 'python_gc_objects_uncollectable_total'
+    GC_COLLECTIONS             = 'python_gc_collections_total'
+    PROCESS_VIRUAL_MEMORY      = 'process_virtual_memory_bytes'
+    PROCESS_RESIDENT_MEMORY    = 'process_resident_memory_bytes'
+    PROCESS_START_TIME         = 'process_start_time_seconds'
+    PROCESS_CPU_SECONDS        = 'process_cpu_seconds_total'
+    PROCESS_OPEN_FDS           = 'process_open_fds'
+    PROCESS_MAX_FDS            = 'process_max_fds'
 
+    STATUS_HD1_FILES_COUNT     = 'status_hd1_files_count'
 
 class Prometheus_Metrics:
 
@@ -33,7 +42,7 @@ class Prometheus_Metrics:
             self.instantiated   = True
             self.config = Config()
             start_http_server(self.config.prometheus_port)
-            self.status_files_count = Gauge(MetricNames.HD1_FILES_COUNT,'Total number of files on HD1')
+            self.status_files_count = Gauge(MetricNames.STATUS_HD1_FILES_COUNT,'Total number of files on HD1')
             self.set_status_files_count(0)
 
     @classmethod
