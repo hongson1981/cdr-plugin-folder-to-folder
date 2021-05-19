@@ -313,10 +313,12 @@ class Status:
         self.metrics.set_status_failed(self._status_data[Status.VAR_FAILED])
         self.metrics.set_status_in_progress(self._status_data[Status.VAR_IN_PROGRESS])
         self.metrics.set_status_number_of_cpus(self._status_data[Status.VAR_NUMBER_OF_CPUS])
-        #self.metrics.set_status_cpu_utilization(self._status_data[Status.VAR_CPU_UTILIZATION])
-        #self.metrics.set_status_ram_utilization(self._status_data[Status.VAR_RAM_UTILIZATION])
-        #self.metrics.set_status_num_of_processes(self._status_data[Status.VAR_NUM_OF_PROCESSES])
-        #self.metrics.set_status_num_of_threads(self._status_data[Status.VAR_NUM_OF_THREADS])
-        #self.metrics.set_status_network_connections(self._status_data[Status.VAR_NETWORK_CONNECTIONS])
-        #self.metrics.set_status_disk_partitions(self._status_data[Status.VAR_DISK_PARTITIONS])
+        # if not self._status_data[Status.VAR_CPU_UTILIZATION] is None:
+        #     print(self._status_data[Status.VAR_CPU_UTILIZATION])
+        #     self.metrics.set_status_cpu_utilization(self._status_data[Status.VAR_CPU_UTILIZATION])
+        self.metrics.set_status_ram_utilization(self._status_data[Status.VAR_RAM_UTILIZATION])
+        self.metrics.set_status_num_of_processes(self._status_data[Status.VAR_NUM_OF_PROCESSES])
+        self.metrics.set_status_num_of_threads(self._status_data[Status.VAR_NUM_OF_THREADS])
+        self.metrics.set_status_network_connections(self._status_data[Status.VAR_NETWORK_CONNECTIONS])
+        self.metrics.set_status_disk_partitions(self._status_data[Status.VAR_DISK_PARTITIONS])
 

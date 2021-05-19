@@ -101,57 +101,63 @@ class Prometheus_Metrics:
     def clear_instance(cls):
         del cls.instance
 
+    def set_gauge(self, gauge, value):
+        if value is None:
+            gauge.set(0)
+        else:
+            gauge.set(value)
+
     # Status class metrics
 
     def set_status_files_count(self, count):
-        self.status_files_count.set(count)
+        self.set_gauge(self.status_files_count, count)
 
     # def set_status_current_status(self, count):
     #    self.status_current_status.set(count)
 
     def set_status_files_copied(self, count):
-       self.status_files_copied.set(count)
+       self.set_gauge(self.status_files_copied, count)
 
     def set_status_files_to_be_copied(self, count):
-       self.status_files_to_be_copied.set(count)
+       self.set_gauge(self.status_files_to_be_copied, count)
 
     def set_status_files_to_process(self, count):
-       self.status_files_to_process.set(count)
+       self.set_gauge(self.status_files_to_process, count)
 
     def set_status_files_left_to_process(self, count):
-       self.status_files_left_to_process.set(count)
+       self.set_gauge(self.status_files_left_to_process, count)
 
     def set_status_completed(self, count):
-       self.status_completed.set(count)
+       self.set_gauge(self.status_completed, count)
 
     def set_status_not_supported(self, count):
-       self.status_not_supported.set(count)
+       self.set_gauge(self.status_not_supported, count)
 
     def set_status_failed(self, count):
-       self.status_failed.set(count)
+       self.set_gauge(self.status_failed, count)
 
     def set_status_in_progress(self, count):
-       self.status_in_progress.set(count)
+       self.set_gauge(self.status_in_progress, count)
 
     def set_status_number_of_cpus(self, count):
-       self.status_number_of_cpus.set(count)
+       self.set_gauge(self.status_number_of_cpus, count)
 
     # def set_status_cpu_utilization(self, count):
-    #    self.status_cpu_utilization.set(count)
+    #    self.set_gauge(self.status_cpu_utilization, count)
 
     def set_status_ram_utilization(self, count):
-       self.status_ram_utilization.set(count)
+       self.set_gauge(self.status_ram_utilization, count)
 
     def set_status_num_of_processes(self, count):
-       self.status_num_of_processes.set(count)
+       self.set_gauge(self.status_num_of_processes, count)
 
     def set_status_num_of_threads(self, count):
-       self.status_num_of_threads.set(count)
+       self.set_gauge(self.status_num_of_threads, count)
 
     def set_status_network_connections(self, count):
-       self.status_network_connections.set(count)
+       self.set_gauge(self.status_network_connections, count)
 
     def set_status_disk_partitions(self, count):
-       self.status_disk_partitions.set(count)
+       self.set_gauge(self.status_disk_partitions, count)
 
 
