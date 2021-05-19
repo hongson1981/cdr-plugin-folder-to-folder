@@ -17,6 +17,7 @@ class test_Prometheus_Metrics(TestCase):
         self.metrics = Prometheus_Metrics()
         self.prometheus_url = f'http://{self.config.prometheus_host}:{self.config.prometheus_port}'
         self.numeric_values = [0, 1, 2, 3, 10, 1.81, 81.54]
+        self.string_values = ['a', 'b', 'c']
 
     def is_number(self, s):
         try:
@@ -97,7 +98,11 @@ class test_Prometheus_Metrics(TestCase):
             metric = self.get_metric(metric_name)
             assert metric
             assert self.is_number(metric)
-            assert value == self.get_number(metric)        
+            assert value == self.get_number(metric)
+
+        for value in self.string_values:
+            with self.assertRaises(ValueError):
+                method(value)
 
     def test_set_status_files_count(self):
         self.numeric_metric_set_get_test(self.metrics.set_status_files_count, MetricNames.STATUS_FILES_COUNT)
