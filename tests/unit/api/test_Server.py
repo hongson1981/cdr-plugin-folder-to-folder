@@ -32,7 +32,8 @@ class test_Server(TestCase):
     def test_start_stop(self):
         with Temp_API_Server() as api_server:
             assert api_server.server_running() is True
-            assert api_server.http_GET() == {'status': 'ok'}
+            assert api_server.http_GET()          == api_server.http_GET("/docs")
+            assert api_server.http_GET("/health") == {'status': 'ok'}
         assert api_server.server_running() is False
 
     @patch("uvicorn.run")
