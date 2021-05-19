@@ -16,6 +16,7 @@ class test_Prometheus_Metrics(TestCase):
         self.config = Config()
         self.metrics = Prometheus_Metrics()
         self.prometheus_url = f'http://{self.config.prometheus_host}:{self.config.prometheus_port}'
+        self.integer_values = [0, 1, 2, 3, 10]
 
     def is_number(self, s):
         try:
@@ -88,13 +89,36 @@ class test_Prometheus_Metrics(TestCase):
         assert metric
         assert self.is_number(metric)
 
+    # def test_set_status_current_status(self):
 
     def test_set_status_files_count(self):
-        values = [0, 1, 2, 3, 10]
-        for value in values:
+        for value in self.integer_values:
             self.metrics.set_status_files_count(value)
-            hd1_files_count = self.get_metric(MetricNames.STATUS_FILES_COUNT)
-            assert hd1_files_count
-            assert self.is_number(hd1_files_count)
-            assert value == self.get_number(hd1_files_count)
+            metric = self.get_metric(MetricNames.STATUS_FILES_COUNT)
+            assert metric
+            assert self.is_number(metric)
+            assert value == self.get_number(metric)
+
+    # def test_set_status_files_copied(self):
+    #     for value in self.integer_values:
+    #         self.metrics.set_status_files_count(value)
+    #         hd1_files_count = self.get_metric(MetricNames.STATUS_FILES_COUNT)
+    #         assert hd1_files_count
+    #         assert self.is_number(hd1_files_count)
+    #         assert value == self.get_number(hd1_files_count)
+
+    # def test_set_status_files_to_be_copied(self):
+    # def test_set_status_files_to_process(self):
+    # def test_set_status_files_left_to_process(self):
+    # def test_set_status_completed(self):
+    # def test_set_status_not_supported(self):
+    # def test_set_status_failed(self):
+    # def test_set_status_in_progress(self):
+    # def test_set_status_number_of_cpus(self):
+    # def test_set_status_cpu_utilization(self):
+    # def test_set_status_ram_utilization(self):
+    # def test_set_status_num_of_processes(self):
+    # def test_set_status_num_of_threads(self):
+    # def test_set_status_network_connections(self):
+    # def test_set_status_disk_partitions(self):
 
