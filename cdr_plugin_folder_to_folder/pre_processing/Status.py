@@ -20,6 +20,7 @@ class FileStatus:                                     # todo move to separate fi
     NOT_SUPPORTED = "The file type is not currently supported"
     FAILED        = "Completed with errors"
     TO_PROCESS    = "To Process"
+    DUPLICATE     = "The file is duplicate"
     NONE          = "None"
 
 
@@ -40,6 +41,7 @@ class Status:
     VAR_FAILED                   = "failed"
     VAR_FILES_TO_PROCESS         = "files_to_process"
     VAR_FILES_LEFT_TO_PROCESS    = "files_left_to_process"
+    VAR_DUPLICATES               = "duplicate_files"
     VAR_FILES_COUNT              = "files_in_hd1_folder"
     VAR_FILES_COPIED             = "files_copied"
     VAR_FILES_TO_BE_COPIED       = "files_left_to_be_copied"
@@ -105,6 +107,7 @@ class Status:
                     Status.VAR_NOT_SUPPORTED          : 0               ,
                     Status.VAR_FAILED                 : 0               ,
                     Status.VAR_IN_PROGRESS            : 0               ,
+                    Status.VAR_DUPLICATES             : 0               ,
                     Status.VAR_NUMBER_OF_CPUS         : psutil.cpu_count()            ,
                     Status.VAR_CPU_UTILIZATION        : None            ,
                     Status.VAR_RAM_UTILIZATION        : None            ,
@@ -242,6 +245,8 @@ class Status:
                 data[Status.VAR_FILES_TO_PROCESS] += 1
                 data[Status.VAR_FILES_LEFT_TO_PROCESS] += 1
 
+            elif updated_status==FileStatus.DUPLICATE:
+                data[Status.VAR_DUPLICATES] += 1
         finally:
             Status.lock.release()
             self.save()
@@ -288,7 +293,7 @@ class Status:
     def set_not_copied      (self       ): return self.update_counters(FileStatus.NOT_COPIED         )
     def add_in_progress     (self       ): return self.update_counters(FileStatus.IN_PROGRESS        )
     def add_to_be_processed (self       ): return self.update_counters(FileStatus.TO_PROCESS         )
-
+    def add_duplicate_files(self)        : return  self.update_counters(FileStatus.DUPLICATE         )
     def get_completed       (self): return self.data().get(Status.VAR_COMPLETED)
     def get_current_status  (self): return self.data().get(Status.VAR_CURRENT_STATUS)
     def get_not_supported   (self): return self.data().get(Status.VAR_NOT_SUPPORTED)
@@ -297,3 +302,4 @@ class Status:
     def get_files_copied    (self): return self.data().get(Status.VAR_FILES_COPIED)
     def get_files_to_process(self): return self.data().get(Status.VAR_FILES_TO_PROCESS)
     def get_in_progress     (self): return self.data().get(Status.VAR_IN_PROGRESS)
+
