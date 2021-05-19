@@ -91,34 +91,60 @@ class test_Prometheus_Metrics(TestCase):
 
     # def test_set_status_current_status(self):
 
-    def test_set_status_files_count(self):
+    def numeric_metric_set_get_test(self, method, metric_name):
         for value in self.integer_values:
-            self.metrics.set_status_files_count(value)
-            metric = self.get_metric(MetricNames.STATUS_FILES_COUNT)
+            method(value)
+            metric = self.get_metric(metric_name)
             assert metric
             assert self.is_number(metric)
-            assert value == self.get_number(metric)
+            assert value == self.get_number(metric)        
 
-    # def test_set_status_files_copied(self):
-    #     for value in self.integer_values:
-    #         self.metrics.set_status_files_count(value)
-    #         hd1_files_count = self.get_metric(MetricNames.STATUS_FILES_COUNT)
-    #         assert hd1_files_count
-    #         assert self.is_number(hd1_files_count)
-    #         assert value == self.get_number(hd1_files_count)
+    def test_set_status_files_count(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_files_count, MetricNames.STATUS_FILES_COUNT)
 
-    # def test_set_status_files_to_be_copied(self):
-    # def test_set_status_files_to_process(self):
-    # def test_set_status_files_left_to_process(self):
-    # def test_set_status_completed(self):
-    # def test_set_status_not_supported(self):
-    # def test_set_status_failed(self):
-    # def test_set_status_in_progress(self):
-    # def test_set_status_number_of_cpus(self):
+    def test_set_status_files_copied(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_files_copied, MetricNames.STATUS_FILES_COPIED)
+
+    def test_set_status_files_to_be_copied(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_files_to_be_copied, MetricNames.STATUS_FILES_TO_BE_COPIED)
+
+    def test_set_status_files_to_process(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_files_to_process, MetricNames.STATUS_FILES_TO_PROCESS)
+
+    def test_set_status_files_left_to_process(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_files_left_to_process, MetricNames.STATUS_FILES_LEFT_TO_PROCESS)
+
+    def test_set_status_completed(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_completed, MetricNames.STATUS_COMPLETED)
+
+    def test_set_status_not_supported(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_not_supported, MetricNames.STATUS_NOT_SUPPORTED)
+
+    def test_set_status_failed(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_failed, MetricNames.STATUS_FAILED)
+
+    def test_set_status_in_progress(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_in_progress, MetricNames.STATUS_IN_PROGRESS)
+
+    def test_set_status_number_of_cpus(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_number_of_cpus, MetricNames.STATUS_NUMBER_OF_CPUS)
+
     # def test_set_status_cpu_utilization(self):
-    # def test_set_status_ram_utilization(self):
-    # def test_set_status_num_of_processes(self):
-    # def test_set_status_num_of_threads(self):
-    # def test_set_status_network_connections(self):
-    # def test_set_status_disk_partitions(self):
+    #     self.numeric_metric_set_get_test(self.metrics.set_status_, MetricNames.STATUS_)
+
+    def test_set_status_ram_utilization(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_ram_utilization, MetricNames.STATUS_RAM_UTILIZATION)
+
+    def test_set_status_num_of_processes(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_num_of_processes, MetricNames.STATUS_NUM_OF_PROCESSES)
+
+    def test_set_status_num_of_threads(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_num_of_threads, MetricNames.STATUS_NUM_OF_THREADS)
+
+    def test_set_status_network_connections(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_network_connections, MetricNames.STATUS_NETWORK_CONNECTIONS)
+
+    def test_set_status_disk_partitions(self):
+        self.numeric_metric_set_get_test(self.metrics.set_status_disk_partitions, MetricNames.STATUS_DISK_PARTITIONS)
+
 

@@ -135,6 +135,8 @@ class Prometheus_Metrics:
     def clear_instance(cls):
         del cls.instance
 
+    # Status class metrics
+
     def set_status_files_count(self, count):
         self.status_files_count.set(count)
 
