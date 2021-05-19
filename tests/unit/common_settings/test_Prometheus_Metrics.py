@@ -41,6 +41,41 @@ class test_Prometheus_Metrics(TestCase):
             return None
         return self.metrics.get_metric_from_text(data, metric_name)
 
+    def test_common_metrics(self):
+        metric = self.get_metric(MetricNames.GC_OBJECTS_COLLECTED)
+        assert metric
+
+        metric = self.get_metric(MetricNames.GC_OBJECTS_UNCOLLECTABLE)
+        assert metric
+
+        metric = self.get_metric(MetricNames.GC_COLLECTIONS)
+        assert metric
+
+        metric = self.get_metric(MetricNames.PROCESS_VIRUAL_MEMORY)
+        assert metric
+        assert self.is_number(metric)
+
+        metric = self.get_metric(MetricNames.PROCESS_RESIDENT_MEMORY)
+        assert metric
+        assert self.is_number(metric)
+
+        metric = self.get_metric(MetricNames.PROCESS_CPU_SECONDS)
+        assert metric
+        assert self.is_number(metric)
+
+        metric = self.get_metric(MetricNames.PROCESS_START_TIME)
+        assert metric
+        assert self.is_number(metric)
+
+        metric = self.get_metric(MetricNames.PROCESS_OPEN_FDS)
+        assert metric
+        assert self.is_number(metric)
+
+        metric = self.get_metric(MetricNames.PROCESS_MAX_FDS)
+        assert metric
+        assert self.is_number(metric)
+
+
     def test_set_status_files_count(self):
         values = [0, 1, 2, 3, 10]
         for value in values:
