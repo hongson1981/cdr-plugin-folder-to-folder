@@ -17,7 +17,8 @@ services:
       container_name: jupyter_notebook
       restart: always
       command: "start-notebook.sh \
-                 --NotebookApp.token=${ACCESS_TOKEN}"
+                 --NotebookApp.token=${ACCESS_TOKEN} \
+                 --NotebookApp.tornado_settings=\"{'headers':{'Content-Security-Policy': 'frame-ancestors http://localhost:*'}}\""
 
   # Voila (Viewer for Jupyter pages)
   voila:
