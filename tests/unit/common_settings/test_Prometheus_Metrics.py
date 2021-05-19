@@ -35,11 +35,21 @@ class test_Prometheus_Metrics(TestCase):
     def get_data(self):
         return requests.get(self.prometheus_url).text
 
+    def get_metric_from_text(self, text, metric_name, generation = None):
+        if not generation is None:
+            metric_name = metric_name + '{generation=' + f'"{generation}"' + '}'
+        metric_name_position = text.find(f'\n{metric_name}') + 1
+        if metric_name_position < 0: # not found
+            return None
+        metric_position = metric_name_position + len(metric_name)
+        end_of_line_position = text.find('\n', metric_position)
+        return text[metric_position:end_of_line_position].strip()
+
     def get_metric(self, metric_name, generation = None):
         data = self.get_data()
         if not data:
             return None
-        return self.metrics.get_metric_from_text(data, metric_name, generation)
+        return self.get_metric_from_text(data, metric_name, generation)
 
     def test_common_metrics(self):
         metric = self.get_metric(MetricNames.GC_OBJECTS_COLLECTED,0)
@@ -83,7 +93,7 @@ class test_Prometheus_Metrics(TestCase):
         values = [0, 1, 2, 3, 10]
         for value in values:
             self.metrics.set_status_files_count(value)
-            hd1_files_count = self.get_metric(MetricNames.STATUS_HD1_FILES_COUNT)
+            hd1_files_count = self.get_metric(MetricNames.STATUS_FILES_COUNT)
             assert hd1_files_count
             assert self.is_number(hd1_files_count)
             assert value == self.get_number(hd1_files_count)

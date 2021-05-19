@@ -27,7 +27,59 @@ class MetricNames:
     PROCESS_OPEN_FDS           = 'process_open_fds'
     PROCESS_MAX_FDS            = 'process_max_fds'
 
-    STATUS_HD1_FILES_COUNT     = 'status_hd1_files_count'
+    # STATUS_CURRENT_STATUS
+    # STATUS_FILES_COUNT
+    # STATUS_FILES_COPIED
+    # STATUS_FILES_TO_BE_COPIED
+    # STATUS_FILES_TO_PROCESS
+    # STATUS_FILES_LEFT_TO_PROCESS
+    # STATUS_COMPLETED
+    # STATUS_NOT_SUPPORTED
+    # STATUS_FAILED
+    # STATUS_IN_PROGRESS
+    # STATUS_NUMBER_OF_CPUS
+    # STATUS_CPU_UTILIZATION
+    # STATUS_RAM_UTILIZATION
+    # STATUS_NUM_OF_PROCESSES
+    # STATUS_NUM_OF_THREADS
+    # STATUS_NETWORK_CONNECTIONS
+    # STATUS_DISK_PARTITIONS
+
+    # status_current_status
+    # status_files_count
+    # status_files_copied
+    # status_files_to_be_copied
+    # status_files_to_process
+    # status_files_left_to_process
+    # status_completed
+    # status_not_supported
+    # status_failed
+    # status_in_progress
+    # status_number_of_cpus
+    # status_cpu_utilization
+    # status_ram_utilization
+    # status_num_of_processes
+    # status_num_of_threads
+    # status_network_connections
+    # status_disk_partitions
+
+    STATUS_CURRENT_STATUS         = 'status_current_status'
+    STATUS_FILES_COUNT            = 'status_hd1_files_count'
+    STATUS_FILES_COPIED           = 'status_files_copied'
+    STATUS_FILES_TO_BE_COPIED     = 'status_files_to_be_copied'
+    STATUS_FILES_TO_PROCESS       = 'status_files_to_process'
+    STATUS_FILES_LEFT_TO_PROCESS  = 'status_files_left_to_process'
+    STATUS_COMPLETED              = 'status_completed'
+    STATUS_NOT_SUPPORTED          = 'status_not_supported'
+    STATUS_FAILED                 = 'status_failed'
+    STATUS_IN_PROGRESS            = 'status_in_progress'
+    STATUS_NUMBER_OF_CPUS         = 'status_number_of_cpus'
+    STATUS_CPU_UTILIZATION        = 'status_cpu_utilization'
+    STATUS_RAM_UTILIZATION        = 'status_ram_utilization'
+    STATUS_NUM_OF_PROCESSES       = 'status_num_of_processes'
+    STATUS_NUM_OF_THREADS         = 'status_num_of_threads'
+    STATUS_NETWORK_CONNECTIONS    = 'status_network_connections'
+    STATUS_DISK_PARTITIONS        = 'status_disk_partitions'
 
 class Prometheus_Metrics:
 
@@ -42,24 +94,96 @@ class Prometheus_Metrics:
             self.instantiated   = True
             self.config = Config()
             start_http_server(self.config.prometheus_port)
-            self.status_files_count = Gauge(MetricNames.STATUS_HD1_FILES_COUNT,'Total number of files on HD1')
+
+            #self.status_current_status = Gauge(MetricNames.STATUS_CURRENT_STATUS,'')
+            self.status_files_count             = Gauge(MetricNames.STATUS_FILES_COUNT,             'Total number of files on HD1')
+            self.status_files_copied            = Gauge(MetricNames.STATUS_FILES_COPIED,            'Files copied to HD2')
+            self.status_files_to_be_copied      = Gauge(MetricNames.STATUS_FILES_TO_BE_COPIED,      'Files left to be copied to HD2')
+            self.status_files_to_process        = Gauge(MetricNames.STATUS_FILES_TO_PROCESS,        'Files to be processed on HD2')
+            self.status_files_left_to_process   = Gauge(MetricNames.STATUS_FILES_LEFT_TO_PROCESS,   'Files still not processed on HD2')
+            self.status_completed               = Gauge(MetricNames.STATUS_COMPLETED,               'Files processed successfully')
+            self.status_not_supported           = Gauge(MetricNames.STATUS_NOT_SUPPORTED,           'Files not currently supported')
+            self.status_failed                  = Gauge(MetricNames.STATUS_FAILED,                  'Files whose processing completed with errors')
+            self.status_in_progress             = Gauge(MetricNames.STATUS_IN_PROGRESS,             'Files whose processing in not completed yet')
+            self.status_number_of_cpus          = Gauge(MetricNames.STATUS_NUMBER_OF_CPUS,          'Number of CPUs on the system')
+            #self.status_cpu_utilization         = Gauge(MetricNames.STATUS_CPU_UTILIZATION,'')
+            self.status_ram_utilization         = Gauge(MetricNames.STATUS_RAM_UTILIZATION,         'Current RAM utilization')
+            self.status_num_of_processes        = Gauge(MetricNames.STATUS_NUM_OF_PROCESSES,        'Current number of processes on the system')
+            self.status_num_of_threads          = Gauge(MetricNames.STATUS_NUM_OF_THREADS,          'Current number of threads on the system')
+            self.status_network_connections     = Gauge(MetricNames.STATUS_NETWORK_CONNECTIONS,     'Current number of network connections on the system')
+            self.status_disk_partitions         = Gauge(MetricNames.STATUS_DISK_PARTITIONS,         'Number of disk partitions on the system')
+
+            #self.set_status_current_status(0)
             self.set_status_files_count(0)
+            self.set_status_files_copied(0)
+            self.set_status_files_to_be_copied(0)
+            self.set_status_files_to_process(0)
+            self.set_status_files_left_to_process(0)
+            self.set_status_completed(0)
+            self.set_status_not_supported(0)
+            self.set_status_failed(0)
+            self.set_status_in_progress(0)
+            self.set_status_number_of_cpus(0)
+            #self.set_status_cpu_utilization(0)
+            self.set_status_ram_utilization(0)
+            self.set_status_num_of_processes(0)
+            self.set_status_num_of_threads(0)
+            self.set_status_network_connections(0)
+            self.set_status_disk_partitions(0)
 
     @classmethod
     def clear_instance(cls):
         del cls.instance
 
-    def get_metric_from_text(self, text, metric_name, generation = None):
-        if not generation is None:
-            metric_name = metric_name + '{generation=' + f'"{generation}"' + '}'
-        metric_name_position = text.find(f'\n{metric_name}') + 1
-        if metric_name_position < 0: # not found
-            return None
-        metric_position = metric_name_position + len(metric_name)
-        end_of_line_position = text.find('\n', metric_position)
-        return text[metric_position:end_of_line_position].strip()
-
     def set_status_files_count(self, count):
         self.status_files_count.set(count)
+
+    # def set_status_current_status(self, count):
+    #    self.status_current_status.set(count)
+
+    def set_status_files_copied(self, count):
+       self.status_files_copied.set(count)
+
+    def set_status_files_to_be_copied(self, count):
+       self.status_files_to_be_copied.set(count)
+
+    def set_status_files_to_process(self, count):
+       self.status_files_to_process.set(count)
+
+    def set_status_files_left_to_process(self, count):
+       self.status_files_left_to_process.set(count)
+
+    def set_status_completed(self, count):
+       self.status_completed.set(count)
+
+    def set_status_not_supported(self, count):
+       self.status_not_supported.set(count)
+
+    def set_status_failed(self, count):
+       self.status_failed.set(count)
+
+    def set_status_in_progress(self, count):
+       self.status_in_progress.set(count)
+
+    def set_status_number_of_cpus(self, count):
+       self.status_number_of_cpus.set(count)
+
+    # def set_status_cpu_utilization(self, count):
+    #    self.status_cpu_utilization.set(count)
+
+    def set_status_ram_utilization(self, count):
+       self.status_ram_utilization.set(count)
+
+    def set_status_num_of_processes(self, count):
+       self.status_num_of_processes.set(count)
+
+    def set_status_num_of_threads(self, count):
+       self.status_num_of_threads.set(count)
+
+    def set_status_network_connections(self, count):
+       self.status_network_connections.set(count)
+
+    def set_status_disk_partitions(self, count):
+       self.status_disk_partitions.set(count)
 
 
