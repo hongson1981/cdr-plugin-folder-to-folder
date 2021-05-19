@@ -4,17 +4,18 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc import list_set
 
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
+from cdr_plugin_folder_to_folder.common_settings.Prometheus_Metrics import Prometheus_Metrics
 from cdr_plugin_folder_to_folder.utils.testing.Setup_Testing import Setup_Testing
 from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
 
 import requests
 from prometheus_client import start_http_server
 
-class test_Prometheus(TestCase):
+class test_Prometheus_Metrics(TestCase):
 
     def setUp(self) -> None:
         self.config = Config()
-        start_http_server(self.config.prometheus_port)
+        self.metrics = Prometheus_Metrics()
         pass
 
     def test_prometheus_data(self):
