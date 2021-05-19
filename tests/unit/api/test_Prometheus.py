@@ -13,11 +13,11 @@ from prometheus_client import start_http_server
 class test_Prometheus(TestCase):
 
     def setUp(self) -> None:
+        self.config = Config()
+        start_http_server(self.config.prometheus_port)
         pass
 
     def test_prometheus_data(self):
-        prometheus_port = 8000
-        start_http_server(prometheus_port)
-        prometheus_url = f'http://localhost:{prometheus_port}'
+        prometheus_url = f'http://{self.config.prometheus_host}:{self.config.prometheus_port}'
         prometheus_data = requests.get(prometheus_url).text
         assert prometheus_data

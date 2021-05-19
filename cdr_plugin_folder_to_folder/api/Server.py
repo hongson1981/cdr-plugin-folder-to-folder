@@ -20,8 +20,6 @@ from cdr_plugin_folder_to_folder.utils.Logging import log_debug
 from cdr_plugin_folder_to_folder.utils.Logging_Process import start_logging
 from cdr_plugin_folder_to_folder.pre_processing.Status import Status
 
-from prometheus_client import start_http_server
-
 class Logging_Middleware:
     def __init__(self, app: ASGIApp, minimum_size: int = 500) -> None:
         self.app = app
@@ -104,6 +102,5 @@ if "PYTEST_CURRENT_TEST" not in os.environ:
 def run_if_main():
     if __name__ == "__main__":
         server.start()
-        start_http_server(8000)
 
 run_if_main()
