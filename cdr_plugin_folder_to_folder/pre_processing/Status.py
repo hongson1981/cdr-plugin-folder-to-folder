@@ -293,7 +293,7 @@ class Status:
     def set_not_copied      (self       ): return self.update_counters(FileStatus.NOT_COPIED         )
     def add_in_progress     (self       ): return self.update_counters(FileStatus.IN_PROGRESS        )
     def add_to_be_processed (self       ): return self.update_counters(FileStatus.TO_PROCESS         )
-    def add_duplicate_files(self)        : return  self.update_counters(FileStatus.DUPLICATE         )
+    def add_duplicate_files (self       ): return  self.update_counters(FileStatus.DUPLICATE         )
     def get_completed       (self): return self.data().get(Status.VAR_COMPLETED)
     def get_current_status  (self): return self.data().get(Status.VAR_CURRENT_STATUS)
     def get_not_supported   (self): return self.data().get(Status.VAR_NOT_SUPPORTED)
