@@ -49,7 +49,9 @@ class Prometheus_Metrics:
     def clear_instance(cls):
         del cls.instance
 
-    def get_metric_from_text(self, text, metric_name):
+    def get_metric_from_text(self, text, metric_name, generation = None):
+        if not generation is None:
+            metric_name = metric_name + '{generation=' + f'"{generation}"' + '}'
         metric_name_position = text.find(f'\n{metric_name}') + 1
         if metric_name_position < 0: # not found
             return None

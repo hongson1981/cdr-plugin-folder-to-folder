@@ -35,21 +35,24 @@ class test_Prometheus_Metrics(TestCase):
     def get_data(self):
         return requests.get(self.prometheus_url).text
 
-    def get_metric(self, metric_name):
+    def get_metric(self, metric_name, generation = None):
         data = self.get_data()
         if not data:
             return None
-        return self.metrics.get_metric_from_text(data, metric_name)
+        return self.metrics.get_metric_from_text(data, metric_name, generation)
 
     def test_common_metrics(self):
-        metric = self.get_metric(MetricNames.GC_OBJECTS_COLLECTED)
+        metric = self.get_metric(MetricNames.GC_OBJECTS_COLLECTED,0)
         assert metric
+        assert self.is_number(metric)
 
-        metric = self.get_metric(MetricNames.GC_OBJECTS_UNCOLLECTABLE)
+        metric = self.get_metric(MetricNames.GC_OBJECTS_UNCOLLECTABLE,0)
         assert metric
+        assert self.is_number(metric)
 
-        metric = self.get_metric(MetricNames.GC_COLLECTIONS)
+        metric = self.get_metric(MetricNames.GC_COLLECTIONS,0)
         assert metric
+        assert self.is_number(metric)
 
         metric = self.get_metric(MetricNames.PROCESS_VIRUAL_MEMORY)
         assert metric
