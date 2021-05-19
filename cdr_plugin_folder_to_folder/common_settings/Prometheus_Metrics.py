@@ -17,6 +17,7 @@ from cdr_plugin_folder_to_folder.common_settings.Config import Config
 logger.basicConfig(level=logger.INFO)
 
 class MetricNames:
+    # generic metric names
     GC_OBJECTS_COLLECTED       = 'python_gc_objects_collected_total'
     GC_OBJECTS_UNCOLLECTABLE   = 'python_gc_objects_uncollectable_total'
     GC_COLLECTIONS             = 'python_gc_collections_total'
@@ -27,42 +28,7 @@ class MetricNames:
     PROCESS_OPEN_FDS           = 'process_open_fds'
     PROCESS_MAX_FDS            = 'process_max_fds'
 
-    # STATUS_CURRENT_STATUS
-    # STATUS_FILES_COUNT
-    # STATUS_FILES_COPIED
-    # STATUS_FILES_TO_BE_COPIED
-    # STATUS_FILES_TO_PROCESS
-    # STATUS_FILES_LEFT_TO_PROCESS
-    # STATUS_COMPLETED
-    # STATUS_NOT_SUPPORTED
-    # STATUS_FAILED
-    # STATUS_IN_PROGRESS
-    # STATUS_NUMBER_OF_CPUS
-    # STATUS_CPU_UTILIZATION
-    # STATUS_RAM_UTILIZATION
-    # STATUS_NUM_OF_PROCESSES
-    # STATUS_NUM_OF_THREADS
-    # STATUS_NETWORK_CONNECTIONS
-    # STATUS_DISK_PARTITIONS
-
-    # status_current_status
-    # status_files_count
-    # status_files_copied
-    # status_files_to_be_copied
-    # status_files_to_process
-    # status_files_left_to_process
-    # status_completed
-    # status_not_supported
-    # status_failed
-    # status_in_progress
-    # status_number_of_cpus
-    # status_cpu_utilization
-    # status_ram_utilization
-    # status_num_of_processes
-    # status_num_of_threads
-    # status_network_connections
-    # status_disk_partitions
-
+    # Status class metric names
     STATUS_CURRENT_STATUS         = 'status_current_status'
     STATUS_FILES_COUNT            = 'status_hd1_files_count'
     STATUS_FILES_COPIED           = 'status_files_copied'

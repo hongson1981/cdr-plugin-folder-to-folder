@@ -8,7 +8,8 @@ from osbot_utils.utils.Files                        import path_combine, folder_
 from osbot_utils.utils.Json                         import json_save_file_pretty, json_load_file, file_exists
 from cdr_plugin_folder_to_folder.storage.Storage    import Storage
 from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
-from cdr_plugin_folder_to_folder.utils.PS_Utils import PS_Utils
+from cdr_plugin_folder_to_folder.utils.PS_Utils     import PS_Utils
+from cdr_plugin_folder_to_folder.common_settings.Prometheus_Metrics import Prometheus_Metrics
 
 logger.basicConfig(level=logger.INFO)
 
@@ -68,7 +69,8 @@ class Status:
             self._status_data   = self.default_data()
             self.ps_utils       = PS_Utils()
             self.status_thread_on = False
-            self.status_thread = threading.Thread()
+            self.status_thread  = threading.Thread()
+            self.metrics        = Prometheus_Metrics()
 
     @classmethod
     def clear_instance(cls):
@@ -139,6 +141,7 @@ class Status:
             file_create  (  self.status_file_path()   )
 
         json_save_file_pretty(self.data(), self.status_file_path())
+        self.set_prometheus_metrics()
         return self
 
     def status_file_path(self):
@@ -297,3 +300,23 @@ class Status:
     def get_files_copied    (self): return self.data().get(Status.VAR_FILES_COPIED)
     def get_files_to_process(self): return self.data().get(Status.VAR_FILES_TO_PROCESS)
     def get_in_progress     (self): return self.data().get(Status.VAR_IN_PROGRESS)
+
+    def set_prometheus_metrics(self):
+        #self.metrics.set_status_current_status(self._status_data[Status.VAR_CURRENT_STATUS])
+        self.metrics.set_status_files_count(self._status_data[Status.VAR_FILES_COUNT])
+        self.metrics.set_status_files_copied(self._status_data[Status.VAR_FILES_COPIED])
+        self.metrics.set_status_files_to_be_copied(self._status_data[Status.VAR_FILES_TO_BE_COPIED])
+        self.metrics.set_status_files_to_process(self._status_data[Status.VAR_FILES_TO_PROCESS])
+        self.metrics.set_status_files_left_to_process(self._status_data[Status.VAR_FILES_LEFT_TO_PROCESS])
+        self.metrics.set_status_completed(self._status_data[Status.VAR_COMPLETED])
+        self.metrics.set_status_not_supported(self._status_data[Status.VAR_NOT_SUPPORTED])
+        self.metrics.set_status_failed(self._status_data[Status.VAR_FAILED])
+        self.metrics.set_status_in_progress(self._status_data[Status.VAR_IN_PROGRESS])
+        self.metrics.set_status_number_of_cpus(self._status_data[Status.VAR_NUMBER_OF_CPUS])
+        #self.metrics.set_status_cpu_utilization(self._status_data[Status.VAR_CPU_UTILIZATION])
+        #self.metrics.set_status_ram_utilization(self._status_data[Status.VAR_RAM_UTILIZATION])
+        #self.metrics.set_status_num_of_processes(self._status_data[Status.VAR_NUM_OF_PROCESSES])
+        #self.metrics.set_status_num_of_threads(self._status_data[Status.VAR_NUM_OF_THREADS])
+        #self.metrics.set_status_network_connections(self._status_data[Status.VAR_NETWORK_CONNECTIONS])
+        #self.metrics.set_status_disk_partitions(self._status_data[Status.VAR_DISK_PARTITIONS])
+
