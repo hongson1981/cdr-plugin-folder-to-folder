@@ -1,18 +1,12 @@
-import os
-import threading
-import psutil
+# import os
+# import threading
+# import psutil
 import logging as logger
 from time import sleep
 
-from prometheus_client import start_http_server, Gauge
-
-# from osbot_utils.utils.Files                        import path_combine, folder_create, file_create
-# from osbot_utils.utils.Json                         import json_save_file_pretty, json_load_file, file_exists
-# from cdr_plugin_folder_to_folder.storage.Storage    import Storage
-# from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
-# from cdr_plugin_folder_to_folder.utils.PS_Utils import PS_Utils
-
+from prometheus_client import Gauge
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
+from cdr_plugin_folder_to_folder.common_settings.Prometheus_Metrics_Page import Prometheus_Metrics_Page
 
 logger.basicConfig(level=logger.INFO)
 
@@ -47,19 +41,19 @@ class MetricNames:
     STATUS_NETWORK_CONNECTIONS    = 'status_network_connections'
     STATUS_DISK_PARTITIONS        = 'status_disk_partitions'
 
-class Prometheus_Metrics:
+class Prometheus_Status_Metrics:
 
     _instance = None
     def __new__(cls):                                               # singleton pattern
         if cls._instance is None:
-            cls._instance = super(Prometheus_Metrics, cls).__new__(cls)
+            cls._instance = super(Prometheus_Status_Metrics, cls).__new__(cls)
         return cls._instance
 
     def __init__(self):
         if hasattr(self, 'instantiated') is False:                     # only set these values first time around
-            self.instantiated   = True
+            self.instantiated = True
             self.config = Config()
-            start_http_server(self.config.prometheus_port)
+            self.metrics_page = Prometheus_Metrics_Page()
 
             #self.status_current_status = Gauge(MetricNames.STATUS_CURRENT_STATUS,'')
             self.status_files_count             = Gauge(MetricNames.STATUS_FILES_COUNT,             'Total number of files on HD1')

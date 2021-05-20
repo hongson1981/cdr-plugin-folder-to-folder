@@ -4,17 +4,17 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc import is_number, list_set, none_or_empty
 
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
-from cdr_plugin_folder_to_folder.common_settings.Prometheus_Metrics import Prometheus_Metrics, MetricNames
+from cdr_plugin_folder_to_folder.pre_processing.Prometheus_Status_Metrics import Prometheus_Status_Metrics, MetricNames
 from cdr_plugin_folder_to_folder.utils.testing.Setup_Testing import Setup_Testing
 #from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
 
 import requests
 
-class test_Prometheus_Metrics(TestCase):
+class test_Prometheus_Status_Metrics(TestCase):
 
     def setUp(self) -> None:
         self.config = Config()
-        self.metrics = Prometheus_Metrics()
+        self.metrics = Prometheus_Status_Metrics()
         self.prometheus_url = f'http://{self.config.prometheus_host}:{self.config.prometheus_port}'
         self.numeric_values = [0, 1, 2, 3, 10, 1.81, 81.54]
         self.string_values = ['a', 'b', 'c']

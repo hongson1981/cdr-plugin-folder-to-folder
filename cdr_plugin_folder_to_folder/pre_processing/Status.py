@@ -9,7 +9,7 @@ from osbot_utils.utils.Json                         import json_save_file_pretty
 from cdr_plugin_folder_to_folder.storage.Storage    import Storage
 from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
 from cdr_plugin_folder_to_folder.utils.PS_Utils     import PS_Utils
-from cdr_plugin_folder_to_folder.common_settings.Prometheus_Metrics import Prometheus_Metrics
+from cdr_plugin_folder_to_folder.pre_processing.Prometheus_Status_Metrics import Prometheus_Status_Metrics
 
 logger.basicConfig(level=logger.INFO)
 
@@ -70,7 +70,7 @@ class Status:
             self.ps_utils       = PS_Utils()
             self.status_thread_on = False
             self.status_thread  = threading.Thread()
-            self.metrics        = Prometheus_Metrics()
+            self.metrics        = Prometheus_Status_Metrics()
 
     @classmethod
     def clear_instance(cls):
