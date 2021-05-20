@@ -6,7 +6,8 @@ import logging as logger
 from datetime import datetime
 
 from osbot_utils.utils.Files import folder_create, folder_delete_all, folder_copy, \
-    path_combine, file_delete, file_exists, folder_exists
+    path_combine, file_delete, file_exists, folder_exists, file_unzip
+from osbot_utils.utils.Misc import random_text
 
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Service
@@ -19,7 +20,7 @@ from cdr_plugin_folder_to_folder.processing.Analysis_Json import Analysis_Json
 from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
 from cdr_plugin_folder_to_folder.metadata.Metadata import DEFAULT_REPORT_FILENAME
 from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
-
+from cdr_plugin_folder_to_folder.utils.file_utils import FileService
 logger.basicConfig(level=logger.INFO)
 
 class Pre_Processor:
@@ -54,7 +55,6 @@ class Pre_Processor:
 
     @log_duration
     def mark_all_hd2_files_unprocessed(self):
-        print(f'mark_all_hd2_files_unprocessed {self.status.get_current_status()}')
 
         if Processing_Status.NONE != self.status.get_current_status() and \
            Processing_Status.STOPPED != self.status.get_current_status():
@@ -104,11 +104,20 @@ class Pre_Processor:
         folder_to_process = self.prepare_folder(folder_to_process)
 
         files_count = 0
-
+        zip_info = {}
         for folderName, subfolders, filenames in os.walk(folder_to_process):
             for filename in filenames:
                 file_path =  os.path.join(folderName, filename)
-                if os.path.isfile(file_path):
+                if FileService.get_file_extension(filename) == ".zip":
+                    unzipped_dir = self.pre_process_zip(file_path,filename)
+                    if unzipped_dir:
+                        zip_info[file_path] = unzipped_dir
+                        for unzippedfolderName, unzippedsubfolders, unzippedfilenames in os.walk(unzipped_dir):
+                            for unzippedfilename in unzippedfilenames:
+                                unzipped_file_path = os.path.join(unzippedfolderName, unzippedfilename)
+                                if os.path.isfile(unzipped_file_path):
+                                    files_count += 1
+                elif os.path.isfile(file_path):
                     files_count += 1
 
         self.status.set_files_count(files_count)
@@ -116,10 +125,37 @@ class Pre_Processor:
         for folderName, subfolders, filenames in os.walk(folder_to_process):
             for filename in filenames:
                 file_path =  os.path.join(folderName, filename)
-                if os.path.isfile(file_path):
+                if FileService.get_file_extension(filename) == ".zip":
+                    self.pre_process_unzipped(zip_info[file_path])
+                elif os.path.isfile(file_path):
                     self.process(file_path)
 
         return True
+
+    @log_duration
+    def pre_process_zip(self, file_path, filename):
+        # Unzip to tmp
+        randomdir = random_text()
+        #unzip_path = '/tmp/' + randomdir
+        unzip_path = '/'+os.path.splitext(filename)[0]+"_zip"
+        try:
+            if os.path.exists(unzip_path):
+                folder_delete_all(unzip_path)
+            os.mkdir(unzip_path)
+            file_unzip(file_path, unzip_path)
+            return unzip_path
+        except Exception as e:
+            print(str(e))
+        return  None
+
+    @log_duration
+    def pre_process_unzipped(self, unzip_path):
+        if unzip_path:
+            for unzippedfolderName, unzippedsubfolders, unzippedfilenames in os.walk(unzip_path):
+                for unzippedfilename in unzippedfilenames:
+                    unzipped_file_path = os.path.join(unzippedfolderName, unzippedfilename)
+                    if os.path.isfile(unzipped_file_path):
+                        self.process(unzipped_file_path)
 
     @log_duration
     def process_files(self):

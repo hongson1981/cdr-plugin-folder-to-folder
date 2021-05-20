@@ -335,8 +335,7 @@ class File_Processing:
                         if path.startswith(self.config.hd1_location):
                             rebuild_file_path = path.replace(self.config.hd1_location, self.config.hd3_location)
                         else:
-                            rebuild_file_path = os.path.join(self.config.hd3_location, path)
-
+                            rebuild_file_path = os.path.join(self.config.hd3_location, path.strip("/"))
                         folder_create(parent_folder(rebuild_file_path))                         # make sure parent folder exists
 
                         file_copy(clean_file_path, rebuild_file_path)     # returns actual file saved (which could be .html)
@@ -354,13 +353,19 @@ class File_Processing:
                         pass
                 log_error(message=message)
                 self.meta_service.set_xml_report_status(dir, "No Report")
-                self.meta_service.set_error(dir,message)
+                self.meta_service.set_error(dir, message)
             finally:
                 # clean it up
                 if file_exists(zip_file_path):
                     file_delete(zip_file_path)
                 if folder_exists(unzip_folder_path):
                     folder_delete_all(unzip_folder_path)
+                # Delete tmp from container where we unzipped original
+                base = os.path.basename(path)
+                original_file = os.path.splitext(base)[0]
+                base_dir = path.split(os.sep)[1]
+                if folder_exists("/"+base_dir):
+                    folder_delete_all("/"+base_dir)
         if retvalue:
             log_info(message=f"rebuild ok for file {hash} on endpoint {endpoint} took {duration.seconds()} seconds")
         return retvalue

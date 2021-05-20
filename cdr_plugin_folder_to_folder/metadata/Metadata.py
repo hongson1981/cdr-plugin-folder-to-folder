@@ -71,7 +71,7 @@ class Metadata:
     def create(self, file_path):
         if self.file_hash:
             folder_create(self.metadata_folder_path())
-            file_copy    (file_path, self.source_file_path())
+            file_copy(file_path, self.source_file_path())
             self.set_original_file_size     (file_path)
             self.set_original_file_extension(file_path)
             self.set_original_file_name     (file_path)
