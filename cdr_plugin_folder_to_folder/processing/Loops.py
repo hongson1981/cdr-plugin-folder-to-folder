@@ -183,10 +183,15 @@ class Loops(object):
             source_path = self.storage.hd2_data(key)
             destination_path = ""
 
-            if (FileStatus.COMPLETED == json_list[key]["file_status"]):
+            file_status = json_list[key]["file_status"]
+
+            if (FileStatus.COMPLETED == file_status) or \
+               (FileStatus.NO_CLEANING_NEEDED == file_status):
                 destination_path = self.storage.hd2_processed(key)
-            elif (FileStatus.NOT_SUPPORTED == json_list[key]["file_status"]):
+            elif (FileStatus.NOT_SUPPORTED == file_status):
                 destination_path = self.storage.hd2_not_supported(key)
+            else:
+                return
 
             if destination_path:
                 if folder_exists(destination_path):
