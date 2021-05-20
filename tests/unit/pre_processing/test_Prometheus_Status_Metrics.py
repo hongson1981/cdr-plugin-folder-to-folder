@@ -1,3 +1,6 @@
+import psutil
+import random
+
 from os import environ
 from unittest import TestCase
 from osbot_utils.utils.Dev import pprint
@@ -168,5 +171,18 @@ class test_Prometheus_Status_Metrics(TestCase):
 
     def test_set_status_disk_partitions(self):
         self.numeric_metric_set_get_test(self.metrics.set_status_disk_partitions, MetricNames.STATUS_DISK_PARTITIONS)
+
+    def test_set_status_cpus_utilization(self):
+        values = []
+        num_of_cpus = psutil.cpu_count()
+        for idx in range(num_of_cpus):
+            values.append(random.random())
+        self.metrics.set_status_cpus_utilization(values)
+        for idx in range(num_of_cpus):
+            metric_name = f'{MetricNames.STATUS_CPU_UTILIZATION}_{idx}'
+            metric = self.get_metric(metric_name)
+            assert metric
+            assert self.is_number(metric)
+            assert values[idx] == self.get_number(metric)
 
 

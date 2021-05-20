@@ -1,6 +1,6 @@
 # import os
 # import threading
-# import psutil
+import psutil
 import logging as logger
 from time import sleep
 
@@ -70,12 +70,16 @@ class Prometheus_Status_Metrics:
             self.status_failed                  = Gauge(MetricNames.STATUS_FAILED,                  'Files whose processing completed with errors')
             self.status_in_progress             = Gauge(MetricNames.STATUS_IN_PROGRESS,             'Files whose processing in not completed yet')
             self.status_number_of_cpus          = Gauge(MetricNames.STATUS_NUMBER_OF_CPUS,          'Number of CPUs on the system')
-            #self.status_cpu_utilization         = Gauge(MetricNames.STATUS_CPU_UTILIZATION,'')
+            self.status_cpu_utilization         = []
             self.status_ram_utilization         = Gauge(MetricNames.STATUS_RAM_UTILIZATION,         'Current RAM utilization')
             self.status_num_of_processes        = Gauge(MetricNames.STATUS_NUM_OF_PROCESSES,        'Current number of processes on the system')
             self.status_num_of_threads          = Gauge(MetricNames.STATUS_NUM_OF_THREADS,          'Current number of threads on the system')
             self.status_network_connections     = Gauge(MetricNames.STATUS_NETWORK_CONNECTIONS,     'Current number of network connections on the system')
             self.status_disk_partitions         = Gauge(MetricNames.STATUS_DISK_PARTITIONS,         'Number of disk partitions on the system')
+
+            self.current_number_of_cpus         = psutil.cpu_count()
+            for idx in range(self.current_number_of_cpus):
+               self.status_cpu_utilization.append(Gauge(f'{MetricNames.STATUS_CPU_UTILIZATION}_{idx}',f'CPU number {idx} curent utilization'))
 
             self.set_status_current_status(Processing_Status.NONE)
             self.set_status_files_count(0)
@@ -87,13 +91,15 @@ class Prometheus_Status_Metrics:
             self.set_status_not_supported(0)
             self.set_status_failed(0)
             self.set_status_in_progress(0)
-            self.set_status_number_of_cpus(0)
-            #self.set_status_cpu_utilization(0)
+            self.set_status_number_of_cpus(self.current_number_of_cpus)
+            for idx in range(self.current_number_of_cpus):
+               self.set_status_single_cpu_utilization(idx, 0)
             self.set_status_ram_utilization(0)
             self.set_status_num_of_processes(0)
             self.set_status_num_of_threads(0)
             self.set_status_network_connections(0)
             self.set_status_disk_partitions(0)
+
 
     @classmethod
     def clear_instance(cls):
@@ -143,8 +149,19 @@ class Prometheus_Status_Metrics:
     def set_status_number_of_cpus(self, count):
        self.set_gauge(self.status_number_of_cpus, count)
 
-    # def set_status_cpu_utilization(self, count):
-    #    self.set_gauge(self.status_cpu_utilization, count)
+    def set_status_single_cpu_utilization(self, idx, utilization):
+       if idx in range(self.current_number_of_cpus):
+          self.set_gauge(self.status_cpu_utilization[idx], utilization)
+
+    def set_status_cpus_utilization(self, utilization_array):
+       if not utilization_array:
+          return
+       if len(utilization_array) != self.current_number_of_cpus:
+          return
+       idx = 0
+       for value in utilization_array:
+          self.set_status_single_cpu_utilization(idx, value)
+          idx += 1
 
     def set_status_ram_utilization(self, count):
        self.set_gauge(self.status_ram_utilization, count)
