@@ -191,7 +191,7 @@ class Loops(object):
             elif (FileStatus.NOT_SUPPORTED == file_status):
                 destination_path = self.storage.hd2_not_supported(key)
             else:
-                return
+                continue
 
             if destination_path:
                 if folder_exists(destination_path):
