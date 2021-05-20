@@ -93,6 +93,7 @@ class test_Prometheus_Status_Metrics(TestCase):
     # def test_set_status_current_status(self):
 
     def numeric_metric_set_get_test(self, method, metric_name):
+        # Regular numeric values
         for value in self.numeric_values:
             method(value)
             metric = self.get_metric(metric_name)
@@ -100,9 +101,17 @@ class test_Prometheus_Status_Metrics(TestCase):
             assert self.is_number(metric)
             assert value == self.get_number(metric)
 
+        # Not numeric values
         for value in self.string_values:
             with self.assertRaises(ValueError):
                 method(value)
+
+        # None value should be treated as 0
+        method(None)
+        metric = self.get_metric(metric_name)
+        assert metric
+        assert self.is_number(metric)
+        assert 0 == self.get_number(metric)
 
     def test_set_status_files_count(self):
         self.numeric_metric_set_get_test(self.metrics.set_status_files_count, MetricNames.STATUS_FILES_COUNT)
