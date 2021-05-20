@@ -6,7 +6,8 @@ from osbot_utils.utils.Json  import json_load_file
 from osbot_utils.utils.Misc import random_text
 
 from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import Pre_Processor
-from cdr_plugin_folder_to_folder.pre_processing.Status import FileStatus, Processing_Status, Status
+from cdr_plugin_folder_to_folder.pre_processing.Processing_Status import Processing_Status
+from cdr_plugin_folder_to_folder.pre_processing.Status import FileStatus, Status
 
 from cdr_plugin_folder_to_folder.utils.Logging_Process import process_all_log_entries_and_end_logging_process
 from cdr_plugin_folder_to_folder.utils.testing.Temp_Config import Temp_Config

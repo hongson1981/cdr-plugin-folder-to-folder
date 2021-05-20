@@ -4,6 +4,7 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc import is_number, list_set, none_or_empty
 
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
+from cdr_plugin_folder_to_folder.pre_processing.Processing_Status import Processing_Status, Processing_Status_States
 from cdr_plugin_folder_to_folder.pre_processing.Prometheus_Status_Metrics import Prometheus_Status_Metrics, MetricNames
 from cdr_plugin_folder_to_folder.utils.testing.Setup_Testing import Setup_Testing
 #from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
@@ -90,7 +91,14 @@ class test_Prometheus_Status_Metrics(TestCase):
         assert metric
         assert self.is_number(metric)
 
-    # def test_set_status_current_status(self):
+    def test_set_status_current_status(self):
+        for state in Processing_Status_States:
+            self.metrics.set_status_current_status(state)
+            enum_string = MetricNames.STATUS_CURRENT_STATUS + '{' + MetricNames.STATUS_CURRENT_STATUS + f'="{state}"' + '}'
+            current_status = self.get_metric(enum_string)
+            assert current_status
+            assert self.is_number(current_status)
+            assert 1 == self.get_number(current_status)
 
     def numeric_metric_set_get_test(self, method, metric_name):
         # Regular numeric values

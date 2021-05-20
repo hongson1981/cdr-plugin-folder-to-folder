@@ -9,6 +9,7 @@ from osbot_utils.utils.Json                         import json_save_file_pretty
 from cdr_plugin_folder_to_folder.storage.Storage    import Storage
 from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
 from cdr_plugin_folder_to_folder.utils.PS_Utils     import PS_Utils
+from cdr_plugin_folder_to_folder.pre_processing.Processing_Status import Processing_Status
 from cdr_plugin_folder_to_folder.pre_processing.Prometheus_Status_Metrics import Prometheus_Status_Metrics
 
 logger.basicConfig(level=logger.INFO)
@@ -22,15 +23,6 @@ class FileStatus:                                     # todo move to separate fi
     FAILED        = "Completed with errors"
     TO_PROCESS    = "To Process"
     NONE          = "None"
-
-
-class Processing_Status:
-    NONE     = "None"
-    STOPPED  = "Stopped"
-    STOPPING = "Stopping"
-    STARTED  = "Started"
-    PHASE_1  = "PHASE 1 - Copying Files"
-    PHASE_2  = "PHASE 2 - Rebuilding Files"
 
 class Status:
 
@@ -302,7 +294,7 @@ class Status:
     def get_in_progress     (self): return self.data().get(Status.VAR_IN_PROGRESS)
 
     def set_prometheus_metrics(self):
-        #self.metrics.set_status_current_status(self._status_data[Status.VAR_CURRENT_STATUS])
+        self.metrics.set_status_current_status(self._status_data[Status.VAR_CURRENT_STATUS])
         self.metrics.set_status_files_count(self._status_data[Status.VAR_FILES_COUNT])
         self.metrics.set_status_files_copied(self._status_data[Status.VAR_FILES_COPIED])
         self.metrics.set_status_files_to_be_copied(self._status_data[Status.VAR_FILES_TO_BE_COPIED])

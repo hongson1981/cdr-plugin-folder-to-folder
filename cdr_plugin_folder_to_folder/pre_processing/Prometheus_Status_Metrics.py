@@ -4,8 +4,9 @@
 import logging as logger
 from time import sleep
 
-from prometheus_client import Gauge
+from prometheus_client import Gauge, Enum
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
+from cdr_plugin_folder_to_folder.pre_processing.Processing_Status import Processing_Status, Processing_Status_States
 from cdr_plugin_folder_to_folder.common_settings.Prometheus_Metrics_Page import Prometheus_Metrics_Page
 
 logger.basicConfig(level=logger.INFO)
@@ -55,7 +56,10 @@ class Prometheus_Status_Metrics:
             self.config = Config()
             self.metrics_page = Prometheus_Metrics_Page()
 
-            #self.status_current_status = Gauge(MetricNames.STATUS_CURRENT_STATUS,'')
+            self.status_current_status = Enum ( MetricNames.STATUS_CURRENT_STATUS,
+                                                'The Current processing state',
+                                                states = Processing_Status_States
+                                              )
             self.status_files_count             = Gauge(MetricNames.STATUS_FILES_COUNT,             'Total number of files on HD1')
             self.status_files_copied            = Gauge(MetricNames.STATUS_FILES_COPIED,            'Files copied to HD2')
             self.status_files_to_be_copied      = Gauge(MetricNames.STATUS_FILES_TO_BE_COPIED,      'Files left to be copied to HD2')
@@ -73,7 +77,7 @@ class Prometheus_Status_Metrics:
             self.status_network_connections     = Gauge(MetricNames.STATUS_NETWORK_CONNECTIONS,     'Current number of network connections on the system')
             self.status_disk_partitions         = Gauge(MetricNames.STATUS_DISK_PARTITIONS,         'Number of disk partitions on the system')
 
-            #self.set_status_current_status(0)
+            self.set_status_current_status(Processing_Status.NONE)
             self.set_status_files_count(0)
             self.set_status_files_copied(0)
             self.set_status_files_to_be_copied(0)
@@ -106,8 +110,11 @@ class Prometheus_Status_Metrics:
     def set_status_files_count(self, count):
         self.set_gauge(self.status_files_count, count)
 
-    # def set_status_current_status(self, count):
-    #    self.status_current_status.set(count)
+    def set_status_current_status(self, status):
+        if not status in Processing_Status_States:
+           return
+
+        self.status_current_status.state(status)
 
     def set_status_files_copied(self, count):
        self.set_gauge(self.status_files_copied, count)
