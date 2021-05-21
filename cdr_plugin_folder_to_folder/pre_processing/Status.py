@@ -8,6 +8,7 @@ from osbot_utils.utils.Files                        import path_combine, folder_
 from osbot_utils.utils.Json                         import json_save_file_pretty, json_load_file, file_exists
 from cdr_plugin_folder_to_folder.storage.Storage    import Storage
 from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
+from cdr_plugin_folder_to_folder.utils.PS_Utils import PS_Utils
 
 logger.basicConfig(level=logger.INFO)
 
@@ -65,6 +66,7 @@ class Status:
             self.storage        = Storage()
             #self._on_save      = []                             # todo: add support for firing up events when data is saved
             self._status_data   = self.default_data()
+            self.ps_utils       = PS_Utils()
             self.status_thread_on = False
             self.status_thread = threading.Thread()
 
@@ -118,10 +120,17 @@ class Status:
             self.reset()
         return self
 
-
     def reset(self):
         self._status_data = self.default_data()
         self.save()
+        return self
+
+    def reset_system_data(self):
+        self._status_data[Status.VAR_CPU_UTILIZATION] = None
+        self._status_data[Status.VAR_RAM_UTILIZATION] = None
+        self._status_data[Status.VAR_NUM_OF_PROCESSES] = None
+        self._status_data[Status.VAR_NUM_OF_THREADS] = None
+        self._status_data[Status.VAR_NETWORK_CONNECTIONS] = None
         return self
 
     def save(self):
@@ -153,11 +162,11 @@ class Status:
             except:
                 pass
 
-        self._status_data[Status.VAR_NUM_OF_THREADS] = thread_count
+        self._status_data[Status.VAR_NUM_OF_THREADS]      = thread_count
 
-        self._status_data[Status.VAR_NETWORK_CONNECTIONS] = len(psutil.net_connections(kind='tcp'))
+        self._status_data[Status.VAR_NETWORK_CONNECTIONS] = self.ps_utils.net_connections_count()
 
-        self._status_data[Status.VAR_DISK_PARTITIONS] = len(psutil.disk_partitions())
+        self._status_data[Status.VAR_DISK_PARTITIONS]     = len(psutil.disk_partitions())
 
 
     def get_server_status(self):

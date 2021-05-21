@@ -26,14 +26,18 @@ DEFAULT_ELASTIC_SCHEMA   = "http"
 DEFAULT_KIBANA_HOST      = "kib01"
 DEFAULT_KIBANA_PORT      = "5601"
 DEFAULT_THREAD_COUNT     = 10
-DEFAULT_TEST_SDK         = '54.171.39.142'
-DEFAULT_ENDPOINTS        = '{"Endpoints":[{"IP":"' + DEFAULT_TEST_SDK + '", "Port":"8080"}]}'
+DEFAULT_TEST_SDK         = '54.194.53.18'
+#DEFAULT_TEST_SDK         = 'gw-cloud-sdk-455649808.eu-west-1.elb.amazonaws.com'
+DEFAULT_ENDPOINT_PORT    = '8080'
+DEFAULT_MINIO_ENDPOINT_PORT    = '8088'          # Minio version is using this port
+DEFAULT_ENDPOINTS        = '{"Endpoints":[{"IP":"' + DEFAULT_TEST_SDK + '", "Port":"' + DEFAULT_ENDPOINT_PORT +'"}]}'
 DEFAULT_SUPPORTED_FILE_TYPES = '.doc .dot .xls .xlt .xlm .ppt .pot .pps .docx .dotx .docm .dotm .xlsx .xltx .xlsm .xltm .pptx .potx .ppsx .pptm .potm .ppsm .pdf .jpeg .jpg .jpe .png .gif'
 DEFUALT_SAVE_UNSUPPORTED_FILE_TYPES = True
 DEFAULT_REQUEST_TIMEOUT  = 600
 DEFAULT_REBUILD_ZIP      = True
+DEFAULT_USE_DYNAMIC_ENDPOINTS = False
 DEFAULT_SDK_SERVERS_API  = 'https://tmol8zkg3c.execute-api.eu-west-1.amazonaws.com/prod/sdk-servers/ip_addresses'
-API_VERSION              = "v0.6.4"
+API_VERSION              = "v0.6.4.3"
 
 
 
@@ -63,10 +67,11 @@ class Config:
             self.endpoints              = None
             self.endpoints_count        = None
             self.request_timeout        = None
-            self.rebuild_zip            = None
+            self.use_rebuild_zip        = None
             self.sdk_servers_api        = None
             self.supported_file_types   = None
             self.save_unsupported_file_types = None
+            self.use_dynamic_endpoints  = None
             self.load_values()                                      # due to the singleton pattern this will only be executed once
 
     def load_values(self):
@@ -80,9 +85,10 @@ class Config:
         self.kibana_port         = os.getenv    ("KIBANA_PORT"     , DEFAULT_KIBANA_PORT    )
         self.thread_count        = os.getenv    ("THREAD_COUNT"    , DEFAULT_THREAD_COUNT   )
         self.request_timeout     = os.getenv    ("REQUEST_TIMEOUT" , DEFAULT_REQUEST_TIMEOUT)
-        self.rebuild_zip         = os.getenv    ("REBUILD_ZIP"     , DEFAULT_REBUILD_ZIP    )
+        self.use_rebuild_zip     = os.getenv    ("REBUILD_ZIP"     , DEFAULT_REBUILD_ZIP    )
         self.test_sdk            = os.getenv    ("TEST_SDK"        , DEFAULT_TEST_SDK       )
         self.sdk_servers_api     = os.getenv    ("SDK_SERVERS_API" , DEFAULT_SDK_SERVERS_API)
+        self.use_dynamic_endpoints = os.getenv  ("USE_DYNAMIC_ENDPOINTS" , DEFAULT_USE_DYNAMIC_ENDPOINTS)
 
         json_string          = os.getenv("ENDPOINTS", DEFAULT_ENDPOINTS)
         self.endpoints       = json.loads(json_string)

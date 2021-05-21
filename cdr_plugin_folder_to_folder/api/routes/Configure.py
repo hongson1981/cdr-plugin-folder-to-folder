@@ -8,6 +8,7 @@ from typing import List
 from fastapi import FastAPI, HTTPException
 
 from cdr_plugin_folder_to_folder.metadata.Metadata_Elastic import Metadata_Elastic
+from cdr_plugin_folder_to_folder.processing.Analysis_Elastic import Analysis_Elastic
 from cdr_plugin_folder_to_folder.utils.Logging import log_debug
 from cdr_plugin_folder_to_folder.utils.Logging_Process import process_all_log_entries_and_end_logging_process, \
     start_logging
@@ -57,6 +58,10 @@ def configure_multiple_gw_sdk_endpoints(item: ItemList):
 @router.put("/reload_elastic_file_metadata/")
 def reload_elastic_file_metadata():
     return Metadata_Elastic().reload_elastic_data()
+
+@router.put("/clear_elastic_file_analysis/")
+def clear_elastic_file_analysis():
+    return Analysis_Elastic().clear_elastic_analysis()
 
 @router.put("/reload_kibana_dashboards/")
 def reload_elastic_file_metadata():

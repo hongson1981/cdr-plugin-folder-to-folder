@@ -4,16 +4,19 @@ from unittest import TestCase
 
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import temp_folder, folder_files, folder_delete_all, folder_create, file_create_bytes, \
-    file_contents_as_bytes, file_contents, file_name, temp_file, file_sha256
+    file_contents_as_bytes, file_contents, file_name, temp_file, file_sha256, path_combine, file_exists, folder_exists
 from osbot_utils.utils.Http import POST, POST_json
-from osbot_utils.utils.Json import json_to_str
+from osbot_utils.utils.Json import json_to_str, str_to_json
 from osbot_utils.utils.Misc import base64_to_str, base64_to_bytes, str_to_bytes, random_string, random_text, \
-    str_to_base64, bytes_to_str, bytes_to_base64
+    str_to_base64, bytes_to_str, bytes_to_base64, random_uuid
 
-from cdr_plugin_folder_to_folder.common_settings.Config import Config
+from osbot_utils.utils.Json import str_to_json, json_to_str, json_parse
+from cdr_plugin_folder_to_folder.common_settings.Config import Config, DEFAULT_ENDPOINTS
+from cdr_plugin_folder_to_folder.metadata.Metadata import Metadata
 from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Service
 from cdr_plugin_folder_to_folder.metadata.Metadata_Utils import Metadata_Utils
 from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import Pre_Processor
+from cdr_plugin_folder_to_folder.processing.Endpoint_Service import Endpoint_Service
 from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
 from cdr_plugin_folder_to_folder.processing.Events_Log_Elastic import Events_Log_Elastic
 from cdr_plugin_folder_to_folder.processing.File_Processing import File_Processing
@@ -24,118 +27,117 @@ from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
 from cdr_plugin_folder_to_folder.processing.Report_Elastic import Report_Elastic
 from cdr_plugin_folder_to_folder.processing.Analysis_Json import Analysis_Json
 from cdr_plugin_folder_to_folder.processing.Analysis_Elastic import Analysis_Elastic
+import traceback
+import base64
 
 class test_File_Processing(Temp_Config):
 
     config    = None
     temp_root = None
 
-    @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
-        cls.test_file       = Test_Data().create_test_pdf(text=random_text(prefix="some random text: "))
-        cls.test_file_name  = file_name(cls.test_file)
-        cls.config          = Config()
-        #cls.temp_root       = folder_create('/tmp/temp_root') # temp_folder()
-        #cls.config.set_root_folder(root_folder=cls.temp_root)
-        cls.meta_service    = Metadata_Service()
-        cls.metadata        = cls.meta_service.create_metadata(cls.test_file)
-        cls.analysis_json = Analysis_Json()
-
-
     # @classmethod
-    # def tearDownClass(cls) -> None:
-    #     super().tearDownClass()
-    #     cls.config.load_values()                    # reset config values
-    #     #folder_delete_all(cls.temp_root)
+    # def setUpClass(cls) -> None:
+    #     super().setUpClass()
+    #
+    #     #cls.temp_root       = folder_create('/tmp/temp_root') # temp_folder()
+    #     #cls.config.set_root_folder(root_folder=cls.temp_root)
 
     def setUp(self) -> None:
+        self.sdk_server         = self.config.test_sdk
+        self.sdk_port           = '8080'
+        #self.temp_folder        = temp_folder()
+        self.events_elastic     = Events_Log_Elastic()
+        self.endpoint_service   = Endpoint_Service()
+        self.report_elastic     = Report_Elastic()
+        self.analysis_elastic   = Analysis_Elastic()
+        self.storage            = Storage()
+        self.meta_service       = Metadata_Service()
+        self.test_file_path     = self.add_test_files(count=1, execute_stage_1=True).pop()  # Test_Data().create_test_pdf(text=random_text(prefix="some random text: "))
+        self.test_file_name     = file_name(self.test_file_path)
+        self.test_file_hash     = self.storage.hd2_data_file_hashes().pop()
+        self.test_file_metadata = Metadata(file_hash=self.test_file_hash).load()
+        self.events_log         = self.test_file_metadata.events_log()
+        self.file_processing    = File_Processing(events_log=self.events_log, events_elastic = self.events_elastic, report_elastic=self.report_elastic, analysis_elastic= self.analysis_elastic, meta_service=self.meta_service )
+        assert self.test_file_metadata.exists()
+        #assert self.test_file_metadata.get_original_file_paths() == [self.test_file_name]
 
-        self.sdk_server      = self.config.test_sdk
-        self.sdk_port        = '8080'
-        self.temp_folder     = temp_folder()
-        self.events_log      = Events_Log(self.temp_folder)
-        self.events_elastic  = Events_Log_Elastic()
-        self.report_elastic  = Report_Elastic()
-        self.analysis_elastic = Analysis_Elastic()
-        self.file_processing = File_Processing(events_log=self.events_log, events_elastic = self.events_elastic, report_elastic=self.report_elastic, analysis_elastic= self.analysis_elastic, meta_service=self.meta_service )
-        self.storage         = Storage()
+    def tearDown(self) -> None:
 
-    def test_get_xmlreport(self):
-        endpoint = ''
-        headers = ''
-        dir     = ''
+        self.test_file_metadata.delete()
 
-    # todo move this test to integration tests and refactor test here to mock the server response
-    # @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
-    # def test_do_rebuild(self):          # refactor
-    #     endpoint    = f'http://{self.sdk_server}:{self.sdk_port}'
-    #     hash        = Metadata_Utils().file_hash(self.test_file)
-    #     assert self.analysis_json.add_file(hash, self.test_file_name) is True
-    #     dir         = self.metadata.metadata_folder_path()
-    #     result = self.file_processing.do_rebuild(endpoint=endpoint, hash=hash, source_path=self.test_file, dir=dir)
-    #     assert result is True
-    #     assert self.metadata.metadata_file_exists()
-    #     assert self.metadata.report_file_exists()
+    def test_do_rebuild_zip(self):
 
-    # @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
-    # def test_do_rebuild_bad_file(self):  # refactor
-    #     bad_file      = temp_file(contents=random_text())
-    #     file_hash     = file_sha256(bad_file)
-    #     metadata      = self.meta_service.create_metadata(bad_file)
-    #     endpoint    = f'http://{self.sdk_server}:{self.sdk_port}'
-    #     dir         = metadata.metadata_folder_path()
-    #     result      = self.file_processing.do_rebuild(endpoint=endpoint, hash=file_hash, source_path=bad_file, dir=dir)
-    #     assert result == False
-    #     metadata.load()
-    #     assert metadata.data.get('error') ==  File_Processing.RESP_CODE_NOT_DECODED
+        self.endpoint_service.endpoints = str_to_json(DEFAULT_ENDPOINTS)["Endpoints"]
 
-    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
-    def test_processDirectory__bad_file(self):
-        bad_file = temp_file(contents=random_text())
-        metadata = self.meta_service.create_metadata(bad_file)
-        endpoint = f'http://{self.sdk_server}:{self.sdk_port}'
-        dir = metadata.metadata_folder_path()
-        result = self.file_processing.processDirectory(endpoint=endpoint, dir=dir)
-        assert result == False
+        endpoint = self.endpoint_service.get_endpoint_url()
+        metadata = self.test_file_metadata
+        folder_path = metadata.metadata_folder_path()
+        source_path = metadata.source_file_path()
+
+        kwargs = {"endpoint": endpoint,
+                  "hash": self.test_file_hash,
+                  "source_path": source_path,
+                  "dir": folder_path}
+
+        assert self.file_processing.do_rebuild_zip(**kwargs)
+
         metadata.load()
-        assert metadata.data.get('rebuild_status') == 'Completed with errors'
+        #assert metadata.data.get('xml_report_status'      ) == 'Obtained'
+        #assert metadata.data.get('file_name'              ) == self.test_file_name
+        assert metadata.data.get('rebuild_server'         ) == endpoint
+        assert metadata.data.get('server_version'         ) == 'Engine:1.157 API:0.1.11'
+        assert metadata.data.get('error'                  ) is None
+        assert metadata.data.get('original_hash'          ) == self.test_file_hash
+        assert metadata.data.get('original_file_size'     ) == 755
+        assert metadata.data.get('original_file_extension') == '.pdf'
+        assert metadata.data.get('rebuild_status'         ) == 'Initial'
+        assert metadata.data.get('rebuild_file_extension' ) == 'pdf'
+        assert metadata.data.get('rebuild_file_size'      ) == 1267
 
-    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
-    def test_processDirectory__bad_zip_file(self):
-        bad_file = temp_file(contents=random_text())
-        metadata = self.meta_service.create_metadata(bad_file)
-        endpoint = f'http://{self.sdk_server}:{self.sdk_port}'
-        dir = metadata.metadata_folder_path()
-        result = self.file_processing.processDirectory(endpoint=endpoint, dir=dir, use_rebuild_zip=True)
-        assert result == False
-        metadata.load()
-        assert metadata.data.get('rebuild_status') == 'Completed with errors'
-        assert metadata.data.get('error')          == "Error while processing the request. See details in 'errors.json'"
 
-    @pytest.mark.skip("TODO: The rebuild function works. Investigate why the test fails")
-    def test_pdf_rebuild(self,):            # refactor into separate test file
-        server          = self.config.test_sdk
-        url             = f"http://{server}:8080/api/rebuild/base64"
-        headers         = { 'accept': 'application/json',
-                            'Content-Type': 'application/json'}
-        text            = random_text("random text - ")
-        test_pdf        = Test_Data().create_test_pdf(text=text)
-        original_bytes  = file_contents_as_bytes(test_pdf)
+    def test_do_rebuild(self):
 
-        original_base64 = bytes_to_base64(original_bytes)
-        post_data       = {"Base64": original_base64}
-        result          = POST(url, data=post_data, headers=headers)
-        rebuild_base64 = base64_to_bytes(result)
+        self.endpoint_service.endpoints = str_to_json(DEFAULT_ENDPOINTS)["Endpoints"]
 
-        assert str_to_bytes(text)     in     original_bytes
-        assert b'Glasswall'           not in original_bytes
+        endpoint = self.endpoint_service.get_endpoint_url()
+        metadata = self.test_file_metadata
+        folder_path = metadata.metadata_folder_path()
+        source_path = metadata.source_file_path()
 
-        assert str_to_bytes(text)     in     rebuild_base64
-        assert b'Glasswall'           in     rebuild_base64
-        #pprint(rebuild_base64)
-        #assert b'Glasswall'    in     rebuild_base64
 
+        kwargs = {"endpoint"    : endpoint              ,
+                  "hash"        : self.test_file_hash   ,
+                  "source_path" : source_path           ,
+                  "dir"         : folder_path           }
+
+        assert self.file_processing.do_rebuild(**kwargs)
+
+        pprint(metadata.load())
+
+        assert metadata.data.get('xml_report_status'      ) == 'Obtained'
+        assert metadata.data.get('file_name'              ) == self.test_file_name
+        assert metadata.data.get('rebuild_server'         ) == endpoint
+        assert metadata.data.get('server_version'         ) == 'Engine:1.157 API:0.1.11'
+        assert metadata.data.get('error'                  ) is None
+        assert metadata.data.get('original_hash'          ) == self.test_file_hash
+        assert metadata.data.get('original_file_size'     ) == 755
+        assert metadata.data.get('original_file_extension') == '.pdf'
+        assert metadata.data.get('rebuild_status'         ) == 'Initial'
+        assert metadata.data.get('rebuild_file_extension' ) == 'pdf'
+        assert metadata.data.get('rebuild_file_size'      ) == 1267
+
+    def test_processDirectory(self):
+        self.endpoint_service.endpoints = str_to_json(DEFAULT_ENDPOINTS)["Endpoints"]
+
+        endpoint    = self.endpoint_service.get_endpoint_url()
+        metadata    = self.test_file_metadata
+        folder_path = metadata.metadata_folder_path()
+        source_path = metadata.source_file_path()
+
+        kwargs = {"endpoint"    : endpoint              ,
+                  "dir"         : folder_path           }
+
+        assert self.file_processing.processDirectory(**kwargs)
 
 
     # def test_server_status(self,):            # refactor into separate test file
@@ -161,3 +163,80 @@ class test_File_Processing(Temp_Config):
     #         pprint(error)
     # #`
 
+    def test_processBadFile(self):
+        bad_file = temp_file(contents=random_text())
+        metadata = self.meta_service.create_metadata(bad_file)
+        endpoint = f'http://{self.sdk_server}:{self.sdk_port}'
+        dir = metadata.metadata_folder_path()
+        try:
+            result = self.file_processing.processDirectory(endpoint=endpoint, dir=dir)
+        except Exception as e:
+            traceback.print_exc()
+            self.fail("Should not have thrown")
+        assert result == True
+        metadata.load()
+        assert metadata.data.get('rebuild_status') == 'The file type is not currently supported'
+
+
+    def test_processBadFileWithoutSaveOriginal(self):
+        bad_file = temp_file(contents=random_text())
+        self.config.save_unsupported_file_types = False
+        metadata = self.meta_service.create_metadata(bad_file)
+        endpoint = f'http://{self.sdk_server}:{self.sdk_port}'
+        dir = metadata.metadata_folder_path()
+        try:
+            result = self.file_processing.processDirectory(endpoint=endpoint, dir=dir)
+        except Exception as e:
+            traceback.print_exc()
+            self.fail("Should not have thrown")
+        assert result == True
+        metadata.load()
+        assert metadata.data.get('rebuild_status') == 'The file type is not currently supported'
+
+    def test_pdf_rebuild(self):            # refactor into separate test file
+        server          = self.config.test_sdk
+        url             = f"http://{server}:8080/api/rebuild/base64"
+        headers         = { 'accept': 'application/json',
+                            'Content-Type': 'application/json'}
+        text            = random_text("random text - ")
+        test_pdf        = Test_Data().create_test_pdf(text=text)
+        original_bytes  = file_contents_as_bytes(test_pdf)
+
+        original_base64 = bytes_to_base64(original_bytes)
+        post_data       = {"Base64": original_base64}
+        result          = POST(url, data=post_data, headers=headers)
+        rebuild_base64 = base64_to_bytes(result)
+
+        assert str_to_bytes(text)     in     original_bytes
+        assert b'Glasswall'           not in original_bytes
+
+        assert str_to_bytes(text)     in     rebuild_base64
+        assert b'Glasswall'           in     rebuild_base64
+
+
+    def test_processDirectory__bad_zip_file(self):
+        bad_file = temp_file(contents=random_text())
+        metadata = self.meta_service.create_metadata(bad_file)
+        endpoint = f'http://{self.sdk_server}:{self.sdk_port}'
+        dir = metadata.metadata_folder_path()
+        result = self.file_processing.processDirectory(endpoint=endpoint, dir=dir, use_rebuild_zip=True)
+        assert result == True
+        metadata.load()
+        assert metadata.data.get('rebuild_status') == 'The file type is not currently supported'
+        assert metadata.data.get('error')          == "Error while processing the request. See details in \'error.json\'"
+
+    def test_processZipFileWithDualEP(self):
+        uuid = random_text()
+        path = '/tmp/'+uuid
+        zip_file = Test_Data().create_test_zip(path=path)
+        metadata = self.meta_service.create_metadata(zip_file)
+        endpoint = f'http://{self.sdk_server}:{self.sdk_port}'
+        dir = metadata.metadata_folder_path()
+        try:
+            result = self.file_processing.processDirectory(endpoint=endpoint, dir=dir, use_rebuild_zip=True)
+        except Exception as e:
+            traceback.print_exc()
+            self.fail("Should not have thrown")
+        #assert result == True
+        metadata.load()
+        assert metadata.data.get('rebuild_status') == 'The file type is not currently supported'
