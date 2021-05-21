@@ -200,6 +200,10 @@ class Loops(object):
 
     def LoopHashDirectoriesInternal(self, thread_count, do_single):
 
+        log_message = f"LoopHashDirectoriesInternal started with {thread_count} threads"
+        self.events.add_log(log_message)
+        log_info(log_message)
+
         self.endpoint_service.get_endpoints()
 
         if folder_exists(self.storage.hd2_data()) is False:
@@ -213,21 +217,19 @@ class Loops(object):
         if not isinstance(do_single,bool):
             raise TypeError("thread_count must be a integer")
 
-        log_message = f"LoopHashDirectoriesInternal started with {thread_count} threads"
+        log_message = f"LoopHashDirectoriesInternal updating hash.json file"
         self.events.add_log(log_message)
         log_info(log_message)
 
         json_list = self.updateHashJson()
 
-        log_message = f"LoopHashDirectoriesInternal started with {thread_count} threads"
-        self.events.add_log(log_message)
-        log_info(log_message)
-
         threads = list()
 
         process_index   = 0
 
-        log_info(message=f'before Mapping thread_data for {len(json_list)} files')
+        log_message = f'before Mapping thread_data for {len(json_list)} files'
+        self.events.add_log(log_message)
+        log_info(message=log_message)
         thread_data = []
 
         self.endpoint_service.StartServiceThread()
@@ -269,7 +271,10 @@ class Loops(object):
         # for index, thread in enumerate(threads):
         #     thread.join()
 
-        log_info(message=f'after mapped thread_data, there are {len(thread_data)} mapped items')
+        log_message = f'after mapped thread_data, there are {len(thread_data)} mapped items'
+        self.events.add_log(log_message)
+        log_info(message=log_message)
+
         #thread_data = thread_data[:500]
         #log_info(message=f'to start with only processing {len(thread_data)} thread_data items')
         pool = ThreadPool(thread_count)
