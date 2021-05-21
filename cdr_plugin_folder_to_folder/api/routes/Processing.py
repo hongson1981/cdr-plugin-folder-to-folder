@@ -15,7 +15,7 @@ router = APIRouter(**router_params)
 @router.post("/start")
 def process_hd2_data_to_hd3(thread_count:int=DEFAULT_THREAD_COUNT):
     if not Config().endpoints_count:
-        return "No valid gw_sdk_endpoints found"
+        return "No valid gw_sdk_endpoint found"
     loops = Loops()
     loops.LoopHashDirectories(thread_count)
     if loops.HasBeenStopped():
@@ -25,7 +25,7 @@ def process_hd2_data_to_hd3(thread_count:int=DEFAULT_THREAD_COUNT):
 @router.post("/start-sequential")
 def process_hd2_data_to_hd3_sequential():
     if not Config().endpoints_count:
-        return "No valid gw_sdk_endpoints found"
+        return "No valid gw_sdk_endpoint found"
     loops = Loops()
     loops.LoopHashDirectoriesSequential()
     if loops.HasBeenStopped():
@@ -41,7 +41,7 @@ def stop_processing():
 @router.post("/single_file")
 def process_single_file():
     if not Config().endpoints_count:
-        return "No valid gw_sdk_endpoints found"
+        return "No valid gw_sdk_endpoint found"
     loops = Loops()
     loops.ProcessSingleFile()
     return "File has been processed"
