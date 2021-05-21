@@ -1,17 +1,18 @@
 import * as React     from "react";
+import * as ReactDOM from "react-dom";
 import      ReactJson from 'react-json-view'
-
+import * as params    from '@params';//to load any variable passed from template to your JS files
 
 const HighlightTexts= ()=>{
     
-    const [Ips, setIPs] = React.useState("");
+    const [configuration, setConfiguration] = React.useState({});
 
     React.useEffect(() => {
-      fetch('http://localhost:8880/configuration/config/')
+      fetch(params.url)
       .then(res => res.json())
       .then((data) => {
           console.log(JSON.stringify(data))
-          setIPs((data))
+          setConfiguration((data))
       })
       .catch(console.log)
   }, []);
@@ -19,7 +20,7 @@ const HighlightTexts= ()=>{
     return(
 
       <div >
-         <ReactJson src={Ips && Ips}
+         <ReactJson src={configuration}
                     theme="monokai"
                     onEdit ={true}
                     onDelete={true}
@@ -28,4 +29,9 @@ const HighlightTexts= ()=>{
       </div>
     )
 }
-export default HighlightTexts 
+
+
+ReactDOM.render(
+  React.createElement(HighlightTexts , null),
+  document.getElementById("react")
+)
