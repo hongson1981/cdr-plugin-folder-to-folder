@@ -367,8 +367,13 @@ class File_Processing:
 
     def finalize_completed(self, dir, hash):
         self.status.add_completed()
-        self.meta_service.set_status(dir, FileStatus.COMPLETED)
-        self.hash_json.update_status(hash, FileStatus.COMPLETED)
+        metadata = self.meta_service.get_from_file(dir)
+        if metadata.get_original_hash() == metadata.get_rebuild_hash():
+            self.meta_service.set_status(dir, FileStatus.NO_CLEANING_NEEDED)
+            self.hash_json.update_status(hash, FileStatus.NO_CLEANING_NEEDED)
+        else:
+            self.meta_service.set_status(dir, FileStatus.COMPLETED)
+            self.hash_json.update_status(hash, FileStatus.COMPLETED)
         self.meta_service.set_error(dir, "none")
 
     def finalize_failed(self, dir, hash):

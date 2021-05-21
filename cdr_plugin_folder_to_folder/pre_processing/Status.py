@@ -16,9 +16,10 @@ class FileStatus:                                     # todo move to separate fi
     INITIAL       = "Initial"
     NOT_COPIED    = "Will not be copied"
     IN_PROGRESS   = "In Progress"
-    COMPLETED     = "Completed Successfully"
+    COMPLETED     = "THE ORIGINAL FILE IS CLEANED"
+    NO_CLEANING_NEEDED = "THE ORIGINAL FILE WAS ALREADY CLEAN"
     NOT_SUPPORTED = "The file type is not currently supported"
-    FAILED        = "Completed with errors"
+    FAILED        = "UNABLE TO CLEAN THE FILE"
     TO_PROCESS    = "To Process"
     NONE          = "None"
 

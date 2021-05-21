@@ -183,10 +183,15 @@ class Loops(object):
             source_path = self.storage.hd2_data(key)
             destination_path = ""
 
-            if (FileStatus.COMPLETED == json_list[key]["file_status"]):
+            file_status = json_list[key]["file_status"]
+
+            if (FileStatus.COMPLETED == file_status) or \
+               (FileStatus.NO_CLEANING_NEEDED == file_status):
                 destination_path = self.storage.hd2_processed(key)
-            elif (FileStatus.NOT_SUPPORTED == json_list[key]["file_status"]):
+            elif (FileStatus.NOT_SUPPORTED == file_status):
                 destination_path = self.storage.hd2_not_supported(key)
+            else:
+                continue
 
             if destination_path:
                 if folder_exists(destination_path):
@@ -194,6 +199,10 @@ class Loops(object):
                 shutil.move(source_path, destination_path)
 
     def LoopHashDirectoriesInternal(self, thread_count, do_single):
+
+        log_message = f"LoopHashDirectoriesInternal started with {thread_count} threads"
+        self.events.add_log(log_message)
+        log_info(log_message)
 
         self.endpoint_service.get_endpoints()
 
@@ -208,21 +217,19 @@ class Loops(object):
         if not isinstance(do_single,bool):
             raise TypeError("thread_count must be a integer")
 
-        log_message = f"LoopHashDirectoriesInternal started with {thread_count} threads"
+        log_message = f"LoopHashDirectoriesInternal updating hash.json file"
         self.events.add_log(log_message)
         log_info(log_message)
 
         json_list = self.updateHashJson()
 
-        log_message = f"LoopHashDirectoriesInternal started with {thread_count} threads"
-        self.events.add_log(log_message)
-        log_info(log_message)
-
         threads = list()
 
         process_index   = 0
 
-        log_info(message=f'before Mapping thread_data for {len(json_list)} files')
+        log_message = f'before Mapping thread_data for {len(json_list)} files'
+        self.events.add_log(log_message)
+        log_info(message=log_message)
         thread_data = []
 
         self.endpoint_service.StartServiceThread()
@@ -264,7 +271,10 @@ class Loops(object):
         # for index, thread in enumerate(threads):
         #     thread.join()
 
-        log_info(message=f'after mapped thread_data, there are {len(thread_data)} mapped items')
+        log_message = f'after mapped thread_data, there are {len(thread_data)} mapped items'
+        self.events.add_log(log_message)
+        log_info(message=log_message)
+
         #thread_data = thread_data[:500]
         #log_info(message=f'to start with only processing {len(thread_data)} thread_data items')
         pool = ThreadPool(thread_count)
