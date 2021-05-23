@@ -4,7 +4,6 @@ from osbot_utils.utils.Files import path_combine, files_list, file_contents_as_b
 from osbot_utils.utils.Misc import list_filter, str_to_bytes, random_text
 import base64
 import os
-import traceback
 
 class Test_Data:
 
@@ -14,7 +13,6 @@ class Test_Data:
             os.makedirs(TEST_DIR)
         except Exception as e:
             #Ignore
-            traceback.print_exc()
             pass
         self.create_test_jpg(path=TEST_DIR)
         self.create_test_pdf(path=TEST_DIR)
@@ -69,7 +67,8 @@ class Test_Data:
             with open(path+'/'+name, "wb+") as f:
                 f.write(file_content)
         except Exception as e:
-            traceback.print_exc()
+            # Ignore
+            pass
         return os.path.join(path,name)
 
     def create_test_jpg(self,path='/tmp/',name='test.jpg'):
@@ -81,7 +80,8 @@ class Test_Data:
             with open(path+'/'+name, "wb+") as f:
                 f.write(file_content)
         except Exception as e:
-            traceback.print_exc()
+            # Ignore
+            pass
         return os.path.join(path,name)
 
     def create_test_jpg(self,path='/tmp/',name='test.jpg'):
@@ -93,7 +93,8 @@ class Test_Data:
             with open(path+'/'+name, "wb+") as f:
                 f.write(file_content)
         except Exception as e:
-            traceback.print_exc()
+            # Ignore
+            pass
         return os.path.join(path,name)
 
     def create_test_pdf(self,path='/tmp/',name='test.pdf'):
@@ -105,7 +106,8 @@ class Test_Data:
             with open(path+'/'+name, "wb+") as f:
                 f.write(file_content)
         except Exception as e:
-            traceback.print_exc()
+            # Ignore
+            pass
         return os.path.join(path,name)
 
     def create_test_json(self,path='/tmp/',name='test.json'):
@@ -116,6 +118,7 @@ class Test_Data:
             with open(path+'/'+name, "w") as f:
                 f.write(file_content)
         except Exception as e:
-            traceback.print_exc()
+            # Ignore
+            pass
         return os.path.join(path,name)
 
