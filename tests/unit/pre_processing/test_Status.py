@@ -6,7 +6,8 @@ from osbot_utils.utils.Json  import json_load_file
 from osbot_utils.utils.Misc import random_text
 
 from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import Pre_Processor
-from cdr_plugin_folder_to_folder.pre_processing.Status import FileStatus, Processing_Status, Status
+from cdr_plugin_folder_to_folder.pre_processing.Processing_Status import Processing_Status
+from cdr_plugin_folder_to_folder.pre_processing.Status import FileStatus, Status
 
 from cdr_plugin_folder_to_folder.utils.Logging_Process import process_all_log_entries_and_end_logging_process
 from cdr_plugin_folder_to_folder.utils.testing.Temp_Config import Temp_Config
@@ -19,6 +20,7 @@ class test_Status(Temp_Config):
         self.storage = self.status.storage
 
     def test__FileStatus(self):
+
         assert inspect.getmembers(FileStatus, lambda a: type(a) is str) == [  ('COMPLETED'      , 'Completed Successfully'                           ),
                                                                               ('DUPLICATE'      , 'The file is duplicate'                            ),
                                                                               ('FAILED'         , 'Completed with errors'                            ),
@@ -27,6 +29,7 @@ class test_Status(Temp_Config):
                                                                               ('NONE'           , 'None'                                             ),
                                                                               ('NOT_COPIED'     , 'Will not be copied'                               ),
                                                                               ('NOT_SUPPORTED'  , 'The file type is not currently supported'         ),
+                                                                              ('NO_CLEANING_NEEDED'  , 'THE ORIGINAL FILE WAS ALREADY CLEAN'         ),
                                                                               ('TO_PROCESS'     , 'To Process'                                       ),
                                                                               ('__module__'     , 'cdr_plugin_folder_to_folder.pre_processing.Status')]
 

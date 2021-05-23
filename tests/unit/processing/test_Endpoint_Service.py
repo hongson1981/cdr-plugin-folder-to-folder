@@ -51,6 +51,8 @@ class test_Endpoint_Service(Temp_Config):
         self.endpoint_service.config.sdk_servers_api = 'http://not-exising-domain.xyz'
         self.endpoint_service.get_endpoints()
         assert not self.endpoint_service.endpoints
+        endpoint = self.endpoint_service.get_endpoint()
+        assert endpoint is None
         self.endpoint_service.config.sdk_servers_api = config_sdk_servers_url
         self.endpoint_service.config.endpoints = config_endpoints
 
@@ -58,5 +60,6 @@ class test_Endpoint_Service(Temp_Config):
         self.endpoint_service.StartServiceThread()
         self.endpoint_service.StopServiceThread()
         assert self.endpoint_service.service_thread_on is False
+
 
 

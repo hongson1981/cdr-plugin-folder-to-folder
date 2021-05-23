@@ -1,21 +1,15 @@
-
-{{ $url := "http://localhost:8000/configuration/config/" }}
-
-
-<pre>
-    <code id="result" class="json"></code>
-</pre>
-
-<script>
-    //todo refactor into partial
-    jsonRequestUrl = "{{ $url }} "
-    $.getJSON(jsonRequestUrl, function (result) {
-        $('#result').html(JSON.stringify(result, null, 2))
-
-        //todo: find a better way to load and set the highlight (since in some cases it wasn't loading)
-        document.querySelectorAll('#result').forEach(block => {
-             hljs.highlightBlock(block);
-        });
-
-    })
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{ with resources.Get "js/HighlightTexts.jsx" }}
+    {{ $script := . | js.Build (dict "params" (dict "url" "http://localhost:8000/configuration/config/"))}}
+    <script src="{{ $script.RelPermalink }}" defer></script>
+    {{ end }}
+</head>
+<body>
+    <div id="react"></div>
+</body>
+</html>

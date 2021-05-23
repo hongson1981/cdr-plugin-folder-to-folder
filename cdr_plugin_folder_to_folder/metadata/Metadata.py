@@ -184,6 +184,9 @@ class Metadata:
     def get_original_hash(self):
         return self.data.get('original_hash')
 
+    def get_rebuild_hash(self):
+        return self.data.get('rebuild_hash')
+
     def get_file_hash(self):
         return self.file_hash
 

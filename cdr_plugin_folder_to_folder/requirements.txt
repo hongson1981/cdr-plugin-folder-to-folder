@@ -29,3 +29,6 @@ boto3
 
 # system info
 psutil
+
+# prometheus
+prometheus-client

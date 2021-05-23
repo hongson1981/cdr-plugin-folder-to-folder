@@ -19,7 +19,6 @@ from cdr_plugin_folder_to_folder.api.routes.Health import router as router_healt
 from cdr_plugin_folder_to_folder.api.routes.Configure import router as router_configure
 from cdr_plugin_folder_to_folder.utils.Logging import log_debug
 from cdr_plugin_folder_to_folder.utils.Logging_Process import start_logging
-from cdr_plugin_folder_to_folder.pre_processing.Status import Status
 
 class Logging_Middleware:
     def __init__(self, app: ASGIApp, minimum_size: int = 500) -> None:
