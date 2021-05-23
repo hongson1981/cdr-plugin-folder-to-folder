@@ -13,7 +13,8 @@ from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Servi
 from cdr_plugin_folder_to_folder.storage.Storage import Storage
 from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
 
-from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus, Processing_Status
+from cdr_plugin_folder_to_folder.pre_processing.Processing_Status import Processing_Status
+from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
 
 from cdr_plugin_folder_to_folder.processing.Analysis_Json import Analysis_Json
 from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
