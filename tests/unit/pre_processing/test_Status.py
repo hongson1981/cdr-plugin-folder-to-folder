@@ -137,6 +137,52 @@ class test_Status(Temp_Config):
     def test_status_file_path(self):
         assert self.status.status_file_path() == path_combine(self.storage.hd2_status(), Status.STATUS_FILE_NAME)
 
+    def test_reset_phase2(self):
+        self.status.reset()
+        data = self.status.data()
+        assert data[Status.VAR_FILES_COUNT] == 0
+
+        temp_config = Temp_Config()
+        temp_config.setUpClass()
+        temp_config.add_test_files()
+
+        pre_proocessor = Pre_Processor()
+        pre_proocessor.config = temp_config.config
+        pre_proocessor.process_files()
+
+        data = self.status.data()
+        assert data[Status.VAR_CURRENT_STATUS] == Processing_Status.PHASE_2
+        assert data[Status.VAR_FILES_COUNT] > 0
+        assert data[Status.VAR_FILES_COUNT] == data[Status.VAR_FILES_COPIED]
+        assert data[Status.VAR_FILES_TO_PROCESS] > 0
+        assert data[Status.VAR_FILES_TO_PROCESS] == data[Status.VAR_FILES_LEFT_TO_PROCESS]
+        assert data[Status.VAR_FILES_COUNT] >= data[Status.VAR_FILES_TO_PROCESS]
+        assert data[Status.VAR_FILES_TO_BE_COPIED] == 0
+        assert data[Status.VAR_COMPLETED] == 0
+        assert data[Status.VAR_NOT_SUPPORTED] == 0
+        assert data[Status.VAR_FAILED] == 0
+
+        self.status.reset()
+        data = self.status.data()
+        data[Status.VAR_FILES_TO_BE_COPIED] == 1
+        data[Status.VAR_COMPLETED] == 1
+        data[Status.VAR_NOT_SUPPORTED] == 1
+        data[Status.VAR_FAILED] == 1
+
+        self.status.reset_phase2()
+        data = self.status.data()
+        assert data[Status.VAR_CURRENT_STATUS] == Processing_Status.PHASE_2
+        assert data[Status.VAR_FILES_COUNT] > 0
+        assert data[Status.VAR_FILES_COUNT] == data[Status.VAR_FILES_COPIED]
+        assert data[Status.VAR_FILES_TO_PROCESS] > 0
+        assert data[Status.VAR_FILES_TO_PROCESS] == data[Status.VAR_FILES_LEFT_TO_PROCESS]
+        assert data[Status.VAR_FILES_COUNT] >= data[Status.VAR_FILES_TO_PROCESS]
+        assert data[Status.VAR_FILES_TO_BE_COPIED] == 0
+        assert data[Status.VAR_COMPLETED] == 0
+        assert data[Status.VAR_NOT_SUPPORTED] == 0
+        assert data[Status.VAR_FAILED] == 0
+
+        temp_config.tearDown()
 
 
     # todo: add multi-threading test
