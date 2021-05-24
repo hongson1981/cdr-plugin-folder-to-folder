@@ -27,7 +27,6 @@ DEFAULT_KIBANA_HOST      = "kib01"
 DEFAULT_KIBANA_PORT      = "5601"
 DEFAULT_THREAD_COUNT     = 10
 DEFAULT_TEST_SDK         = 'gw-cloud-sdk-455649808.eu-west-1.elb.amazonaws.com'
-#DEFAULT_TEST_SDK         = 'gw-cloud-sdk-455649808.eu-west-1.elb.amazonaws.com'
 DEFAULT_ENDPOINT_PORT    = '8080'
 DEFAULT_MINIO_ENDPOINT_PORT    = '8088'          # Minio version is using this port
 DEFAULT_ENDPOINTS        = '{"Endpoints":[{"IP":"' + DEFAULT_TEST_SDK + '", "Port":"' + DEFAULT_ENDPOINT_PORT +'"}]}'

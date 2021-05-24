@@ -18,10 +18,10 @@ class FileStatus:                                     # todo move to separate fi
     INITIAL       = "Initial"
     NOT_COPIED    = "Will not be copied"
     IN_PROGRESS   = "In Progress"
-    COMPLETED     = "THE ORIGINAL FILE IS CLEANED"
-    NO_CLEANING_NEEDED = "THE ORIGINAL FILE WAS ALREADY CLEAN"
+    COMPLETED     = "The original file has been cleaned"
+    NO_CLEANING_NEEDED = "The original file was already clean"
     NOT_SUPPORTED = "The file type is not currently supported"
-    FAILED        = "UNABLE TO CLEAN THE FILE"
+    FAILED        = "Unable to clean the file"
     TO_PROCESS    = "To Process"
     DUPLICATE     = "The file is duplicate"
     NONE          = "None"
@@ -181,8 +181,7 @@ class Status:
     def set_processing_status(self, processing_status):
         Status.lock.acquire()
         try:
-            data = self.data()
-            data[Status.VAR_CURRENT_STATUS] = processing_status
+            self._status_data[Status.VAR_CURRENT_STATUS] = processing_status
         finally:
             Status.lock.release()
             self.save()
@@ -249,19 +248,21 @@ class Status:
 
         return self
 
-    def reset_phase2(self):
+    def reset_phase2(self, recalculate_hd1_files = True):
 
         Status.lock.acquire()
         try:
+            files_count = self._status_data[Status.VAR_FILES_COUNT]
             self.reset()
             data = self.data()
 
-            files_count = 0
-            for folderName, subfolders, filenames in os.walk(self.storage.hd1()):
-                for filename in filenames:
-                    file_path =  os.path.join(folderName, filename)
-                    if os.path.isfile(file_path):
-                        files_count += 1
+            if recalculate_hd1_files:
+                files_count = 0
+                for folderName, subfolders, filenames in os.walk(self.storage.hd1()):
+                    for filename in filenames:
+                        file_path =  os.path.join(folderName, filename)
+                        if os.path.isfile(file_path):
+                            files_count += 1
 
             data[Status.VAR_FILES_COUNT] = files_count
             data[Status.VAR_FILES_COPIED] = files_count
