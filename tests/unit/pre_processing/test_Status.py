@@ -142,8 +142,8 @@ class test_Status(Temp_Config):
         data = self.status.data()
         assert data[Status.VAR_FILES_COUNT] == 0
 
+        Temp_Config.setUpClass()
         temp_config = Temp_Config()
-        temp_config.setUpClass()
         temp_config.add_test_files()
 
         pre_proocessor = Pre_Processor()
@@ -182,7 +182,7 @@ class test_Status(Temp_Config):
         assert data[Status.VAR_NOT_SUPPORTED] == 0
         assert data[Status.VAR_FAILED] == 0
 
-        #temp_config.tearDown()
+        Temp_Config.tearDownClass()
 
 
     # todo: add multi-threading test
