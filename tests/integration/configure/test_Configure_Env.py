@@ -27,6 +27,10 @@ class test_Configure_Env(TestCase):
         for ip in str_to_json(ips):
             endpoints.append({'IP': ip , "Port": "8080"})
 
+        if len(endpoints):
+            #nothing to validate
+            return
+
         valid_endpoints = {'Endpoints' : endpoints }
         endpoint_string = json_to_str(valid_endpoints)
         result = self.configure_env.get_valid_endpoints(endpoint_string)
