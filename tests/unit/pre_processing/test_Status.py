@@ -20,14 +20,14 @@ class test_Status(Temp_Config):
         self.storage = self.status.storage
 
     def test__FileStatus(self):
-        assert inspect.getmembers(FileStatus, lambda a: type(a) is str) == [  ('COMPLETED'      , 'THE ORIGINAL FILE IS CLEANED'                     ),
-                                                                              ('FAILED'         , 'UNABLE TO CLEAN THE FILE'                         ),
+        assert inspect.getmembers(FileStatus, lambda a: type(a) is str) == [  ('COMPLETED'      , 'The original file has been cleaned'                     ),
+                                                                              ('FAILED'         , 'Unable to clean the file'                         ),
                                                                               ('INITIAL'        , 'Initial'                                          ),
                                                                               ('IN_PROGRESS'    , 'In Progress'                                      ),
                                                                               ('NONE'           , 'None'                                             ),
                                                                               ('NOT_COPIED'     , 'Will not be copied'                               ),
                                                                               ('NOT_SUPPORTED'  , 'The file type is not currently supported'         ),
-                                                                              ('NO_CLEANING_NEEDED'  , 'THE ORIGINAL FILE WAS ALREADY CLEAN'         ),
+                                                                              ('NO_CLEANING_NEEDED'  , 'The original file was already clean'         ),
                                                                               ('TO_PROCESS'     , 'To Process'                                       ),
                                                                               ('__module__'     , 'cdr_plugin_folder_to_folder.pre_processing.Status')]
 
