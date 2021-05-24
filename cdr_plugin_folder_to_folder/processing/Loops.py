@@ -170,9 +170,13 @@ class Loops(object):
 
         self.hash_json.save()
 
-        if Processing_Status.PHASE_2 != self.status.get_current_status():
-            self.status.reset_phase2()
-            reset_data_folder_to_the_initial_state()
+        # self.events.add_log("resetting todo folder to the initial state")
+
+        # if Processing_Status.PHASE_2 != self.status.get_current_status():
+        #     self.status.reset_phase2()
+        #     reset_data_folder_to_the_initial_state()
+
+        self.status.reset_phase2(False)
 
         return self.hash_json.data()
 
