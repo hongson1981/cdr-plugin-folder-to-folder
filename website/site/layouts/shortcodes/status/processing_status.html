@@ -1,5 +1,5 @@
 
-{{ $url := "http://localhost:8000/processing/status" }}
+{{ $url := printf "%s/processing/status" $.Site.Data.urls.api }}
 
 
 <pre>
