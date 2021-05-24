@@ -21,9 +21,9 @@ class test_Status(Temp_Config):
 
     def test__FileStatus(self):
 
-        assert inspect.getmembers(FileStatus, lambda a: type(a) is str) == [  ('COMPLETED'      , 'Completed Successfully'                           ),
+        assert inspect.getmembers(FileStatus, lambda a: type(a) is str) == [  ('COMPLETED'      , 'THE ORIGINAL FILE IS CLEANED'                     ),
                                                                               ('DUPLICATE'      , 'The file is duplicate'                            ),
-                                                                              ('FAILED'         , 'Completed with errors'                            ),
+                                                                              ('FAILED'         , 'UNABLE TO CLEAN THE FILE'                         ),
                                                                               ('INITIAL'        , 'Initial'                                          ),
                                                                               ('IN_PROGRESS'    , 'In Progress'                                      ),
                                                                               ('NONE'           , 'None'                                             ),
