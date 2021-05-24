@@ -18,11 +18,12 @@ class FileStatus:                                     # todo move to separate fi
     INITIAL       = "Initial"
     NOT_COPIED    = "Will not be copied"
     IN_PROGRESS   = "In Progress"
-    COMPLETED     = "THE ORIGINAL FILE IS CLEANED"
-    NO_CLEANING_NEEDED = "THE ORIGINAL FILE WAS ALREADY CLEAN"
+    COMPLETED     = "The original file has been cleaned"
+    NO_CLEANING_NEEDED = "The original file was already clean"
     NOT_SUPPORTED = "The file type is not currently supported"
-    FAILED        = "UNABLE TO CLEAN THE FILE"
+    FAILED        = "Unable to clean the file"
     TO_PROCESS    = "To Process"
+    DUPLICATE     = "The file is duplicate"
     NONE          = "None"
 
 class Status:
@@ -34,6 +35,7 @@ class Status:
     VAR_FAILED                   = "failed"
     VAR_FILES_TO_PROCESS         = "files_to_process"
     VAR_FILES_LEFT_TO_PROCESS    = "files_left_to_process"
+    VAR_DUPLICATES               = "duplicate_files"
     VAR_FILES_COUNT              = "files_in_hd1_folder"
     VAR_FILES_COPIED             = "files_copied"
     VAR_FILES_TO_BE_COPIED       = "files_left_to_be_copied"
@@ -94,6 +96,7 @@ class Status:
                     Status.VAR_FILES_COUNT            : 0               ,
                     Status.VAR_FILES_COPIED           : 0               ,
                     Status.VAR_FILES_TO_BE_COPIED     : 0               ,
+                    Status.VAR_DUPLICATES             : 0               ,
                     Status.VAR_FILES_TO_PROCESS       : 0               ,
                     Status.VAR_FILES_LEFT_TO_PROCESS  : 0               ,
                     Status.VAR_COMPLETED              : 0               ,
@@ -178,8 +181,7 @@ class Status:
     def set_processing_status(self, processing_status):
         Status.lock.acquire()
         try:
-            data = self.data()
-            data[Status.VAR_CURRENT_STATUS] = processing_status
+            self._status_data[Status.VAR_CURRENT_STATUS] = processing_status
         finally:
             Status.lock.release()
             self.save()
@@ -238,25 +240,29 @@ class Status:
                 data[Status.VAR_FILES_TO_PROCESS] += 1
                 data[Status.VAR_FILES_LEFT_TO_PROCESS] += 1
 
+            elif updated_status==FileStatus.DUPLICATE:
+                data[Status.VAR_DUPLICATES] += 1
         finally:
             Status.lock.release()
             self.save()
 
         return self
 
-    def reset_phase2(self):
+    def reset_phase2(self, recalculate_hd1_files = True):
 
         Status.lock.acquire()
         try:
+            files_count = self._status_data[Status.VAR_FILES_COUNT]
             self.reset()
             data = self.data()
 
-            files_count = 0
-            for folderName, subfolders, filenames in os.walk(self.storage.hd1()):
-                for filename in filenames:
-                    file_path =  os.path.join(folderName, filename)
-                    if os.path.isfile(file_path):
-                        files_count += 1
+            if recalculate_hd1_files:
+                files_count = 0
+                for folderName, subfolders, filenames in os.walk(self.storage.hd1()):
+                    for filename in filenames:
+                        file_path =  os.path.join(folderName, filename)
+                        if os.path.isfile(file_path):
+                            files_count += 1
 
             data[Status.VAR_FILES_COUNT] = files_count
             data[Status.VAR_FILES_COPIED] = files_count
@@ -284,7 +290,7 @@ class Status:
     def set_not_copied      (self       ): return self.update_counters(FileStatus.NOT_COPIED         )
     def add_in_progress     (self       ): return self.update_counters(FileStatus.IN_PROGRESS        )
     def add_to_be_processed (self       ): return self.update_counters(FileStatus.TO_PROCESS         )
-
+    def add_duplicate_files (self       ): return  self.update_counters(FileStatus.DUPLICATE         )
     def get_completed       (self): return self.data().get(Status.VAR_COMPLETED)
     def get_current_status  (self): return self.data().get(Status.VAR_CURRENT_STATUS)
     def get_not_supported   (self): return self.data().get(Status.VAR_NOT_SUPPORTED)
@@ -312,4 +318,3 @@ class Status:
         self.metrics.set_status_num_of_threads(self._status_data[Status.VAR_NUM_OF_THREADS])
         self.metrics.set_status_network_connections(self._status_data[Status.VAR_NETWORK_CONNECTIONS])
         self.metrics.set_status_disk_partitions(self._status_data[Status.VAR_DISK_PARTITIONS])
-

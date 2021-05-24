@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {{ with resources.Get "js/HighlightTexts.jsx" }}
-    {{ $script := . | js.Build (dict "params" (dict "url" "http://localhost:8000/configuration/config/"))}}
+    {{ $script := . | js.Build (dict "params" (dict "url"  (printf "%s/configuration/config/" $.Site.Data.urls.api)))}}
     <script src="{{ $script.RelPermalink }}" defer></script>
     {{ end }}
 </head>
