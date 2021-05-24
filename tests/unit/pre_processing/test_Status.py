@@ -182,7 +182,7 @@ class test_Status(Temp_Config):
         assert data[Status.VAR_NOT_SUPPORTED] == 0
         assert data[Status.VAR_FAILED] == 0
 
-        temp_config.tearDown()
+        #temp_config.tearDown()
 
 
     # todo: add multi-threading test
