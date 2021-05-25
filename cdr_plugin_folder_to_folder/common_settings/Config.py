@@ -75,6 +75,7 @@ class Config:
             self.use_dynamic_endpoints  = None
             self.prometheus_host        = None
             self.prometheus_port        = None
+            self.prometheus_url         = None
             self.load_values()                                      # due to the singleton pattern this will only be executed once
 
     def load_values(self):
@@ -111,6 +112,7 @@ class Config:
 
         self.prometheus_host = os.getenv("PROMETHEUS_HOST", DEFAULT_PROMETHEUS_HOST)
         self.prometheus_port = int(os.getenv("PROMETHEUS_PORT", DEFAULT_PROMETHEUS_PORT))
+        self.prometheus_url = f'http://{self.prometheus_host}:{self.prometheus_port}'
 
         return self
 
