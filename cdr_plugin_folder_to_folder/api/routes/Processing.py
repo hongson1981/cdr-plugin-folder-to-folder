@@ -52,8 +52,8 @@ def get_the_processing_status():
     config = Config()
     # make sure metrics exist
     status = Status()
-    # get the metrics from the prometheus page
 
+    # get the metrics from the prometheus page
     text = 'No metrics'
     try:
         text = requests.get(config.prometheus_url).text
