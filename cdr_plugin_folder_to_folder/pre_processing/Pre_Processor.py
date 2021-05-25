@@ -100,7 +100,7 @@ class Pre_Processor:
             return dirname
 
     @log_duration
-    def process_folder(self, folder_to_process, thread_count = 10):
+    def process_folder(self, folder_to_process, thread_count = 1):
         if not os.path.isdir(folder_to_process):
             # todo: add an event log
            return False
@@ -123,13 +123,13 @@ class Pre_Processor:
             for filename in filenames:
                 file_path =  os.path.join(folderName, filename)
                 if os.path.isfile(file_path):
-                    self.process((file_path, ))
+                    #self.process((file_path, ))
                     thread_data.append((file_path, ))
 
-        # pool = ThreadPool(thread_count)
-        # results = pool.map(self.process_thread, thread_data)
-        # pool.close()
-        # pool.join()
+        pool = ThreadPool(thread_count)
+        results = pool.map(self.process, thread_data)
+        pool.close()
+        pool.join()
 
         #self.status.reset_phase2()
         return True
