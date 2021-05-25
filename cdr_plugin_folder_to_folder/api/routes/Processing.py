@@ -48,7 +48,7 @@ def get_the_processing_status():
     return JSONResponse(status.data())
 
 @router.get("/metrics")
-def get_the_processing_status():
+def get_prometheus_metrics():
     config = Config()
     # make sure metrics exist
     status = Status()
