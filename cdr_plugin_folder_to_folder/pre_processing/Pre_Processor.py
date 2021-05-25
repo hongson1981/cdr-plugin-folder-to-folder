@@ -21,6 +21,8 @@ from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
 from cdr_plugin_folder_to_folder.metadata.Metadata import DEFAULT_REPORT_FILENAME
 from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 
+from multiprocessing.pool import ThreadPool
+
 logger.basicConfig(level=logger.INFO)
 
 class Pre_Processor:
@@ -97,7 +99,8 @@ class Pre_Processor:
         finally:
             return dirname
 
-    def process_folder(self, folder_to_process):
+    @log_duration
+    def process_folder(self, folder_to_process, thread_count = 10):
         if not os.path.isdir(folder_to_process):
             # todo: add an event log
            return False
@@ -114,15 +117,23 @@ class Pre_Processor:
 
         self.status.set_files_count(files_count)
 
+        thread_data = []
+
         for folderName, subfolders, filenames in os.walk(folder_to_process):
             for filename in filenames:
                 file_path =  os.path.join(folderName, filename)
                 if os.path.isfile(file_path):
-                    self.process(file_path)
+                    self.process((file_path, ))
+                    thread_data.append((file_path, ))
 
+        # pool = ThreadPool(thread_count)
+        # results = pool.map(self.process_thread, thread_data)
+        # pool.close()
+        # pool.join()
+
+        #self.status.reset_phase2()
         return True
 
-    @log_duration
     def process_files(self):
         self.status.StartStatusThread()
         self.status.set_phase_1()
@@ -131,7 +142,8 @@ class Pre_Processor:
         self.status.StopStatusThread()
 
     @log_duration
-    def process(self, file_path):
+    def process(self, thread_data):
+        (file_path,) = thread_data
         tik  = datetime.now()
 
         metadata = self.meta_service.create_metadata(file_path=file_path)
