@@ -39,7 +39,7 @@ DEFAULT_USE_DYNAMIC_ENDPOINTS = False
 DEFAULT_SDK_SERVERS_API  = 'https://tmol8zkg3c.execute-api.eu-west-1.amazonaws.com/prod/sdk-servers/ip_addresses'
 DEFAULT_PROMETHEUS_HOST  = '127.0.0.1'
 DEFAULT_PROMETHEUS_PORT  = '8000'
-API_VERSION              = "v0.6.4.3"
+API_VERSION              = "v0.8.7"
 
 
 
