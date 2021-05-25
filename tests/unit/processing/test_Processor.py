@@ -15,7 +15,7 @@ from cdr_plugin_folder_to_folder.api.routes.Processing import process_single_fil
 from cdr_plugin_folder_to_folder.api.routes.Processing import process_hd2_data_to_hd3
 from cdr_plugin_folder_to_folder.api.routes.Processing import process_hd2_data_to_hd3_sequential
 from cdr_plugin_folder_to_folder.api.routes.Processing import get_the_processing_status
-
+from cdr_plugin_folder_to_folder.api.routes.Processing import get_prometheus_metrics
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
@@ -86,3 +86,8 @@ class test_Processor(TestCase):
     def test_get_the_processing_status(self):
         response = get_the_processing_status()
         assert (response.headers['content-type'] == 'application/json')
+
+    @log_duration
+    def test_get_prometheus_metrics(self):
+        response = get_prometheus_metrics()
+        assert (response.headers['content-type'] == 'text/plain; charset=utf-8')
