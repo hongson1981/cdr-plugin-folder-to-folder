@@ -1,0 +1,61 @@
+services: 
+  es01: 
+    container_name: es01
+    environment: 
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - logger.level=WARN
+    healthcheck: 
+      interval: 30s
+      retries: 5
+      test: 
+        - CMD-SHELL
+        - "curl --silent --fail localhost:9200/_cluster/health || exit 1"
+      timeout: 30s
+    image: "docker.elastic.co/elasticsearch/elasticsearch:7.12.0"
+    ports: 
+      - "9200:9200"
+    restart: always
+    ulimits: 
+      memlock: 
+        hard: -1
+        soft: -1
+  kib01: 
+    container_name: kib01
+    environment: 
+      - "ELASTICSEARCH_URL=http://es01:9200"
+      - "ELASTICSEARCH_HOSTS=[\"http://es01:9200\"]"
+      - LOGGING_QUIET=true
+    image: "docker.elastic.co/kibana/kibana:7.12.0"
+    ports: 
+      - "5601:5601"
+    restart: always
+  api: 
+    build: 
+      context: "${PWD}"
+      dockerfile: "${PWD}/cdr_plugin_folder_to_folder/Dockerfile"
+    command: 
+      - ./wait-for-it.sh
+      - "es01:9200"
+      - "--"
+      - python
+      - cdr_plugin_folder_to_folder/api/Server.py
+    depends_on: 
+      - es01
+    image: cdr_plugin_folder_to_folder
+    ports: 
+      - "8880:8880"
+    restart: always
+    volumes: 
+      - "${PWD}/cdr_plugin_folder_to_folder:/app/cdr_plugin_folder_to_folder"
+      - "${PWD}/test_data:/app/test_data"
+      - "${HOST_HD1_LOCATION}:${HD1_LOCATION}"
+      - "${HOST_HD2_LOCATION}:${HD2_LOCATION}"
+      - "${HOST_HD3_LOCATION}:${HD3_LOCATION}"
+version: "3.3"
+  
+
+

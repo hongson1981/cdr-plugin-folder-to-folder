@@ -1,0 +1,33 @@
+version:  '3.3'
+services:
+  # Jupyter
+  jupyter:
+      image: cdr_plugin_folder_to_folder_notebooks
+      build:
+        dockerfile: ${PWD}/jupyter/Dockerfile
+        context: ${PWD}/jupyter
+      volumes:
+        - ${PWD}/jupyter/notebooks:/home/jovyan/work
+        - ${PWD}/test_data:/home/jovyan/test_data
+        - ${HOST_HD1_LOCATION}:/home/jovyan/data/hd1
+        - ${HOST_HD2_LOCATION}:/home/jovyan/data/hd2
+        - ${HOST_HD3_LOCATION}:/home/jovyan/data/hd3
+      ports:
+        - 8888:8888
+      container_name: jupyter_notebook
+      restart: always
+      command: "start-notebook.sh \
+                 --NotebookApp.token=${ACCESS_TOKEN} \
+                 --NotebookApp.tornado_settings=\"{'headers':{'Content-Security-Policy': 'frame-ancestors http://localhost:*'}}\""
+ 
+  voila: 
+    command: "voila --VoilaConfiguration.show_tracebacks=True --Voila.tornado_settings=\"{'headers':{'Content-Security-Policy': 'frame-ancestors http://localhost:*'}}\" "
+    container_name: jupyter_voila
+    depends_on: 
+      - jupyter
+    image: cdr_plugin_folder_to_folder_notebooks
+    ports: 
+      - "8866:8866"
+    restart: always
+    volumes: 
+      - "${PWD}/jupyter/notebooks:/home/jovyan/work"                 
