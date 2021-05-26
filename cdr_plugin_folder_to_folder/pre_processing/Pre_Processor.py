@@ -8,7 +8,7 @@ from datetime import datetime
 from osbot_utils.utils.Files import folder_create, folder_delete_all, folder_copy, \
     path_combine, file_delete, file_exists, folder_exists
 
-from cdr_plugin_folder_to_folder.common_settings.Config import Config
+from cdr_plugin_folder_to_folder.common_settings.Config import Config, DEFAULT_THREAD_COUNT
 from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Service
 from cdr_plugin_folder_to_folder.storage.Storage import Storage
 from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
@@ -103,7 +103,7 @@ class Pre_Processor:
             return dirname
 
     @log_duration
-    def process_folder(self, folder_to_process, thread_count = 10):
+    def process_folder(self, folder_to_process, thread_count = DEFAULT_THREAD_COUNT):
         if not os.path.isdir(folder_to_process):
             # todo: add an event log
            return False
@@ -137,10 +137,10 @@ class Pre_Processor:
         #self.status.reset_phase2()
         return True
 
-    def process_files(self):
+    def process_files(self, thread_count = DEFAULT_THREAD_COUNT):
         self.status.StartStatusThread()
         self.status.set_phase_1()
-        self.process_folder(self.storage.hd1())
+        self.process_folder(self.storage.hd1(), thread_count)
         self.status.set_phase_2()
         self.status.StopStatusThread()
 
