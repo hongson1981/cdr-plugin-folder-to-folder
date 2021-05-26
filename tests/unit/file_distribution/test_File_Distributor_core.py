@@ -39,7 +39,7 @@ class test_File_Distributor(Temp_Config):
         cls.test_file      = cls.test_data.image()
         cls.pre_processor  = Pre_Processor()
         #cls.pre_processor.clear_data_and_status_folders()
-        cls.stage_1        = cls.pre_processor.process(cls.test_file)
+        cls.stage_1        = cls.pre_processor.process((cls.test_file,))
         cls.hash_json.save()
         cls.stage_2        = Loops().LoopHashDirectories()
         cls.test_folder    = os.path.join(FIXTURE_DIR, '2f854897a694773abc921e1b1549274ae6c6b1f117dc32f795aa28d563e6c33f')
