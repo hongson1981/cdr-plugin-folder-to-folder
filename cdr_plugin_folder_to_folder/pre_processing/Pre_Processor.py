@@ -21,11 +21,14 @@ from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
 from cdr_plugin_folder_to_folder.metadata.Metadata import DEFAULT_REPORT_FILENAME
 from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 
+import threading
 from multiprocessing.pool import ThreadPool
 
 logger.basicConfig(level=logger.INFO)
 
 class Pre_Processor:
+
+    lock = threading.Lock()
 
     def __init__(self):
         self.config         = Config()
@@ -100,7 +103,7 @@ class Pre_Processor:
             return dirname
 
     @log_duration
-    def process_folder(self, folder_to_process, thread_count = 1):
+    def process_folder(self, folder_to_process, thread_count = 10):
         if not os.path.isdir(folder_to_process):
             # todo: add an event log
            return False
@@ -146,24 +149,36 @@ class Pre_Processor:
         (file_path,) = thread_data
         tik  = datetime.now()
 
-        metadata = self.meta_service.create_metadata(file_path=file_path)
-        file_name      = metadata.get_file_name()
+        metadata = None
+
+        # mulitiple threads may deal with the same metadata file here
+        # so sync the access with the class lock
+        Pre_Processor.lock.acquire()
+        try:
+            # mulitiple threads may deal with the same file here
+            metadata = self.meta_service.create_metadata(file_path=file_path)
+        finally:
+            Pre_Processor.lock.release()
+
         original_hash  = metadata.get_original_hash()
         status         = metadata.get_rebuild_status()
-        self.update_status(file_name, original_hash, status)
+
+        if status == FileStatus.INITIAL:
+            self.status.add_file()
 
         tok   = datetime.now()
         delta = tok - tik
 
+        if len(metadata.get_original_file_paths()) > 1:
+            # the file has already been copied - nothing else to do
+            return
+
+        # copy the file if needed
         if metadata.is_in_todo():
             hash_folder_path = self.storage.hd2_data(original_hash)
             self.meta_service.set_hd1_to_hd2_copy_time(hash_folder_path, delta.total_seconds())
         else:
             self.status.set_not_copied()
-
-    def update_status(self, file_name, original_hash, status):
-        if status == FileStatus.INITIAL:
-            self.status.add_file()
 
     def process_downloaded_zip_file(self, url):
         retvalue = "No value"
