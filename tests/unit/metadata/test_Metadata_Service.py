@@ -20,28 +20,16 @@ class test_Metadata_Service(TestCase):
         metadata  = self.metadata_service.create_metadata(self.test_file)
         metadata.delete()
         metadata.add_file(self.test_file)
-        assert metadata.data == {   'file_name'              : file_name(self.test_file)        ,
-                                    'xml_report_status'      : None                             ,
-                                    'last_update_time'       : metadata.get_last_update_time()  ,
-                                    'rebuild_server'         : None                             ,
-                                    'server_version'         : None                             ,
-                                    'error'                  : None                             ,
-                                    'original_file_paths'    : [self.test_file]                 ,
-                                    'original_hash'          : file_sha256(self.test_file)      ,
-                                    'original_hash_calculation_time': metadata.data.get('original_hash_calculation_time') ,
-                                    'original_file_extension': '.jpg'                           ,
-                                    'original_file_size'     : 97610                            ,
-                                    'rebuild_file_path'      : None                             ,
-                                    'rebuild_hash'           : None                             ,
-                                    'rebuild_status'         : FileStatus.INITIAL               ,
-                                    'rebuild_file_extension' : None                             ,
-                                    'rebuild_file_size'      : None                             ,
-                                    'rebuild_file_duration'  : None                             ,
-                                    'f2f_plugin_version'     : None                             ,
-                                    'f2f_plugin_git_commit'  : None                             ,
-                                    'hd1_to_hd2_copy_time'   : None                             ,
-                                    'hd2_to_hd3_copy_time'   : None
-                                }
+        assert metadata.data['file_name'] ==                file_name(self.test_file)           ;
+        assert metadata.data['xml_report_status'] ==        None                                ;
+        assert metadata.data['error'] ==                    'none'                              ;
+        assert metadata.data['original_file_paths'] ==      ['test.jpg']                        ;
+        assert metadata.data['original_hash'] ==            file_sha256(self.test_file)         ;
+        assert metadata.data['original_file_extension'] ==  '.jpg'                              ;
+        assert metadata.data['original_file_size'] ==       102117                              ;
+        assert metadata.data['rebuild_status'] ==          "The original file has been cleaned" ;
+        assert metadata.data['rebuild_file_extension'] ==  "jpeg"
+        assert metadata.data['rebuild_file_size'] ==        98937                               ;
         assert metadata.delete() is True
 
     def test_file_hash(self):
