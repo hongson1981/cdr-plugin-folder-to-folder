@@ -29,7 +29,7 @@ class test_Processor(TestCase):
         cls.test_file = cls.test_data.image()
         cls.pre_processor = Pre_Processor()
         cls.pre_processor.clear_data_and_status_folders()
-        cls.stage_1 = cls.pre_processor.process(cls.test_file)
+        cls.stage_1 = cls.pre_processor.process((cls.test_file,))
         # todo: add method to also delete hd3 output
 
     # @classmethod
