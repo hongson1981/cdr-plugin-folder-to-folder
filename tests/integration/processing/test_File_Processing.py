@@ -27,6 +27,7 @@ from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
 from cdr_plugin_folder_to_folder.processing.Report_Elastic import Report_Elastic
 from cdr_plugin_folder_to_folder.processing.Analysis_Json import Analysis_Json
 from cdr_plugin_folder_to_folder.processing.Analysis_Elastic import Analysis_Elastic
+from cdr_plugin_folder_to_folder.pre_processing.Status import FileStatus
 import traceback
 import base64
 
@@ -175,7 +176,7 @@ class test_File_Processing(Temp_Config):
             self.fail("Should not have thrown")
         assert result == True
         metadata.load()
-        assert metadata.data.get('rebuild_status') == 'The file type is not currently supported'
+        assert metadata.data.get('rebuild_status') == FileStatus.NOT_SUPPORTED
 
 
     def test_processBadFileWithoutSaveOriginal(self):
@@ -191,7 +192,7 @@ class test_File_Processing(Temp_Config):
             self.fail("Should not have thrown")
         assert result == True
         metadata.load()
-        assert metadata.data.get('rebuild_status') == 'The file type is not currently supported'
+        assert metadata.data.get('rebuild_status') == FileStatus.NOT_SUPPORTED
 
     def test_pdf_rebuild(self):            # refactor into separate test file
         server          = self.config.test_sdk
@@ -222,7 +223,7 @@ class test_File_Processing(Temp_Config):
         result = self.file_processing.processDirectory(endpoint=endpoint, dir=dir, use_rebuild_zip=True)
         assert result == True
         metadata.load()
-        assert metadata.data.get('rebuild_status') == 'The file type is not currently supported'
+        assert metadata.data.get('rebuild_status') == FileStatus.NOT_SUPPORTED
         assert metadata.data.get('error')          == "Error while processing the request. See details in \'error.json\'"
 
     def test_processZipFileWithDualEP(self):
@@ -239,4 +240,4 @@ class test_File_Processing(Temp_Config):
             self.fail("Should not have thrown")
         #assert result == True
         metadata.load()
-        assert metadata.data.get('rebuild_status') == 'The file type is not currently supported'
+        assert metadata.data.get('rebuild_status') == FileStatus.NOT_SUPPORTED
