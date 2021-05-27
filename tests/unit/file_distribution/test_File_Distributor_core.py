@@ -14,7 +14,6 @@ from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import Pre_Process
 from cdr_plugin_folder_to_folder.processing.File_Processing import File_Processing
 from cdr_plugin_folder_to_folder.processing.Loops import Loops
 from cdr_plugin_folder_to_folder.utils.testing.Direct_API_Server import Direct_API_Server
-from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
 from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
@@ -39,7 +38,7 @@ class test_File_Distributor(Temp_Config):
         cls.test_file      = cls.test_data.image()
         cls.pre_processor  = Pre_Processor()
         #cls.pre_processor.clear_data_and_status_folders()
-        cls.stage_1        = cls.pre_processor.process(cls.test_file)
+        cls.stage_1        = cls.pre_processor.process((cls.test_file,))
         cls.hash_json.save()
         cls.stage_2        = Loops().LoopHashDirectories()
         cls.test_folder    = os.path.join(FIXTURE_DIR, '2f854897a694773abc921e1b1549274ae6c6b1f117dc32f795aa28d563e6c33f')
