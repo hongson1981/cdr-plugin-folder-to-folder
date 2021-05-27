@@ -20,16 +20,14 @@ class test_Metadata_Service(TestCase):
         metadata  = self.metadata_service.create_metadata(self.test_file)
         metadata.delete()
         metadata.add_file(self.test_file)
-        assert metadata.data['file_name'] ==                file_name(self.test_file)           ;
-        assert metadata.data['xml_report_status'] ==        None                                ;
-        assert metadata.data['error'] ==                    'none'                              ;
-        assert metadata.data['original_file_paths'] ==      ['test.jpg']                        ;
-        assert metadata.data['original_hash'] ==            file_sha256(self.test_file)         ;
-        assert metadata.data['original_file_extension'] ==  '.jpg'                              ;
-        assert metadata.data['original_file_size'] ==       102117                              ;
-        assert metadata.data['rebuild_status'] ==          "The original file has been cleaned" ;
-        assert metadata.data['rebuild_file_extension'] ==  "jpeg"
-        assert metadata.data['rebuild_file_size'] ==        98937                               ;
+        assert metadata.data['file_name'] ==                file_name(self.test_file)
+        assert metadata.data['xml_report_status'] ==        None or 'none'
+        assert metadata.data['error'] ==                    None or 'none'
+        assert metadata.data['original_file_paths'] ==      ['test.jpg']
+        assert metadata.data['original_hash'] ==            file_sha256(self.test_file)
+        assert metadata.data['original_file_extension'] ==  '.jpg'
+        assert metadata.data['original_file_size'] ==       102117
+        assert metadata.data['rebuild_status'] ==          "Initial"
         assert metadata.delete() is True
 
     def test_file_hash(self):

@@ -1,4 +1,6 @@
-import imp
+import importlib as imp
+from importlib.machinery import SourceFileLoader
+
 import inspect
 from unittest import TestCase
 from unittest.mock import patch, call
@@ -39,7 +41,10 @@ class test_Server(TestCase):
     @patch("uvicorn.run")
     def test_start__via__main(self, mock_run):              # this test confirms that when running the Server directly the uvicorn.run is called
         path_file = inspect.getfile(Server)                 # get path of Server
-        imp.load_source('__main__', path_file)              # force reload and set __main__
+
+        # force reload and set __main__
+        mymodule = SourceFileLoader('__main__', path_file).load_module()
+
         assert mock_run.call_count == 1
 
     # lock the current rules mappings to that any new API changes also require an change to this test
@@ -66,6 +71,7 @@ class test_Server(TestCase):
                                           '/pre-processor/mark-all-hd2-files-unprocessed'        : {'methods': {'POST'}, 'name': 'clear_data_and_status_folders'        , 'path_format': '/pre-processor/mark-all-hd2-files-unprocessed'        },
                                           '/pre-processor/pre-process'                           : { 'methods': {'POST'}, 'name': 'pre_process_hd1_data_to_hd2'         , 'path_format': '/pre-processor/pre-process'                           },
                                           '/pre-processor/pre_process_folder'                    : { 'methods': {'POST'}, 'name': 'pre_process_a_folder'                , 'path_format': '/pre-processor/pre_process_folder'                    },
+                                          '/processing/metrics'                                  : { 'methods': {'GET' }, 'name': 'get_prometheus_metrics'              , 'path_format': '/processing/metrics'                                  },
                                           '/processing/single_file'                              : { 'methods': {'POST'}, 'name': 'process_single_file'                 , 'path_format': '/processing/single_file'                              },
                                           '/processing/start'                                    : { 'methods': {'POST'}, 'name': 'process_hd2_data_to_hd3'             , 'path_format': '/processing/start'                                    },
                                           '/processing/start-sequential'                         : { 'methods': {'POST'}, 'name': 'process_hd2_data_to_hd3_sequential'  , 'path_format': '/processing/start-sequential'                         },

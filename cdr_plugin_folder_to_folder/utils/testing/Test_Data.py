@@ -6,6 +6,7 @@ import base64
 import os
 
 class Test_Data:
+    __test__ = False
 
     def __init__(self):
         TEST_DIR = 'test_data/scenario-1/hd1'

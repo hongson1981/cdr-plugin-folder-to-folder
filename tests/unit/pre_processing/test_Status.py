@@ -20,15 +20,15 @@ class test_Status(Temp_Config):
         self.storage = self.status.storage
 
     def test__FileStatus(self):
-        assert inspect.getmembers(FileStatus, lambda a: type(a) is str) == [  ('COMPLETED'      , 'The original file has been cleaned'               ),
+        assert inspect.getmembers(FileStatus, lambda a: type(a) is str) == [  ('COMPLETED'      , 'Rebuilt successfully'                             ),
                                                                               ('DUPLICATE'      , 'The file is duplicate'                            ),                                                                            
-                                                                              ('FAILED'         , 'Unable to clean the file'                         ),
+                                                                              ('FAILED'         , 'Failed to rebuild'                                ),
                                                                               ('INITIAL'        , 'Initial'                                          ),
                                                                               ('IN_PROGRESS'    , 'In Progress'                                      ),
                                                                               ('NONE'           , 'None'                                             ),
                                                                               ('NOT_COPIED'     , 'Will not be copied'                               ),
-                                                                              ('NOT_SUPPORTED'  , 'The file type is not currently supported'         ),
-                                                                              ('NO_CLEANING_NEEDED'  , 'The original file was already clean'         ),
+                                                                              ('NOT_SUPPORTED'  , 'File type not supported'                          ),
+                                                                              ('NO_CLEANING_NEEDED'  , 'Original file is safe'                       ),
                                                                               ('TO_PROCESS'     , 'To Process'                                       ),
                                                                               ('__module__'     , 'cdr_plugin_folder_to_folder.pre_processing.Status')]
 
