@@ -21,6 +21,9 @@ from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
 from cdr_plugin_folder_to_folder.metadata.Metadata import DEFAULT_REPORT_FILENAME
 from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 
+from cdr_plugin_folder_to_folder.metadata.Metadata_Elastic import Metadata_Elastic
+from cdr_plugin_folder_to_folder.processing.Analysis_Elastic import Analysis_Elastic
+
 import threading
 from multiprocessing.pool import ThreadPool
 
@@ -41,6 +44,12 @@ class Pre_Processor:
         self.dst_folder     = None
         self.dst_file_name  = None
 
+    def clean_elastic_data(self):
+        metadata_elastic = Metadata_Elastic()
+        metadata_elastic.delete_all_metadata()
+        analysis_elastic = Analysis_Elastic()
+        analysis_elastic.delete_all_analysis()
+        pass
 
     @log_duration
     def clear_data_and_status_folders(self):
@@ -57,6 +66,7 @@ class Pre_Processor:
         folder_create(processed_target)
         folder_create(not_supported_target)
         self.status.reset()
+        self.clean_elastic_data()
 
     @log_duration
     def mark_all_hd2_files_unprocessed(self):
