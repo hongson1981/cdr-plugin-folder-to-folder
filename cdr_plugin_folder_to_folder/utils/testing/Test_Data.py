@@ -9,16 +9,11 @@ class Test_Data:
     __test__ = False
 
     def __init__(self):
-        TEST_DIR = 'test_data/scenario-1/hd1'
-        try:
-            os.makedirs(TEST_DIR)
-        except Exception as e:
-            #Ignore
-            pass
-        self.create_test_jpg(path=TEST_DIR)
+        self.path_test_files = path_combine(__file__, '../../../../test_data/scenario-1/hd1')
+        self.create_test_jpg(path=self.path_test_files)
         self.create_test_pdf()
-        self.create_test_json(path=TEST_DIR)
-        self.path_test_files = path_combine(os.path.dirname(os.path.abspath(__file__)), '../../../'+TEST_DIR)
+        self.create_test_json(path=self.path_test_files)
+
 
     def files(self):
         files = files_list(self.path_test_files)
