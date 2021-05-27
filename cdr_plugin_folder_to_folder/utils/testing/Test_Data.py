@@ -5,6 +5,7 @@ import os
 import traceback
 
 class Test_Data:
+    __test__ = False
 
     def __init__(self):
         self.path_test_files = path_combine(__file__, '../../../../test_data/scenario-2/hd1')

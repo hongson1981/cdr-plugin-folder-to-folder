@@ -11,8 +11,6 @@ from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.pre_processing.Processing_Status import Processing_Status, Processing_Status_States
 from cdr_plugin_folder_to_folder.pre_processing.Prometheus_Status_Metrics import Prometheus_Status_Metrics, MetricNames
 from cdr_plugin_folder_to_folder.utils.testing.Setup_Testing import Setup_Testing
-#from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
-
 
 class test_Prometheus_Status_Metrics(TestCase):
 

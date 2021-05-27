@@ -6,7 +6,6 @@ from osbot_utils.utils.Misc import list_set
 from cdr_plugin_folder_to_folder.api.Server_Status import Server_Status
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.utils.testing.Setup_Testing import Setup_Testing
-from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
 
 
 class test_Server_Status(TestCase):
