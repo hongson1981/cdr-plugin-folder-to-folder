@@ -2,6 +2,7 @@ import os
 import pytest
 
 from unittest import TestCase
+from unittest.mock import patch
 
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import temp_folder, folder_files, folder_delete_all, folder_create, file_create_bytes, \
@@ -269,3 +270,11 @@ class test_File_Processing(Temp_Config):
     def test_do_rebuild_with_bad_source_path(self):
         metadata_file_path = self.test_file_metadata.metadata_file_path()
         assert self.file_processing.do_rebuild('none','none','/',os.path.dirname(metadata_file_path)) is False
+
+    @patch('cdr_plugin_folder_to_folder.processing.File_Processing.File_Processing.rebuild')
+    def test_do_rebuild_with_empty_response(self, mock_rebuild):
+        mock_rebuild.return_value.ok = True
+        dir = os.path.dirname(self.test_file_metadata.metadata_file_path())
+        source = path_combine(dir,"source")
+        endpoint = 'http://127.0.0.1:8000'
+        assert self.file_processing.do_rebuild(endpoint,'ABC',source,dir) is False
