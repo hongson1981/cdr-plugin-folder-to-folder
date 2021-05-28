@@ -244,7 +244,7 @@ class test_File_Processing(Temp_Config):
         metadata.load()
         assert metadata.data.get('rebuild_status') == FileStatus.NOT_SUPPORTED
 
-    def test_base64request_with_wrong_endpoint(self):
+    def test_zbase64request_with_wrong_endpoint(self):
         with pytest.raises(ValueError):
             self.file_processing.base64request("no-endpoint","no-route","ABC")
 
@@ -252,11 +252,11 @@ class test_File_Processing(Temp_Config):
         with pytest.raises(ValueError):
             self.file_processing.xmlreport_request("no-endpoint","ABC")
 
-    def test_convert_xml_report_to_json_with_no_xmlreport(self):
+    def test_zconvert_xml_report_to_json_with_no_xmlreport(self):
         with pytest.raises(ValueError):
             self.file_processing.convert_xml_report_to_json("/", None)
 
-    def test_convert_xml_report_to_json_with_bad_xmlreport(self):
+    def test_zconvert_xml_report_to_json_with_bad_xmlreport(self):
         xmlreport = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>  \
                         <note>  \
                         <to>Tove</to>  \
