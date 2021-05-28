@@ -130,6 +130,24 @@ class test_File_Processing(Temp_Config):
         assert metadata.data.get('rebuild_file_extension' ) == 'pdf'
         assert metadata.data.get('rebuild_file_size'      ) == 1267
 
+    def test_do_rebuild_with_exception(self):
+
+        self.endpoint_service.endpoints = str_to_json(DEFAULT_ENDPOINTS)["Endpoints"]
+
+        endpoint = self.endpoint_service.get_endpoint_url()
+        metadata = self.test_file_metadata
+        folder_path = metadata.metadata_folder_path()
+        source_path = metadata.source_file_path()
+
+
+        kwargs = {"endpoint"    : endpoint              ,
+                  "hash"        : self.test_file_hash   ,
+                  "source_path" : source_path           ,
+                  "dir"         : folder_path           }
+
+        with patch.object(FileService, 'base64decode', side_effect=Exception()):
+            assert self.file_processing.do_rebuild(**kwargs) is False
+
     def test_processDirectory(self):
         self.endpoint_service.endpoints = str_to_json(DEFAULT_ENDPOINTS)["Endpoints"]
 
@@ -279,9 +297,10 @@ class test_File_Processing(Temp_Config):
     @patch('cdr_plugin_folder_to_folder.processing.File_Processing.File_Processing.rebuild')
     def test_do_rebuild_with_empty_response(self, mock_rebuild):
         mock_rebuild.return_value.ok = True
+        mock_rebuild.return_value.text = ''
         dir = os.path.dirname(self.test_file_metadata.metadata_file_path())
         source = path_combine(dir,"source")
-        endpoint = 'http://127.0.0.1:8000'
+        endpoint = 'http://127.0.0.1:8080'
         assert self.file_processing.do_rebuild(endpoint,'ABC',source,dir) is False
 
     def test_get_server_version(self):
