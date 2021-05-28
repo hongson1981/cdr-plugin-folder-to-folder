@@ -272,6 +272,10 @@ class test_File_Processing(Temp_Config):
         metadata_file_path = self.test_file_metadata.metadata_file_path()
         assert self.file_processing.do_rebuild('none','none','/',os.path.dirname(metadata_file_path)) is False
 
+    def test_do_rebuild_zip_with_bad_source_path(self):
+        metadata_file_path = self.test_file_metadata.metadata_file_path()
+        assert self.file_processing.do_rebuild_zip('none','none','/',os.path.dirname(metadata_file_path)) is False
+
     @patch('cdr_plugin_folder_to_folder.processing.File_Processing.File_Processing.rebuild')
     def test_do_rebuild_with_empty_response(self, mock_rebuild):
         mock_rebuild.return_value.ok = True
