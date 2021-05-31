@@ -208,6 +208,9 @@ class Metadata:
     def get_original_file_extension(self):
         return self.data.get('original_file_extension')
 
+    def get_server_version(self):
+        return self.data.get('server_version')
+
     def report_file_path(self):
         if self.file_hash:
             return path_combine(self.metadata_folder_path(), DEFAULT_REPORT_FILENAME)

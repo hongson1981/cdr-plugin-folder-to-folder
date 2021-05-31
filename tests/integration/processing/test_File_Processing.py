@@ -1,6 +1,8 @@
+import os
 import pytest
 
 from unittest import TestCase
+from unittest.mock import patch
 
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import temp_folder, folder_files, folder_delete_all, folder_create, file_create_bytes, \
@@ -28,6 +30,7 @@ from cdr_plugin_folder_to_folder.processing.Report_Elastic import Report_Elastic
 from cdr_plugin_folder_to_folder.processing.Analysis_Json import Analysis_Json
 from cdr_plugin_folder_to_folder.processing.Analysis_Elastic import Analysis_Elastic
 from cdr_plugin_folder_to_folder.pre_processing.Status import FileStatus
+from cdr_plugin_folder_to_folder.configure.Configure_Env import SDKEngineVersionKey, SDKAPIVersionKey
 import traceback
 import base64
 
@@ -126,6 +129,24 @@ class test_File_Processing(Temp_Config):
         assert metadata.data.get('rebuild_status'         ) == 'Initial'
         assert metadata.data.get('rebuild_file_extension' ) == 'pdf'
         assert metadata.data.get('rebuild_file_size'      ) == 1267
+
+    def test_do_rebuild_with_exception(self):
+
+        self.endpoint_service.endpoints = str_to_json(DEFAULT_ENDPOINTS)["Endpoints"]
+
+        endpoint = self.endpoint_service.get_endpoint_url()
+        metadata = self.test_file_metadata
+        folder_path = metadata.metadata_folder_path()
+        source_path = metadata.source_file_path()
+
+
+        kwargs = {"endpoint"    : endpoint              ,
+                  "hash"        : self.test_file_hash   ,
+                  "source_path" : source_path           ,
+                  "dir"         : folder_path           }
+
+        with patch.object(FileService, 'base64decode', side_effect=Exception()):
+            assert self.file_processing.do_rebuild(**kwargs) is False
 
     def test_processDirectory(self):
         self.endpoint_service.endpoints = str_to_json(DEFAULT_ENDPOINTS)["Endpoints"]
@@ -241,3 +262,62 @@ class test_File_Processing(Temp_Config):
         #assert result == True
         metadata.load()
         assert metadata.data.get('rebuild_status') == FileStatus.NOT_SUPPORTED
+
+    def test_zbase64request_with_wrong_endpoint(self):
+        with pytest.raises(ValueError):
+            self.file_processing.base64request("no-endpoint","no-route","ABC")
+
+    def test_xmlreport_request_with_wrong_endpoint(self):
+        with pytest.raises(ValueError):
+            self.file_processing.xmlreport_request("no-endpoint","ABC")
+
+    def test_zconvert_xml_report_to_json_with_no_xmlreport(self):
+        with pytest.raises(ValueError):
+            self.file_processing.convert_xml_report_to_json("/", None)
+
+    def test_zconvert_xml_report_to_json_with_bad_xmlreport(self):
+        xmlreport = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>  \
+                        <note>  \
+                        <to>Tove</to>  \
+                        <from>Jani</from>  \
+                        <heading>Reminder</heading>  \
+                        <body>Don't forget me this weekend!</body>  \
+                        </note> \
+                    "
+        assert self.file_processing.convert_xml_report_to_json("/", xmlreport) is False
+
+    def test_do_rebuild_with_bad_source_path(self):
+        metadata_file_path = self.test_file_metadata.metadata_file_path()
+        assert self.file_processing.do_rebuild('none','none','/',os.path.dirname(metadata_file_path)) is False
+
+    def test_do_rebuild_zip_with_bad_source_path(self):
+        metadata_file_path = self.test_file_metadata.metadata_file_path()
+        assert self.file_processing.do_rebuild_zip('none','none','/',os.path.dirname(metadata_file_path)) is False
+
+    @patch('cdr_plugin_folder_to_folder.processing.File_Processing.File_Processing.rebuild')
+    def test_do_rebuild_with_empty_response(self, mock_rebuild):
+        mock_rebuild.return_value.ok = True
+        mock_rebuild.return_value.text = ''
+        dir = os.path.dirname(self.test_file_metadata.metadata_file_path())
+        source = path_combine(dir,"source")
+        endpoint = 'http://127.0.0.1:8080'
+        assert self.file_processing.do_rebuild(endpoint,'ABC',source,dir) is False
+
+    def test_get_server_version(self):
+
+        headers = {SDKEngineVersionKey: '1.0.0', SDKAPIVersionKey: '1.0.0'}
+        assert SDKEngineVersionKey in headers
+        assert SDKAPIVersionKey in headers
+
+        dir = os.path.dirname(self.test_file_metadata.metadata_file_path())
+        self.file_processing.get_server_version(dir, headers)
+        server_version = self.file_processing.meta_service.metadata.get_server_version()
+        assert server_version == 'Engine:1.0.0 API:1.0.0'
+
+        headers = {}
+        assert not SDKEngineVersionKey in headers
+        assert not SDKAPIVersionKey in headers
+
+        self.file_processing.get_server_version(dir, headers)
+        server_version = self.file_processing.meta_service.metadata.get_server_version()
+        assert server_version == 'Engine:1.0.0 API:1.0.0'
