@@ -62,6 +62,8 @@ class Metadata:
             file_paths = self.data.get('original_file_paths')
             if 0 == len(file_paths):
                 self.process_status.add_to_be_processed()
+            else:
+                self.process_status.add_duplicate_files()
             if file_path.startswith(self.path_hd1):                         # check if path starts with hd1
                 file_path = os.path.relpath(file_path, self.path_hd1)
             if file_path not in file_paths:
@@ -182,6 +184,9 @@ class Metadata:
     def get_original_hash(self):
         return self.data.get('original_hash')
 
+    def get_rebuild_hash(self):
+        return self.data.get('rebuild_hash')
+
     def get_file_hash(self):
         return self.file_hash
 
@@ -202,6 +207,9 @@ class Metadata:
 
     def get_original_file_extension(self):
         return self.data.get('original_file_extension')
+
+    def get_server_version(self):
+        return self.data.get('server_version')
 
     def report_file_path(self):
         if self.file_hash:

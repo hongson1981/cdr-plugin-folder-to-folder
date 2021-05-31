@@ -97,7 +97,7 @@ class test_Pre_Processor(TestCase):
     def test_process_file(self):
         metadata = Metadata(file_hash=self.file_hash)
         assert metadata.exists() is False
-        self.pre_processor.process(self.test_file)
+        self.pre_processor.process((self.test_file,))
         assert metadata.exists() is True
 
     def test_process_downloaded_zip_file(self):

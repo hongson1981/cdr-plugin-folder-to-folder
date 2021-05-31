@@ -9,6 +9,7 @@ from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 #from cdr_plugin_folder_to_folder.api.users import router
 from osbot_utils.utils.Misc import to_int
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import RedirectResponse
 from starlette.types import ASGIApp, Scope, Receive, Send
 
 from cdr_plugin_folder_to_folder.api.routes.Processing import router as router_processing
@@ -18,7 +19,6 @@ from cdr_plugin_folder_to_folder.api.routes.Health import router as router_healt
 from cdr_plugin_folder_to_folder.api.routes.Configure import router as router_configure
 from cdr_plugin_folder_to_folder.utils.Logging import log_debug
 from cdr_plugin_folder_to_folder.utils.Logging_Process import start_logging
-from cdr_plugin_folder_to_folder.pre_processing.Status import Status
 
 class Logging_Middleware:
     def __init__(self, app: ASGIApp, minimum_size: int = 500) -> None:
@@ -94,6 +94,12 @@ tags_metadata = [
 # we need to do this here so that when unicorn reload is enabled the "cdr_plugin_folder_to_folder.api.Server:app" has an fully setup instance of the Server object
 app     = FastAPI(title="GW Folder-to-Folder API",
                   openapi_tags=tags_metadata)
+
+@app.get("/")
+async def docs_redirect():
+    response = RedirectResponse(url='/docs')
+    return response
+
 server  = Server(app)
 server.add_routes()
 if "PYTEST_CURRENT_TEST" not in os.environ:

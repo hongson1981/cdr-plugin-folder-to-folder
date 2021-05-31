@@ -26,8 +26,8 @@ DEFAULT_ELASTIC_SCHEMA   = "http"
 DEFAULT_KIBANA_HOST      = "kib01"
 DEFAULT_KIBANA_PORT      = "5601"
 DEFAULT_THREAD_COUNT     = 10
-DEFAULT_TEST_SDK         = '54.194.53.18'
 #DEFAULT_TEST_SDK         = 'gw-cloud-sdk-455649808.eu-west-1.elb.amazonaws.com'
+DEFAULT_TEST_SDK         = '52.213.74.78'
 DEFAULT_ENDPOINT_PORT    = '8080'
 DEFAULT_MINIO_ENDPOINT_PORT    = '8088'          # Minio version is using this port
 DEFAULT_ENDPOINTS        = '{"Endpoints":[{"IP":"' + DEFAULT_TEST_SDK + '", "Port":"' + DEFAULT_ENDPOINT_PORT +'"}]}'
@@ -37,7 +37,9 @@ DEFAULT_REQUEST_TIMEOUT  = 600
 DEFAULT_REBUILD_ZIP      = True
 DEFAULT_USE_DYNAMIC_ENDPOINTS = False
 DEFAULT_SDK_SERVERS_API  = 'https://tmol8zkg3c.execute-api.eu-west-1.amazonaws.com/prod/sdk-servers/ip_addresses'
-API_VERSION              = "v0.6.4.3"
+DEFAULT_PROMETHEUS_HOST  = '127.0.0.1'
+DEFAULT_PROMETHEUS_PORT  = '8000'
+API_VERSION              = "v0.8.7"
 
 
 
@@ -72,6 +74,9 @@ class Config:
             self.supported_file_types   = None
             self.save_unsupported_file_types = None
             self.use_dynamic_endpoints  = None
+            self.prometheus_host        = None
+            self.prometheus_port        = None
+            self.prometheus_url         = None
             self.load_values()                                      # due to the singleton pattern this will only be executed once
 
     def load_values(self):
@@ -103,6 +108,12 @@ class Config:
         self.set_hd1_location(os.getenv("HD1_LOCATION", DEFAULT_HD1_LOCATION))       # set hd1, hd2 and hd3 values
         self.set_hd2_location(os.getenv("HD2_LOCATION", DEFAULT_HD2_LOCATION))
         self.set_hd3_location(os.getenv("HD3_LOCATION", DEFAULT_HD3_LOCATION))
+
+        # Prometheus settings
+
+        self.prometheus_host = os.getenv("PROMETHEUS_HOST", DEFAULT_PROMETHEUS_HOST)
+        self.prometheus_port = int(os.getenv("PROMETHEUS_PORT", DEFAULT_PROMETHEUS_PORT))
+        self.prometheus_url = f'http://{self.prometheus_host}:{self.prometheus_port}'
 
         return self
 

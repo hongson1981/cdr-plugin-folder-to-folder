@@ -15,7 +15,8 @@ from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
 from cdr_plugin_folder_to_folder.processing.Events_Log_Elastic import Events_Log_Elastic
 from cdr_plugin_folder_to_folder.processing.File_Processing import File_Processing
 from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Service
-from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus, Processing_Status
+from cdr_plugin_folder_to_folder.pre_processing.Processing_Status import Processing_Status
+from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
 from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import reset_data_folder_to_the_initial_state
 from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
 from cdr_plugin_folder_to_folder.processing.Report_Elastic import Report_Elastic
@@ -169,9 +170,7 @@ class Loops(object):
 
         self.hash_json.save()
 
-        if Processing_Status.PHASE_2 != self.status.get_current_status():
-            self.status.reset_phase2()
-            reset_data_folder_to_the_initial_state()
+        self.status.reset_phase2(False)
 
         return self.hash_json.data()
 
@@ -183,10 +182,15 @@ class Loops(object):
             source_path = self.storage.hd2_data(key)
             destination_path = ""
 
-            if (FileStatus.COMPLETED == json_list[key]["file_status"]):
+            file_status = json_list[key]["file_status"]
+
+            if (FileStatus.COMPLETED == file_status) or \
+               (FileStatus.NO_CLEANING_NEEDED == file_status):
                 destination_path = self.storage.hd2_processed(key)
-            elif (FileStatus.NOT_SUPPORTED == json_list[key]["file_status"]):
+            elif (FileStatus.NOT_SUPPORTED == file_status):
                 destination_path = self.storage.hd2_not_supported(key)
+            else:
+                continue
 
             if destination_path:
                 if folder_exists(destination_path):
@@ -194,6 +198,10 @@ class Loops(object):
                 shutil.move(source_path, destination_path)
 
     def LoopHashDirectoriesInternal(self, thread_count, do_single):
+
+        log_message = f"LoopHashDirectoriesInternal started with {thread_count} threads"
+        self.events.add_log(log_message)
+        log_info(log_message)
 
         self.endpoint_service.get_endpoints()
 
@@ -208,21 +216,19 @@ class Loops(object):
         if not isinstance(do_single,bool):
             raise TypeError("thread_count must be a integer")
 
-        log_message = f"LoopHashDirectoriesInternal started with {thread_count} threads"
+        log_message = f"LoopHashDirectoriesInternal updating hash.json file"
         self.events.add_log(log_message)
         log_info(log_message)
 
         json_list = self.updateHashJson()
 
-        log_message = f"LoopHashDirectoriesInternal started with {thread_count} threads"
-        self.events.add_log(log_message)
-        log_info(log_message)
-
         threads = list()
 
         process_index   = 0
 
-        log_info(message=f'before Mapping thread_data for {len(json_list)} files')
+        log_message = f'before Mapping thread_data for {len(json_list)} files'
+        self.events.add_log(log_message)
+        log_info(message=log_message)
         thread_data = []
 
         self.endpoint_service.StartServiceThread()
@@ -264,7 +270,10 @@ class Loops(object):
         # for index, thread in enumerate(threads):
         #     thread.join()
 
-        log_info(message=f'after mapped thread_data, there are {len(thread_data)} mapped items')
+        log_message = f'after mapped thread_data, there are {len(thread_data)} mapped items'
+        self.events.add_log(log_message)
+        log_info(message=log_message)
+
         #thread_data = thread_data[:500]
         #log_info(message=f'to start with only processing {len(thread_data)} thread_data items')
         pool = ThreadPool(thread_count)
