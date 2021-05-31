@@ -28,7 +28,7 @@ class test_Status(Temp_Config):
                                                                               ('NONE'           , 'None'                                             ),
                                                                               ('NOT_COPIED'     , 'Will not be copied'                               ),
                                                                               ('NOT_SUPPORTED'  , 'File type not supported'                          ),
-                                                                              ('NO_CLEANING_NEEDED'  , 'Original file is safe'                       ),
+                                                                              ('NO_CLEANING_NEEDED'  , 'Original file needs no modification'                       ),
                                                                               ('TO_PROCESS'     , 'To Process'                                       ),
                                                                               ('__module__'     , 'cdr_plugin_folder_to_folder.pre_processing.Status')]
 

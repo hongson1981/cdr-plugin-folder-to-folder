@@ -19,7 +19,7 @@ class FileStatus:                                     # todo move to separate fi
     NOT_COPIED    = "Will not be copied"
     IN_PROGRESS   = "In Progress"
     COMPLETED     = "Rebuilt successfully"
-    NO_CLEANING_NEEDED = "Original file is safe"
+    NO_CLEANING_NEEDED = "Original file needs no modification"
     NOT_SUPPORTED = "File type not supported"
     FAILED        = "Failed to rebuild"
     TO_PROCESS    = "To Process"
