@@ -1,6 +1,7 @@
 from osbot_utils.utils.Status import status_ok
 
 from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import Pre_Processor
+from cdr_plugin_folder_to_folder.pre_processing.Minio_Sync import Minio_Sync
 from cdr_plugin_folder_to_folder.common_settings.Config import DEFAULT_THREAD_COUNT
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -14,6 +15,12 @@ class DIRECTORY(BaseModel):
 
 class DOWNLOAD_URL(BaseModel):
     url        : str = "http:/download.zip"
+
+class MINIO_DESCRIPTOR(BaseModel):
+    url          : str = "http:/sample-minio-url"
+    user         : str = "sample-user"
+    access_token : str = "sample-token"
+    bucket       : str = "sample-backet"
 
 @router.post("/pre-process")
 def pre_process_hd1_data_to_hd2(thread_count:int=DEFAULT_THREAD_COUNT):
@@ -45,3 +52,8 @@ def download_and_pre_process_a_zip_file(item: DOWNLOAD_URL):
     status_message = pre_processor.process_downloaded_zip_file(url=item.url)
     return status_ok(message=status_message)
 
+@router.post("/upload_hd2_to_minio")
+def upload_hd2_to_minio(item: MINIO_DESCRIPTOR):
+    minio_sync = Minio_Sync()
+    status_message = minio_sync.upload_hd2_to_minio(url=item.url, user=item.user, access_token=item.access_token, bucket=item.bucket)
+    return status_ok(message=status_message)
