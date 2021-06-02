@@ -64,15 +64,19 @@ class Minio_Sync:
                 break
 
             passwd_s3fs = temp_file(extension="", contents=f"{user}:{access_token}")
+            os.system(f"chmod 600 {passwd_s3fs}")
             print(f"s3fs {bucket} {self.storage.hd2()} -o passwd_file={passwd_s3fs},use_path_request_style,url={minio_url}")
-            os.system(f"s3fs {bucket} {self.storage.hd2()} -o passwd_file={passwd_s3fs},use_path_request_style,url={minio_url} -o nonempty")
+            result = os.popen(f"s3fs {bucket} {self.storage.hd2()} -o passwd_file={passwd_s3fs},use_path_request_style,url={minio_url} -o nonempty").read()
             file_delete(passwd_s3fs)
 
-            retvalue = Minio_Sync.MINIO_SUCCESSFUL_MOUNT
+            if result:
+                retvalue = result
+            else:
+                retvalue = Minio_Sync.MINIO_SUCCESSFUL_MOUNT
 
             break
 
         return retvalue
 
     def umount_minio_hd2(self):
-        os.system(f"umount {self.storage.hd2()}")
+        os.system(f"umount -l {self.storage.hd2()}")
