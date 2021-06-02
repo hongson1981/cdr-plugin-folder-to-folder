@@ -52,8 +52,8 @@ def download_and_pre_process_a_zip_file(item: DOWNLOAD_URL):
     status_message = pre_processor.process_downloaded_zip_file(url=item.url)
     return status_ok(message=status_message)
 
-@router.post("/upload_hd2_to_minio")
-def upload_hd2_to_minio(item: MINIO_DESCRIPTOR):
+@router.post("/mount_minio_bucket_as_hd2")
+def mount_minio_bucket_as_hd2(item: MINIO_DESCRIPTOR):
     minio_sync = Minio_Sync()
-    status_message = minio_sync.upload_hd2_to_minio(url=item.url, user=item.user, access_token=item.access_token, bucket=item.bucket)
+    status_message = minio_sync.mount_minio_bucket_as_hd2(url=item.url, user=item.user, access_token=item.access_token, bucket=item.bucket)
     return status_ok(message=status_message)

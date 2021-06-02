@@ -39,6 +39,6 @@ class Minio_Sync:
         self.status         = Status()
         self.storage        = Storage()
 
-    def upload_hd2_to_minio(self, url, user, access_token, bucket):
+    def mount_minio_bucket_as_hd2(self, url, user, access_token, bucket):
         retvalue = "No value"
         return retvalue

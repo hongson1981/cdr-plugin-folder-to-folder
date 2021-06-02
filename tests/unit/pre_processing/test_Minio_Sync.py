@@ -37,10 +37,10 @@ class test_Minio_Sync(TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_upload_hd2_to_minio(self):
+    def test_mount_minio_bucket_as_hd2(self):
         url = ''
         user = ''
         access_toket = ''
         bucket = ''
-        retval = self.minio_sync.upload_hd2_to_minio(url,user,access_toket,bucket)
+        retval = self.minio_sync.mount_minio_bucket_as_hd2(url,user,access_toket,bucket)
         assert retval == "No value"
