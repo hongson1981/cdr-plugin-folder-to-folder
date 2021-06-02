@@ -6,7 +6,8 @@ from osbot_utils.utils.Json  import json_load_file
 from osbot_utils.utils.Misc import random_text
 
 from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import Pre_Processor
-from cdr_plugin_folder_to_folder.pre_processing.Status import FileStatus, Processing_Status, Status
+from cdr_plugin_folder_to_folder.pre_processing.Processing_Status import Processing_Status
+from cdr_plugin_folder_to_folder.pre_processing.Status import FileStatus, Status
 
 from cdr_plugin_folder_to_folder.utils.Logging_Process import process_all_log_entries_and_end_logging_process
 from cdr_plugin_folder_to_folder.utils.testing.Temp_Config import Temp_Config
@@ -19,13 +20,15 @@ class test_Status(Temp_Config):
         self.storage = self.status.storage
 
     def test__FileStatus(self):
-        assert inspect.getmembers(FileStatus, lambda a: type(a) is str) == [  ('COMPLETED'      , 'Completed Successfully'                           ),
-                                                                              ('FAILED'         , 'Completed with errors'                            ),
+        assert inspect.getmembers(FileStatus, lambda a: type(a) is str) == [  ('COMPLETED'      , 'Rebuilt successfully'                             ),
+                                                                              ('DUPLICATE'      , 'The file is duplicate'                            ),                                                                            
+                                                                              ('FAILED'         , 'Failed to rebuild'                                ),
                                                                               ('INITIAL'        , 'Initial'                                          ),
                                                                               ('IN_PROGRESS'    , 'In Progress'                                      ),
                                                                               ('NONE'           , 'None'                                             ),
                                                                               ('NOT_COPIED'     , 'Will not be copied'                               ),
-                                                                              ('NOT_SUPPORTED'  , 'The file type is not currently supported'         ),
+                                                                              ('NOT_SUPPORTED'  , 'File type not supported'                          ),
+                                                                              ('NO_CLEANING_NEEDED'  , 'Original file needs no modification'                       ),
                                                                               ('TO_PROCESS'     , 'To Process'                                       ),
                                                                               ('__module__'     , 'cdr_plugin_folder_to_folder.pre_processing.Status')]
 
@@ -135,6 +138,52 @@ class test_Status(Temp_Config):
     def test_status_file_path(self):
         assert self.status.status_file_path() == path_combine(self.storage.hd2_status(), Status.STATUS_FILE_NAME)
 
+    def test_reset_phase2(self):
+        self.status.reset()
+        data = self.status.data()
+        assert data[Status.VAR_FILES_COUNT] == 0
+
+        Temp_Config.setUpClass()
+        temp_config = Temp_Config()
+        temp_config.add_test_files()
+
+        pre_proocessor = Pre_Processor()
+        pre_proocessor.config = temp_config.config
+        pre_proocessor.process_files()
+
+        data = self.status.data()
+        assert data[Status.VAR_CURRENT_STATUS] == Processing_Status.PHASE_2
+        assert data[Status.VAR_FILES_COUNT] > 0
+        assert data[Status.VAR_FILES_COUNT] == data[Status.VAR_FILES_COPIED]
+        assert data[Status.VAR_FILES_TO_PROCESS] > 0
+        assert data[Status.VAR_FILES_TO_PROCESS] == data[Status.VAR_FILES_LEFT_TO_PROCESS]
+        assert data[Status.VAR_FILES_COUNT] >= data[Status.VAR_FILES_TO_PROCESS]
+        assert data[Status.VAR_FILES_TO_BE_COPIED] == 0
+        assert data[Status.VAR_COMPLETED] == 0
+        assert data[Status.VAR_NOT_SUPPORTED] == 0
+        assert data[Status.VAR_FAILED] == 0
+
+        self.status.reset()
+        data = self.status.data()
+        data[Status.VAR_FILES_TO_BE_COPIED] == 1
+        data[Status.VAR_COMPLETED] == 1
+        data[Status.VAR_NOT_SUPPORTED] == 1
+        data[Status.VAR_FAILED] == 1
+
+        self.status.reset_phase2()
+        data = self.status.data()
+        assert data[Status.VAR_CURRENT_STATUS] == Processing_Status.PHASE_2
+        assert data[Status.VAR_FILES_COUNT] > 0
+        assert data[Status.VAR_FILES_COUNT] == data[Status.VAR_FILES_COPIED]
+        assert data[Status.VAR_FILES_TO_PROCESS] > 0
+        assert data[Status.VAR_FILES_TO_PROCESS] == data[Status.VAR_FILES_LEFT_TO_PROCESS]
+        assert data[Status.VAR_FILES_COUNT] >= data[Status.VAR_FILES_TO_PROCESS]
+        assert data[Status.VAR_FILES_TO_BE_COPIED] == 0
+        assert data[Status.VAR_COMPLETED] == 0
+        assert data[Status.VAR_NOT_SUPPORTED] == 0
+        assert data[Status.VAR_FAILED] == 0
+
+        Temp_Config.tearDownClass()
 
 
     # todo: add multi-threading test

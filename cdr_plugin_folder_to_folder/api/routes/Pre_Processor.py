@@ -1,6 +1,7 @@
 from osbot_utils.utils.Status import status_ok
 
 from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import Pre_Processor
+from cdr_plugin_folder_to_folder.common_settings.Config import DEFAULT_THREAD_COUNT
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -15,9 +16,9 @@ class DOWNLOAD_URL(BaseModel):
     url        : str = "http:/download.zip"
 
 @router.post("/pre-process")
-def pre_process_hd1_data_to_hd2():
+def pre_process_hd1_data_to_hd2(thread_count:int=DEFAULT_THREAD_COUNT):
     pre_processor = Pre_Processor()
-    pre_processor.process_files()
+    pre_processor.process_files(thread_count)
     return {"Processing is done"}                   # todo: refactor to use status_ok helper methods (as seen in clear_data_and_status_folders )
 
 @router.post("/clear-data-and-status")

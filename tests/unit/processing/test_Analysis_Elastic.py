@@ -15,7 +15,7 @@ FIXTURE_DIR = os.path.join(
     'test_files',
     )
 
-class test_Report_Elastic(TestCase):
+class test_Analysis_Elastic(TestCase):
     test_file = None
     @classmethod
     def setUpClass(cls) -> None:

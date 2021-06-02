@@ -148,3 +148,5 @@ alpine-control-vmdk/bin/*.sha256sum
 .terraform*
 
 test
+website/site/node_modules/*
+website/site/public

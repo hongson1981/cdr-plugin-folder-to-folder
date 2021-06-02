@@ -25,7 +25,7 @@ class test_Loops(Temp_Config):
         #cls.test_file = cls.test_data.image()
         #cls.pre_processor = Pre_Processor()
         #cls.pre_processor.clear_data_and_status_folders()
-        #cls.stage_1 = cls.pre_processor.process(cls.test_file)
+        #cls.stage_1 = cls.pre_processor.process((cls.test_file,))
         pass
 
     def setUp(self) -> None:
@@ -101,5 +101,10 @@ class test_Loops(Temp_Config):
         assert self.loops.LoopHashDirectoriesInternal(thread_count=30, do_single=False) is False
         self.loops.config.hd2_todo_location = hd2_todo_location
 
+    def test_LoopHashDirectoriesInternal_no_endpoints(self):
+        endpoints = self.loops.endpoint_service.endpoints
+        self.loops.endpoint_service.endpoints = None
+        assert self.loops.LoopHashDirectoriesInternal(thread_count=30, do_single=False)
+        self.loops.endpoint_service.endpoints = endpoints
 
 

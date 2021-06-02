@@ -56,7 +56,7 @@ jobs:
         cd infra/packer
         REF=${{ github.ref }}
         cat > setup/env <<EOF
-        SSH_PASSWORD=${{ secrets.ICAP_SSH_PASSWORD }}
+        SSH_PASSWORD=${{ secrets.SSH_PASSWORD }}
         GW_SDK_ADDRESS=${{ github.event.inputs.gw_sdk_address }}
         BRANCH=$( echo $REF | cut -d"/" -f3)
         GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
