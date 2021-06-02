@@ -36,6 +36,7 @@ class Minio_Sync:
 
     NO_VALUE = "None"
     MINIO_SUCCESSFUL_MOUNT = "The minio bucket has been mounted"
+    MINIO_UMOUNT = "The minio bucket has been unmounted"
     S3FS_NOT_FOUND = "s3fs not found. Install it with `sudo apt-get install s3fs`"
     HD2_NOT_FOUND = "HD2 not found"
 
@@ -80,3 +81,4 @@ class Minio_Sync:
 
     def umount_minio_hd2(self):
         os.system(f"umount -l {self.storage.hd2()}")
+        return Minio_Sync.MINIO_UMOUNT

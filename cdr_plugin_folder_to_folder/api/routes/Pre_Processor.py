@@ -17,7 +17,7 @@ class DOWNLOAD_URL(BaseModel):
     url        : str = "http:/download.zip"
 
 class MINIO_DESCRIPTOR(BaseModel):
-    url          : str = "http:/sample-minio-url"
+    url          : str = "http:/sample-minio-url:9000"
     user         : str = "sample-user"
     access_token : str = "sample-token"
     bucket       : str = "sample-backet"
@@ -56,4 +56,10 @@ def download_and_pre_process_a_zip_file(item: DOWNLOAD_URL):
 def mount_minio_bucket_as_hd2(item: MINIO_DESCRIPTOR):
     minio_sync = Minio_Sync()
     status_message = minio_sync.mount_minio_bucket_as_hd2(minio_url=item.url, user=item.user, access_token=item.access_token, bucket=item.bucket)
+    return status_ok(message=status_message)
+
+@router.post("/umount_minio_hd2")
+def umount_minio_hd2():
+    minio_sync = Minio_Sync()
+    status_message = minio_sync.umount_minio_hd2()
     return status_ok(message=status_message)
