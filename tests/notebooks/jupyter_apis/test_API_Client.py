@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from cdr_plugin_folder_to_folder.common_settings.Config import API_VERSION
+from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.utils.testing.Temp_API_Server import Temp_API_Server
 from jupyter.notebooks.jupyter_apis.API_Client import API_Client
 
@@ -66,7 +66,7 @@ class test_API_Client(TestCase):
 
     def test_version(self):
         result = self.client.version()
-        assert result['version'] == API_VERSION
+        assert result['version'] == Config().api_version
 
     @pytest.mark.skip("this is changing live data (this needs to run on a temp server path)")
     def test_configure_environment(self):

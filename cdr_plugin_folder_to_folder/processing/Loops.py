@@ -10,7 +10,7 @@ from multiprocessing.pool import ThreadPool
 from osbot_utils.testing.Duration import Duration
 from osbot_utils.utils.Files import create_folder, folder_exists, folder_delete_all
 
-from cdr_plugin_folder_to_folder.common_settings.Config import Config, API_VERSION
+from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.processing.Events_Log import Events_Log
 from cdr_plugin_folder_to_folder.processing.Events_Log_Elastic import Events_Log_Elastic
 from cdr_plugin_folder_to_folder.processing.File_Processing import File_Processing
@@ -83,7 +83,7 @@ class Loops(object):
         original_file_path = meta_service.get_original_file_paths(itempath)
         events = Events_Log(itempath)
 
-        meta_service.set_f2f_plugin_version(itempath, API_VERSION)
+        meta_service.set_f2f_plugin_version(itempath, Config().api_version)
         meta_service.set_f2f_plugin_git_commit(itempath, self.git_commit())
 
         endpoint = self.endpoint_service.get_endpoint_url()

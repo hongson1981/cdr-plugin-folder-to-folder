@@ -1,5 +1,5 @@
 from cdr_plugin_folder_to_folder.api.Server_Status import Server_Status
-from cdr_plugin_folder_to_folder.common_settings.Config import API_VERSION
+from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from fastapi import APIRouter
 
 router_params = { "prefix": ""  ,
@@ -20,4 +20,4 @@ def status():
 
 @router.get("/version")
 def version():
-    return { "version": API_VERSION}
+    return { "version": Config().api_version}

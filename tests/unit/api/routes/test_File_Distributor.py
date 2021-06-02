@@ -2,7 +2,7 @@ from unittest import TestCase
 from osbot_utils.utils.Files import file_exists
 import pytest
 
-from cdr_plugin_folder_to_folder.common_settings.Config import API_VERSION
+
 from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import Pre_Processor
 from cdr_plugin_folder_to_folder.processing.File_Processing import File_Processing
 from cdr_plugin_folder_to_folder.processing.Loops import Loops

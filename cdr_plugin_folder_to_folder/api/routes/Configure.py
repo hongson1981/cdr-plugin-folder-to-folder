@@ -1,6 +1,6 @@
 import json
 
-from cdr_plugin_folder_to_folder.common_settings.Config import API_VERSION, Config
+from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.configure.Configure_Env import Configure_Env
 from fastapi import APIRouter
 from pydantic import BaseModel

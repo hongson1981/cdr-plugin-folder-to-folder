@@ -1,5 +1,6 @@
 import os
 import json
+import subprocess
 from dotenv import load_dotenv
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import folder_not_exists, path_combine, folder_create, create_folder, temp_folder, \
@@ -39,7 +40,6 @@ DEFAULT_USE_DYNAMIC_ENDPOINTS = False
 DEFAULT_SDK_SERVERS_API  = 'https://tmol8zkg3c.execute-api.eu-west-1.amazonaws.com/prod/sdk-servers/ip_addresses'
 DEFAULT_PROMETHEUS_HOST  = '127.0.0.1'
 DEFAULT_PROMETHEUS_PORT  = '8000'
-API_VERSION              = "v0.8.7"
 
 
 
@@ -115,6 +115,8 @@ class Config:
         self.prometheus_port = int(os.getenv("PROMETHEUS_PORT", DEFAULT_PROMETHEUS_PORT))
         self.prometheus_url = f'http://{self.prometheus_host}:{self.prometheus_port}'
 
+        self.api_version    = self.get_api_version()
+
         return self
 
     def ensure_last_char_is_not_forward_slash(self, path: str):
@@ -174,3 +176,10 @@ class Config:
             "endpoints"              : self.endpoints           ,
             "request_timeout"        : self.request_timeout
         }
+
+    def get_api_version(self):
+        git_command=["git","tag","--points-at", "HEAD"]
+        version = subprocess.check_output(git_command, encoding='UTF-8').strip()
+        if not version:
+            version="Unknown"
+        return version
