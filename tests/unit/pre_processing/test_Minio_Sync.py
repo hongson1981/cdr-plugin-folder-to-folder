@@ -43,4 +43,6 @@ class test_Minio_Sync(TestCase):
         access_toket = ''
         bucket = ''
         retval = self.minio_sync.mount_minio_bucket_as_hd2(url,user,access_toket,bucket)
-        assert retval == "No value"
+        assert retval == Minio_Sync.MINIO_SUCCESSFUL_MOUNT
+        self.minio_sync.umount_minio_hd2()
+
