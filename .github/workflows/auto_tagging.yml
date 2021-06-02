@@ -120,7 +120,7 @@ jobs:
 
                   gh pr edit $pull_number  --add-label $tag_name
 
-                  echo "testing done"
+                  echo "added label to PR"
               fi
               
         env:
