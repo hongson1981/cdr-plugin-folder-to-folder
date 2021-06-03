@@ -1,4 +1,5 @@
 import os
+import subprocess
 import validators
 import logging as logger
 from datetime import datetime
@@ -59,12 +60,16 @@ class Minio_Sync:
 
         passwd_s3fs = temp_file(extension="", contents=f"{user}:{access_token}")
         os.system(f"chmod 600 {passwd_s3fs}")
-        print(f"s3fs {bucket} {self.storage.hd2()} -o passwd_file={passwd_s3fs},use_path_request_style,url={minio_url}")
-        result = os.popen(f"s3fs {bucket} {self.storage.hd2()} -o passwd_file={passwd_s3fs},use_path_request_style,url={minio_url} -o nonempty").read()
+        s3fs_command = f"s3fs {bucket} {self.storage.hd2()} -o passwd_file={passwd_s3fs},use_path_request_style,url={minio_url} -o nonempty"
+        print(s3fs_command)
+        #result = os.popen(s3fs_command).read()
+        result = subprocess.run(["s3fs", f"{bucket}", f"{self.storage.hd2()}", "-o", f"passwd_file={passwd_s3fs},use_path_request_style,url={minio_url}","-o","nonempty"], stdout=subprocess.PIPE)
+        result_str = result.stdout.decode('utf-8')
+        print(f"result {result_str}")
         file_delete(passwd_s3fs)
 
-        if result:
-            return result
+        if result_str:
+            return result_str
         else:
             return Minio_Sync.MINIO_SUCCESSFUL_MOUNT
 
