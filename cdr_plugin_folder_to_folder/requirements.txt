@@ -32,3 +32,6 @@ psutil
 
 # prometheus
 prometheus-client
+
+# validators
+validators

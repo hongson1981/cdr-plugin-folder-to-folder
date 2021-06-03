@@ -44,5 +44,10 @@ class test_Minio_Sync(TestCase):
         bucket = ''
         retval = self.minio_sync.mount_minio_bucket_as_hd2(url,user,access_toket,bucket)
         assert retval == Minio_Sync.INVALID_PARAMETERS
-        #self.minio_sync.umount_minio_hd2()
+
+        user = 'admin'
+        access_toket = 'a-token'
+        bucket = 'a-bucket'
+        retval = self.minio_sync.mount_minio_bucket_as_hd2(url,user,access_toket,bucket)
+        assert retval == Minio_Sync.INVALID_MINIO_URL
 
