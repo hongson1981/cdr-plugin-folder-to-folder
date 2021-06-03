@@ -1,4 +1,4 @@
-#!/bin/bash
+s#!/bin/bash
 set -v -e
 
 pushd $( dirname $0 )
@@ -39,6 +39,7 @@ sudo docker run -d -p 30500:5000 --restart always --name registry registry:2
 cd ~/cdr-plugin-folder-to-folder
 cp .env.sample .env
 echo "PWD=/home/ubuntu/cdr-plugin-folder-to-folder" >> .env
+export CDR_VERSION=$(git tag --points-at HEAD)
 sudo docker-compose up -d --build
 
 
