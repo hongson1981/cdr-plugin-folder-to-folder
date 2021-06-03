@@ -39,6 +39,7 @@ class Minio_Sync:
     MINIO_UMOUNT = "The minio bucket has been unmounted"
     S3FS_NOT_FOUND = "s3fs not found. Install it with `sudo apt-get install s3fs`"
     HD2_NOT_FOUND = "HD2 not found"
+    INVALID_PARAMETERS = "Invalid parameters"
 
     lock = threading.Lock()
 
@@ -54,30 +55,26 @@ class Minio_Sync:
         return cache['s3fs'].is_installed
 
     def mount_minio_bucket_as_hd2(self, minio_url, user, access_token, bucket):
-        retvalue = Minio_Sync.NO_VALUE
-        while True:
-            if not folder_exists(self.storage.hd2()):
-                retvalue = Minio_Sync.HD2_NOT_FOUND
-                break
+        if not folder_exists(self.storage.hd2()):
+            return Minio_Sync.HD2_NOT_FOUND
 
-            if not self.is_s3fs_installed():
-                retvalue = Minio_Sync.S3FS_NOT_FOUND
-                break
+        if not self.is_s3fs_installed():
+            return Minio_Sync.S3FS_NOT_FOUND
 
-            passwd_s3fs = temp_file(extension="", contents=f"{user}:{access_token}")
-            os.system(f"chmod 600 {passwd_s3fs}")
-            print(f"s3fs {bucket} {self.storage.hd2()} -o passwd_file={passwd_s3fs},use_path_request_style,url={minio_url}")
-            result = os.popen(f"s3fs {bucket} {self.storage.hd2()} -o passwd_file={passwd_s3fs},use_path_request_style,url={minio_url} -o nonempty").read()
-            file_delete(passwd_s3fs)
+        if not minio_url or not user or not access_token or not bucket:
+            return Minio_Sync.INVALID_PARAMETERS
 
-            if result:
-                retvalue = result
-            else:
-                retvalue = Minio_Sync.MINIO_SUCCESSFUL_MOUNT
+        passwd_s3fs = temp_file(extension="", contents=f"{user}:{access_token}")
+        os.system(f"chmod 600 {passwd_s3fs}")
+        print(f"s3fs {bucket} {self.storage.hd2()} -o passwd_file={passwd_s3fs},use_path_request_style,url={minio_url}")
+        result = os.popen(f"s3fs {bucket} {self.storage.hd2()} -o passwd_file={passwd_s3fs},use_path_request_style,url={minio_url} -o nonempty").read()
+        file_delete(passwd_s3fs)
 
-            break
+        if result:
+            return result
+        else:
+            return Minio_Sync.MINIO_SUCCESSFUL_MOUNT
 
-        return retvalue
 
     def umount_minio_hd2(self):
         os.system(f"umount -l {self.storage.hd2()}")

@@ -24,6 +24,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r cdr_plugin_folder_to_folder/requirements.txt
           pip install -e .
+      - name: Install s3fs
+        run: sudo apt-get install s3fs
       - name: Run tests with pytest
         run: |
           pytest -v --durations=0 --cov=cdr_plugin_folder_to_folder tests
