@@ -38,7 +38,7 @@ class Minio_Sync:
     MINIO_SUCCESSFUL_MOUNT = "The minio bucket has been mounted"
     MINIO_UMOUNT = "The minio bucket has been unmounted"
     S3FS_NOT_FOUND = "s3fs not found. Install it with `sudo apt-get install s3fs`"
-    HD2_NOT_FOUND = "HD2 not found"
+    HD2_NOT_FOUND = "The mount point for HD2 not found"
     INVALID_PARAMETERS = "Invalid parameters"
 
     lock = threading.Lock()
