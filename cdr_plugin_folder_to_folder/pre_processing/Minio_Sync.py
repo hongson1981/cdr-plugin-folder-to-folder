@@ -54,8 +54,8 @@ class Minio_Sync:
         if not validators.url(minio_url):
             return Minio_Sync.INVALID_MINIO_URL
 
-        if not self.is_s3fs_installed():
-            return Minio_Sync.S3FS_NOT_FOUND
+        # if not self.is_s3fs_installed():
+        #     return Minio_Sync.S3FS_NOT_FOUND
 
         passwd_s3fs = temp_file(extension="", contents=f"{user}:{access_token}")
         os.system(f"chmod 600 {passwd_s3fs}")

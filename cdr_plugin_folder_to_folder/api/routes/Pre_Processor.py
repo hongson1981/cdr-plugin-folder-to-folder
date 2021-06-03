@@ -17,10 +17,10 @@ class DOWNLOAD_URL(BaseModel):
     url        : str = "http:/download.zip"
 
 class MINIO_DESCRIPTOR(BaseModel):
-    url          : str = "http:/sample-minio-url:9000"
+    url          : str = "http://sample-minio-url:9000"
     user         : str = "sample-user"
     access_token : str = "sample-token"
-    bucket       : str = "sample-backet"
+    bucket       : str = "sample-bucket"
 
 @router.post("/pre-process")
 def pre_process_hd1_data_to_hd2(thread_count:int=DEFAULT_THREAD_COUNT):
