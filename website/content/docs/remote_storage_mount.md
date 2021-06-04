@@ -1,6 +1,6 @@
 ---
 title: Remote Storage Mount
-weight: 10
+weight: 11
 --- 
 
 # S3 Mount
