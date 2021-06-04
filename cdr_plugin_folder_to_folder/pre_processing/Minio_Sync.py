@@ -60,10 +60,10 @@ class Minio_Sync:
 
         passwd_s3fs = temp_file(extension="", contents=f"{user}:{access_token}")
         os.system(f"chmod 600 {passwd_s3fs}")
-        s3fs_command = f"s3fs {bucket} {self.storage.hd2()} -o passwd_file={passwd_s3fs},use_path_request_style,url={minio_url} -o nonempty"
+        s3fs_command = f"s3fs {bucket} {self.storage.hd2()} -o passwd_file={passwd_s3fs},use_path_request_style,url={minio_url},nonempty"
         print(s3fs_command)
         #result = os.popen(s3fs_command).read()
-        result = subprocess.run(["s3fs", f"{bucket}", f"{self.storage.hd2()}", "-o", f"passwd_file={passwd_s3fs},use_path_request_style,url={minio_url}","-o","nonempty"], stdout=subprocess.PIPE)
+        result = subprocess.run(["s3fs", f"{bucket}", f"{self.storage.hd2()}", "-o", f"passwd_file={passwd_s3fs},use_path_request_style,url={minio_url},nonempty"], stdout=subprocess.PIPE)
         result_str = result.stdout.decode('utf-8')
         print(f"result {result_str}")
         file_delete(passwd_s3fs)
