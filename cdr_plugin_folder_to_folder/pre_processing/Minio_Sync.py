@@ -27,6 +27,7 @@ class Minio_Sync:
     NO_VALUE = "None"
     MINIO_SUCCESSFUL_MOUNT = "The minio bucket has been mounted"
     MINIO_UMOUNT = "The minio bucket has been unmounted"
+    NO_BUCKET_MOUNTED = "No bucket is currently mounted"
     S3FS_NOT_FOUND = "s3fs not found. Install it with `sudo apt-get install s3fs`"
     HD2_NOT_FOUND = "The mount point for HD2 not found"
     INVALID_PARAMETERS = "Invalid parameters"
@@ -58,15 +59,19 @@ class Minio_Sync:
         # if not self.is_s3fs_installed():
         #     return Minio_Sync.S3FS_NOT_FOUND
 
+        hd2_mount_path = self.status.get_hd2_mount_path()
+        hd2_remote_path = self.status.get_hd2_remote_bucket()
+        if hd2_mount_path:
+            return f"Currently {hd2_remote_path} is mounted at {hd2_mount_path}."
+
         passwd_s3fs = temp_file(extension="", contents=f"{user}:{access_token}")
         os.system(f"chmod 600 {passwd_s3fs}")
         s3fs_command = f"s3fs {bucket} {self.storage.hd2()} -o passwd_file={passwd_s3fs},use_path_request_style,url={minio_url},nonempty"
-        print(s3fs_command)
-        #result = os.popen(s3fs_command).read()
         result = subprocess.run(["s3fs", f"{bucket}", f"{self.storage.hd2()}", "-o", f"passwd_file={passwd_s3fs},use_path_request_style,url={minio_url},nonempty"], stdout=subprocess.PIPE)
         result_str = result.stdout.decode('utf-8')
-        print(f"result {result_str}")
         file_delete(passwd_s3fs)
+
+        self.status.update_hd2_mount_data(self.storage.hd2(),f"{minio_url}/{bucket}")
 
         if result_str:
             return result_str
@@ -75,5 +80,12 @@ class Minio_Sync:
 
 
     def umount_minio_hd2(self):
-        os.system(f"umount -l {self.storage.hd2()}")
+        hd2_mount_path = self.status.get_hd2_mount_path()
+        #hd2_remote_path = self.status.get_hd2_remote_bucket()
+
+        if not hd2_mount_path:
+            return Minio_Sync.NO_BUCKET_MOUNTED
+
+        os.system(f"umount -l {hd2_mount_path}")
+        self.status.update_hd2_mount_data()
         return Minio_Sync.MINIO_UMOUNT

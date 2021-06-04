@@ -40,6 +40,8 @@ class Status:
     VAR_FILES_COPIED             = "files_copied"
     VAR_FILES_TO_BE_COPIED       = "files_left_to_be_copied"
     VAR_IN_PROGRESS              = "in_progress"
+    VAR_HD2_MOUNT_PATH           = "HD2 mount path"
+    VAR_HD2_REMOTE_BUCKET        = "HD2 remote bucket"
     VAR_NUMBER_OF_CPUS           = "number_of_cpus"
     VAR_CPU_UTILIZATION          = "cpu_utilization"
     VAR_RAM_UTILIZATION          = "memory_utilization"
@@ -103,6 +105,8 @@ class Status:
                     Status.VAR_NOT_SUPPORTED          : 0               ,
                     Status.VAR_FAILED                 : 0               ,
                     Status.VAR_IN_PROGRESS            : 0               ,
+                    Status.VAR_HD2_MOUNT_PATH         : None            ,
+                    Status.VAR_HD2_REMOTE_BUCKET      : None            ,
                     Status.VAR_NUMBER_OF_CPUS         : psutil.cpu_count()            ,
                     Status.VAR_CPU_UTILIZATION        : None            ,
                     Status.VAR_RAM_UTILIZATION        : None            ,
@@ -167,6 +171,24 @@ class Status:
 
         self._status_data[Status.VAR_DISK_PARTITIONS]     = len(psutil.disk_partitions())
 
+    def update_hd2_mount_data(self, hd2_mount_path = None, hd2_remote_bucket = None):
+        Status.lock.acquire()
+        try:
+            data = self.data()
+
+            data[Status.VAR_HD2_MOUNT_PATH] = hd2_mount_path
+            data[Status.VAR_HD2_REMOTE_BUCKET] = hd2_remote_bucket
+        finally:
+            Status.lock.release()
+            self.save()
+
+        return self
+
+    def get_hd2_mount_path(self):
+        return self._status_data[Status.VAR_HD2_MOUNT_PATH]
+
+    def get_hd2_remote_bucket(self):
+        return self._status_data[Status.VAR_HD2_REMOTE_BUCKET]
 
     def get_server_status(self):
         Status.lock.acquire()
