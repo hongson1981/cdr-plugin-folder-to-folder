@@ -73,6 +73,7 @@ class Minio_Sync:
 
         self.status.update_hd2_mount_data(self.storage.hd2(),f"{minio_url}/{bucket}")
 
+
         if result_str:
             return result_str
         else:
