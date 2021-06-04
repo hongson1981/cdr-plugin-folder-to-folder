@@ -52,6 +52,7 @@ services:
         - 'es01'
       command: ["./wait-for-it.sh", "es01:9200", "--", "python", "cdr_plugin_folder_to_folder/api/Server.py"]
       restart: always
+      privileged: true
 
   # Website
   website:
