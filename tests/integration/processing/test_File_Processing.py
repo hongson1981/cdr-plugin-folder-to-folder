@@ -87,7 +87,7 @@ class test_File_Processing(Temp_Config):
 
         metadata.load()
         # assert metadata.data.get('xml_report_status'      ) == 'Obtained'
-        # assert metadata.data.get('file_name'              ) == self.test_file_name
+        assert metadata.data.get('file_name'              ) == self.test_file_name
         assert metadata.data.get('rebuild_server'         ) == endpoint
         assert metadata.data.get('server_version'         ).startswith('Engine:1.157 API:0.1.1')
         assert metadata.data.get('error'                  ) is None
@@ -119,7 +119,7 @@ class test_File_Processing(Temp_Config):
         pprint(metadata.load())
 
         # assert metadata.data.get('xml_report_status'      ) == 'Obtained'
-        # assert metadata.data.get('file_name'              ) == self.test_file_name
+        assert metadata.data.get('file_name'              ) == self.test_file_name
         assert metadata.data.get('rebuild_server'         ) == endpoint
         assert metadata.data.get('server_version'         ).startswith('Engine:1.157 API:0.1.1')
         assert metadata.data.get('error'                  ) is None
@@ -127,7 +127,7 @@ class test_File_Processing(Temp_Config):
         assert metadata.data.get('original_file_size'     ) == 755
         assert metadata.data.get('original_file_extension') == '.pdf'
         assert metadata.data.get('rebuild_status'         ) == 'Initial'
-        assert metadata.data.get('rebuild_file_extension' ) == 'pdf'
+        # assert metadata.data.get('rebuild_file_extension' ) == 'pdf'
         assert metadata.data.get('rebuild_file_size'      ) == 1267
 
     def test_do_rebuild_with_exception(self):
