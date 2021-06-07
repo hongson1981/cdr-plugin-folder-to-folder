@@ -61,46 +61,52 @@ class Pre_Processor:
 
     @log_duration
     def clear_data_and_status_folders(self):
-        data_target      = self.storage.hd2_data()       # todo: refactor this clean up to the storage class
-        status_target    = self.storage.hd2_status()
-        processed_target = self.storage.hd2_processed()
-        not_supported_target = self.storage.hd2_not_supported()
-        folder_delete_all(data_target)
-        folder_delete_all(status_target)
-        folder_delete_all(processed_target)
-        folder_delete_all(not_supported_target)
-        folder_create(data_target)
-        folder_create(status_target)
-        folder_create(processed_target)
-        folder_create(not_supported_target)
-        self.status.reset()
-        self.clean_elastic_data()
+        Pre_Processor.lock.acquire()
+        try:
+            data_target      = self.storage.hd2_data()       # todo: refactor this clean up to the storage class
+            status_target    = self.storage.hd2_status()
+            processed_target = self.storage.hd2_processed()
+            not_supported_target = self.storage.hd2_not_supported()
+            folder_delete_all(data_target)
+            folder_delete_all(status_target)
+            folder_delete_all(processed_target)
+            folder_delete_all(not_supported_target)
+            folder_create(data_target)
+            folder_create(status_target)
+            folder_create(processed_target)
+            folder_create(not_supported_target)
+            self.status.reset()
+            self.clean_elastic_data()
+        finally:
+            Pre_Processor.lock.release()
 
     @log_duration
     def mark_all_hd2_files_unprocessed(self):
-        print(f'mark_all_hd2_files_unprocessed {self.status.get_current_status()}')
+        Pre_Processor.lock.acquire()
+        try:
+            if Processing_Status.NONE != self.status.get_current_status() and \
+            Processing_Status.STOPPED != self.status.get_current_status():
+                # do nothing if the processing has not been completed
+                return
 
-        if Processing_Status.NONE != self.status.get_current_status() and \
-           Processing_Status.STOPPED != self.status.get_current_status():
-            # do nothing if the processing has not been completed
-            return
+            for key in os.listdir(self.storage.hd2_not_supported()):
+                source_path = self.storage.hd2_not_supported(key)
+                destination_path = self.storage.hd2_data(key)
+                if folder_exists(destination_path):
+                    folder_delete_all(destination_path)
+                shutil.move(source_path, destination_path)
 
-        for key in os.listdir(self.storage.hd2_not_supported()):
-            source_path = self.storage.hd2_not_supported(key)
-            destination_path = self.storage.hd2_data(key)
-            if folder_exists(destination_path):
-                folder_delete_all(destination_path)
-            shutil.move(source_path, destination_path)
+            for key in os.listdir(self.storage.hd2_processed()):
+                source_path = self.storage.hd2_processed(key)
+                destination_path = self.storage.hd2_data(key)
+                if folder_exists(destination_path):
+                    folder_delete_all(destination_path)
+                shutil.move(source_path, destination_path)
 
-        for key in os.listdir(self.storage.hd2_processed()):
-            source_path = self.storage.hd2_processed(key)
-            destination_path = self.storage.hd2_data(key)
-            if folder_exists(destination_path):
-                folder_delete_all(destination_path)
-            shutil.move(source_path, destination_path)
-
-        self.status.reset_phase2()
-        reset_data_folder_to_the_initial_state()
+            self.status.reset_phase2()
+            reset_data_folder_to_the_initial_state()
+        finally:
+            Pre_Processor.lock.release()
 
     def file_hash(self, file_path):
         return self.meta_service.file_hash(file_path)
