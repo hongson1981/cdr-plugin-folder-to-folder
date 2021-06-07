@@ -1,37 +1,37 @@
 version:  '3.3'
 services:
-  # # Jupyter
-  # jupyter:
-  #     image: cdr_plugin_folder_to_folder_notebooks
-  #     build:
-  #       dockerfile: ${PWD}/jupyter/Dockerfile
-  #       context: ${PWD}/jupyter
-  #     volumes:
-  #       - ${PWD}/jupyter/notebooks:/home/jovyan/work
-  #       - ${PWD}/test_data:/home/jovyan/test_data
-  #       - ${HOST_HD1_LOCATION}:/home/jovyan/data/hd1
-  #       - ${HOST_HD2_LOCATION}:/home/jovyan/data/hd2
-  #       - ${HOST_HD3_LOCATION}:/home/jovyan/data/hd3
-  #     ports:
-  #       - 8888:8888
-  #     container_name: jupyter_notebook
-  #     restart: always
-  #     command: "start-notebook.sh \
-  #                --NotebookApp.token=${ACCESS_TOKEN} \
-  #                --NotebookApp.tornado_settings=\"{'headers':{'Content-Security-Policy': 'frame-ancestors http://localhost:*'}}\""
+  # Jupyter
+  jupyter:
+      image: cdr_plugin_folder_to_folder_notebooks
+      build:
+        dockerfile: ${PWD}/jupyter/Dockerfile
+        context: ${PWD}/jupyter
+      volumes:
+        - ${PWD}/jupyter/notebooks:/home/jovyan/work
+        - ${PWD}/test_data:/home/jovyan/test_data
+        - ${HOST_HD1_LOCATION}:/home/jovyan/data/hd1
+        - ${HOST_HD2_LOCATION}:/home/jovyan/data/hd2
+        - ${HOST_HD3_LOCATION}:/home/jovyan/data/hd3
+      ports:
+        - 8888:8888
+      container_name: jupyter_notebook
+      restart: always
+      command: "start-notebook.sh \
+                 --NotebookApp.token=${ACCESS_TOKEN} \
+                 --NotebookApp.tornado_settings=\"{'headers':{'Content-Security-Policy': 'frame-ancestors http://localhost:*'}}\""
 
-  # # Voila (Viewer for Jupyter pages)
-  # voila:
-  #     image: cdr_plugin_folder_to_folder_notebooks
-  #     volumes:
-  #       - ${PWD}/jupyter/notebooks:/home/jovyan/work
-  #     ports:
-  #       - 8866:8866
-  #     container_name: jupyter_voila
-  #     restart: always
-  #     command: "voila --VoilaConfiguration.show_tracebacks=True --Voila.tornado_settings=\"{'headers':{'Content-Security-Policy': 'frame-ancestors http://localhost:*'}}\" "
-  #     depends_on:
-  #       - "jupyter"
+  # Voila (Viewer for Jupyter pages)
+  voila:
+      image: cdr_plugin_folder_to_folder_notebooks
+      volumes:
+        - ${PWD}/jupyter/notebooks:/home/jovyan/work
+      ports:
+        - 8866:8866
+      container_name: jupyter_voila
+      restart: always
+      command: "voila --VoilaConfiguration.show_tracebacks=True --Voila.tornado_settings=\"{'headers':{'Content-Security-Policy': 'frame-ancestors http://localhost:*'}}\" "
+      depends_on:
+        - "jupyter"
 
 # Fast API
 
@@ -53,19 +53,19 @@ services:
       command: ["./wait-for-it.sh", "es01:9200", "--", "python", "cdr_plugin_folder_to_folder/api/Server.py"]
       restart: always
 
-  # # Website
-  # website:
-  #   image: cdr_plugin_folder_to_folder_website
-  #   build:
-  #     dockerfile: ${PWD}/website/Dockerfile
-  #     context: ${PWD}/website
-  #   volumes:
-  #     - ${PWD}/website/site:/src/site
-  #     - ${PWD}/website/content:/src/site/content
-  #     - ${PWD}/website/data:/src/site/data
-  #   ports:
-  #     - 1313:1313
-  #   restart: always
+  # Website
+  website:
+    image: cdr_plugin_folder_to_folder_website
+    build:
+      dockerfile: ${PWD}/website/Dockerfile
+      context: ${PWD}/website
+    volumes:
+      - ${PWD}/website/site:/src/site
+      - ${PWD}/website/content:/src/site/content
+      - ${PWD}/website/data:/src/site/data
+    ports:
+      - 1313:1313
+    restart: always
 
   # Elastic and Kibana
 
