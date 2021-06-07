@@ -18,26 +18,26 @@ class DOWNLOAD_URL(BaseModel):
 @router.post("/pre-process")
 def pre_process_hd1_data_to_hd2(thread_count:int=DEFAULT_THREAD_COUNT):
     pre_processor = Pre_Processor()
-    pre_processor.process_hd1_files(thread_count)
-    return {"Processing is done"}                   # todo: refactor to use status_ok helper methods (as seen in clear_data_and_status_folders )
+    status_message = pre_processor.process_hd1_files(thread_count)
+    return status_ok(message=status_message)
 
 @router.post("/clear-data-and-status")
 def clear_data_and_status_folders():
     pre_processor = Pre_Processor()
-    pre_processor.clear_data_and_status_folders()
-    return status_ok(message="Data cleared from HD2")
+    status_message = pre_processor.clear_data_and_status_folders()
+    return status_ok(message=status_message)
 
 @router.post("/mark-all-hd2-files-unprocessed")
-def clear_data_and_status_folders():
+def mark_all_hd2_files_unprocessed():
     pre_processor = Pre_Processor()
-    pre_processor.mark_all_hd2_files_unprocessed()
-    return status_ok(message="HD2 data restored to the initial state")
+    status_message = pre_processor.mark_all_hd2_files_unprocessed()
+    return status_ok(message=status_message)
 
 @router.post("/pre_process_folder")
 def pre_process_a_folder(item: DIRECTORY):
     pre_processor = Pre_Processor()
-    pre_processor.process_folder(folder_to_process=item.folder)
-    return status_ok(message="Directory added")
+    status_message = pre_processor.process_folder(folder_to_process=item.folder)
+    return status_ok(message=status_message)
 
 @router.post("/download_and_pre_process_a_zip_file")
 def download_and_pre_process_a_zip_file(item: DOWNLOAD_URL):

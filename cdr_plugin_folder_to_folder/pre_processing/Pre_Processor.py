@@ -67,52 +67,63 @@ class Pre_Processor:
 
     @log_duration
     def clear_data_and_status_folders(self):
-        Pre_Processor.lock.acquire()
-        try:
-            data_target      = self.storage.hd2_data()       # todo: refactor this clean up to the storage class
-            status_target    = self.storage.hd2_status()
-            processed_target = self.storage.hd2_processed()
-            not_supported_target = self.storage.hd2_not_supported()
-            folder_delete_all(data_target)
-            folder_delete_all(status_target)
-            folder_delete_all(processed_target)
-            folder_delete_all(not_supported_target)
-            folder_create(data_target)
-            folder_create(status_target)
-            folder_create(processed_target)
-            folder_create(not_supported_target)
-            self.status.reset()
-            self.clean_elastic_data()
-        finally:
-            Pre_Processor.lock.release()
+
+        if self.ThreadStopping():
+            return "HD1 watcher thread is stopping. Try later"
+
+        if self.ThreadRunning():
+            return "HD1 watcher thread is running. Stop it first"
+
+        data_target      = self.storage.hd2_data()       # todo: refactor this clean up to the storage class
+        status_target    = self.storage.hd2_status()
+        processed_target = self.storage.hd2_processed()
+        not_supported_target = self.storage.hd2_not_supported()
+        folder_delete_all(data_target)
+        folder_delete_all(status_target)
+        folder_delete_all(processed_target)
+        folder_delete_all(not_supported_target)
+        folder_create(data_target)
+        folder_create(status_target)
+        folder_create(processed_target)
+        folder_create(not_supported_target)
+        self.status.reset()
+        self.clean_elastic_data()
+
+        return "Data cleared from HD2"
 
     @log_duration
     def mark_all_hd2_files_unprocessed(self):
-        Pre_Processor.lock.acquire()
-        try:
-            if Processing_Status.NONE != self.status.get_current_status() and \
-            Processing_Status.STOPPED != self.status.get_current_status():
-                # do nothing if the processing has not been completed
-                return
 
-            for key in os.listdir(self.storage.hd2_not_supported()):
-                source_path = self.storage.hd2_not_supported(key)
-                destination_path = self.storage.hd2_data(key)
-                if folder_exists(destination_path):
-                    folder_delete_all(destination_path)
-                shutil.move(source_path, destination_path)
+        if self.ThreadStopping():
+            return "HD1 watcher thread is stopping. Try later"
 
-            for key in os.listdir(self.storage.hd2_processed()):
-                source_path = self.storage.hd2_processed(key)
-                destination_path = self.storage.hd2_data(key)
-                if folder_exists(destination_path):
-                    folder_delete_all(destination_path)
-                shutil.move(source_path, destination_path)
+        if self.ThreadRunning():
+            return "HD1 watcher thread is running. Stop it first"
 
-            self.status.reset_phase2()
-            reset_data_folder_to_the_initial_state()
-        finally:
-            Pre_Processor.lock.release()
+        if Processing_Status.NONE != self.status.get_current_status() and \
+        Processing_Status.STOPPED != self.status.get_current_status():
+            # do nothing if the processing has not been completed
+            return
+
+        for key in os.listdir(self.storage.hd2_not_supported()):
+            source_path = self.storage.hd2_not_supported(key)
+            destination_path = self.storage.hd2_data(key)
+            if folder_exists(destination_path):
+                folder_delete_all(destination_path)
+            shutil.move(source_path, destination_path)
+
+        for key in os.listdir(self.storage.hd2_processed()):
+            source_path = self.storage.hd2_processed(key)
+            destination_path = self.storage.hd2_data(key)
+            if folder_exists(destination_path):
+                folder_delete_all(destination_path)
+            shutil.move(source_path, destination_path)
+
+        self.status.reset_phase2()
+        reset_data_folder_to_the_initial_state()
+
+        return "HD2 data restored to the initial state"
+
 
     def file_hash(self, file_path):
         return self.meta_service.file_hash(file_path)
@@ -163,10 +174,15 @@ class Pre_Processor:
         pool.close()
         pool.join()
 
-        #self.status.reset_phase2()
-        return True
+        return f"Directory {folder_to_process} added"
 
     def process_hd1_files(self, thread_count = DEFAULT_THREAD_COUNT):
+
+        if self.ThreadStopping():
+            return "HD1 watcher thread is stopping. Try later"
+
+        if self.ThreadRunning():
+            return "HD1 watcher thread is running. Stop it first"
 
         self.status.StartStatusThread()
         self.status.set_phase_1()
@@ -175,6 +191,8 @@ class Pre_Processor:
 
         self.status.StopStatusThread()
         self.status.set_phase_2()
+
+        return "Processing is done"
 
     @log_duration
     def process(self, thread_data):
