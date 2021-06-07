@@ -145,11 +145,6 @@ class Pre_Processor:
 
     @log_duration
     def process_folder(self, folder_to_process, thread_count = DEFAULT_THREAD_COUNT):
-        if self.ThreadStopping():
-            return "HD1 watcher thread is stopping. Try later"
-
-        if self.ThreadRunning():
-            return "HD1 watcher thread is running. Stop it first"
 
         if not os.path.isdir(folder_to_process):
             # todo: add an event log
@@ -181,6 +176,15 @@ class Pre_Processor:
         pool.join()
 
         return f"Directory {folder_to_process} added"
+
+    def process_folder_api(self, folder_to_process, thread_count = DEFAULT_THREAD_COUNT):
+        if self.ThreadStopping():
+            return "HD1 watcher thread is stopping. Try later"
+
+        if self.ThreadRunning():
+            return "HD1 watcher thread is running. Stop it first"
+
+        return self.process_folder(folder_to_process, thread_count)
 
     def process_hd1_files(self, thread_count = DEFAULT_THREAD_COUNT):
 
@@ -234,6 +238,12 @@ class Pre_Processor:
             self.status.set_not_copied()
 
     def process_downloaded_zip_file(self, url):
+        if self.ThreadStopping():
+            return "HD1 watcher thread is stopping. Try later"
+
+        if self.ThreadRunning():
+            return "HD1 watcher thread is running. Stop it first"
+
         retvalue = "No value"
         directory_name = url.replace('/', '_').replace(':', '').replace('.','_')
         zip_file_name = directory_name + '.zip'

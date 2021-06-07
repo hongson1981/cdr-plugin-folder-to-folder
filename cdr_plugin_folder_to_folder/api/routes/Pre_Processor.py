@@ -48,7 +48,7 @@ def mark_all_hd2_files_unprocessed():
 @router.post("/pre_process_folder")
 def pre_process_a_folder(item: DIRECTORY):
     pre_processor = Pre_Processor()
-    status_message = pre_processor.process_folder(folder_to_process=item.folder)
+    status_message = pre_processor.process_folder_api(folder_to_process=item.folder)
     return status_ok(message=status_message)
 
 @router.post("/download_and_pre_process_a_zip_file")
