@@ -77,14 +77,14 @@ class test_Pre_Processor(TestCase):
         folder_delete_all(folder_to_process)
         self.pre_processor.clear_data_and_status_folders()
 
-    def test_process_files(self):
+    def test_process_hd1_files(self):
         path_data   = self.pre_processor.storage.hd2_data()
         path_status = self.pre_processor.storage.hd2_status()
 
         assert len(files_list(path_data   )) == 0
         assert len(files_list(path_status )) == 1       # should have the status.json file
 
-        self.pre_processor.process_files()
+        self.pre_processor.process_hd1_files()
 
         pprint('**********: DATA')
         pprint(files_list(path_data  ))

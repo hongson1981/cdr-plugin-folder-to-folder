@@ -149,7 +149,7 @@ class test_Status(Temp_Config):
 
         pre_proocessor = Pre_Processor()
         pre_proocessor.config = temp_config.config
-        pre_proocessor.process_files()
+        pre_proocessor.process_hd1_files()
 
         data = self.status.data()
         assert data[Status.VAR_CURRENT_STATUS] == Processing_Status.PHASE_2

@@ -4,6 +4,7 @@ import zipfile
 import shutil
 import logging as logger
 from datetime import datetime
+from time import sleep
 
 from osbot_utils.utils.Files import folder_create, folder_delete_all, folder_copy, \
     path_combine, file_delete, file_exists, folder_exists
@@ -31,6 +32,10 @@ logger.basicConfig(level=logger.INFO)
 
 class Pre_Processor:
 
+    THREAD_STOPPED      = 0
+    THREAD_STOPPING     = 1
+    THREAD_RUNNIG       = 2
+
     lock = threading.Lock()
 
     _instance = None
@@ -46,11 +51,12 @@ class Pre_Processor:
             self.meta_service   = Metadata_Service()
             self.status         = Status()
             self.storage        = Storage()
-            self.file_name      = None                              # set in process() method
             self.current_path   = None
             self.base_folder    = None
             self.dst_folder     = None
             self.dst_file_name  = None
+            self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPED
+            self.pre_processing_thread = threading.Thread()
 
     def clean_elastic_data(self):
         metadata_elastic = Metadata_Elastic()
@@ -150,7 +156,6 @@ class Pre_Processor:
             for filename in filenames:
                 file_path =  os.path.join(folderName, filename)
                 if os.path.isfile(file_path):
-                    #self.process((file_path, ))
                     thread_data.append((file_path, ))
 
         pool = ThreadPool(thread_count)
@@ -161,7 +166,7 @@ class Pre_Processor:
         #self.status.reset_phase2()
         return True
 
-    def process_files(self, thread_count = DEFAULT_THREAD_COUNT):
+    def process_hd1_files(self, thread_count = DEFAULT_THREAD_COUNT):
         self.status.StartStatusThread()
         self.status.set_phase_1()
         self.process_folder(self.storage.hd1(), thread_count)
@@ -225,6 +230,28 @@ class Pre_Processor:
 
         return retvalue
 
+    def ThreadStopped  (self): return (Pre_Processor.THREAD_STOPPED  == self.pre_processing_thread_status)
+    def ThreadStopping (self): return (Pre_Processor.THREAD_STOPPING == self.pre_processing_thread_status)
+    def ThreadRunning  (self): return (Pre_Processor.THREAD_RUNNIG   == self.pre_processing_thread_status)
+
+    def PreProcessingThread(self, update_interval):
+        while self.ThreadRunning():
+            self.process_hd1_files()
+            sleep(update_interval)
+
+    def StartPreProcessingThread(self):
+        if self.ThreadRunning():
+            return
+
+        self.pre_processing_thread_status = Pre_Processor.THREAD_RUNNIG
+        self.pre_processing_thread = threading.Thread(target=self.PreProcessingThread, args=(10,))
+        self.pre_processing_thread.start()
+
+    def StopPreProcessingThread(self):
+        self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPING
+        self.pre_processing_thread.join()
+        self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPED
+
 def reset_data_folder_to_the_initial_state():
 
     storage = Storage()
@@ -259,6 +286,5 @@ def reset_data_folder_to_the_initial_state():
         errors_json_path = path_combine(metadata_folder, "error.json")
         if file_exists(errors_json_path):
             file_delete(errors_json_path)
-
 
     return True

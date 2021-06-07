@@ -18,7 +18,7 @@ class DOWNLOAD_URL(BaseModel):
 @router.post("/pre-process")
 def pre_process_hd1_data_to_hd2(thread_count:int=DEFAULT_THREAD_COUNT):
     pre_processor = Pre_Processor()
-    pre_processor.process_files(thread_count)
+    pre_processor.process_hd1_files(thread_count)
     return {"Processing is done"}                   # todo: refactor to use status_ok helper methods (as seen in clear_data_and_status_folders )
 
 @router.post("/clear-data-and-status")
