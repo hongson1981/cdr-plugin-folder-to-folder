@@ -33,16 +33,24 @@ class Pre_Processor:
 
     lock = threading.Lock()
 
+    _instance = None
+    def __new__(cls):                                               # singleton pattern
+        if cls._instance is None:
+            cls._instance = super(Pre_Processor, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self):
-        self.config         = Config()
-        self.meta_service   = Metadata_Service()
-        self.status         = Status()
-        self.storage        = Storage()
-        self.file_name      = None                              # set in process() method
-        self.current_path   = None
-        self.base_folder    = None
-        self.dst_folder     = None
-        self.dst_file_name  = None
+        if hasattr(self, 'instantiated') is False:                  # only set these values first time around
+            self.instantiated   = True
+            self.config         = Config()
+            self.meta_service   = Metadata_Service()
+            self.status         = Status()
+            self.storage        = Storage()
+            self.file_name      = None                              # set in process() method
+            self.current_path   = None
+            self.base_folder    = None
+            self.dst_folder     = None
+            self.dst_file_name  = None
 
     def clean_elastic_data(self):
         metadata_elastic = Metadata_Elastic()
@@ -172,9 +180,6 @@ class Pre_Processor:
 
         original_hash  = metadata.get_original_hash()
         status         = metadata.get_rebuild_status()
-
-        if status == FileStatus.INITIAL:
-            self.status.add_file()
 
         tok   = datetime.now()
         delta = tok - tik

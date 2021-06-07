@@ -54,26 +54,35 @@ class Metadata:
             else:
                 self.create(file_path)
             self.add_file_path(file_path)
+            self.process_status.decrease_to_be_copied()
             self.save()
             return self.file_hash
 
     def add_file_path(self, file_path:str):
         if self.file_hash:
+
+            if file_path.startswith(self.path_hd1):                         # check if path starts with hd1
+                file_path = os.path.relpath(file_path, self.path_hd1)
+
             file_paths = self.data.get('original_file_paths')
+            if file_path in file_paths:
+                return file_paths                                           # we already have the file there - just ruturn the paths
+
             if 0 == len(file_paths):
                 self.process_status.add_to_be_processed()
             else:
                 self.process_status.add_duplicate_files()
-            if file_path.startswith(self.path_hd1):                         # check if path starts with hd1
-                file_path = os.path.relpath(file_path, self.path_hd1)
+
             if file_path not in file_paths:
                 file_paths.append(file_path)
+
             return file_paths
 
     def create(self, file_path):
         if self.file_hash:
             folder_create(self.metadata_folder_path())
             file_copy    (file_path, self.source_file_path())
+            self.process_status.add_copied_file()
             self.set_original_file_size     (file_path)
             self.set_original_file_extension(file_path)
             self.set_original_file_name     (file_path)

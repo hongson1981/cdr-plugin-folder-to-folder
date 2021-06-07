@@ -112,7 +112,7 @@ class test_Status(Temp_Config):
             assert status.add_failed()
             assert status.get_failed() == i
 
-            assert status.add_file()
+            assert status.add_copied_file()
             assert status.get_files_copied() == i
 
             assert status.add_in_progress()
