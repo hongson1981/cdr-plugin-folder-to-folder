@@ -145,9 +145,15 @@ class Pre_Processor:
 
     @log_duration
     def process_folder(self, folder_to_process, thread_count = DEFAULT_THREAD_COUNT):
+        if self.ThreadStopping():
+            return "HD1 watcher thread is stopping. Try later"
+
+        if self.ThreadRunning():
+            return "HD1 watcher thread is running. Stop it first"
+
         if not os.path.isdir(folder_to_process):
             # todo: add an event log
-           return False
+           return f"{folder_to_process} is not a directory"
 
         folder_to_process = self.prepare_folder(folder_to_process)
 
