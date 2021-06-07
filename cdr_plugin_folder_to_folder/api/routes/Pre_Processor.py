@@ -15,6 +15,18 @@ class DIRECTORY(BaseModel):
 class DOWNLOAD_URL(BaseModel):
     url        : str = "http:/download.zip"
 
+@router.post("/start-hd1-watcher-thread")
+def start_hd1_watcher_thread():
+    pre_processor = Pre_Processor()
+    status_message = pre_processor.StartHD1WatcherThread()
+    return status_ok(message=status_message)
+
+@router.post("/stop-hd1-watcher-thread")
+def stop_hd1_watcher_thread():
+    pre_processor = Pre_Processor()
+    status_message = pre_processor.StopHD1WatherThread()
+    return status_ok(message=status_message)
+
 @router.post("/pre-process")
 def pre_process_hd1_data_to_hd2(thread_count:int=DEFAULT_THREAD_COUNT):
     pre_processor = Pre_Processor()
@@ -44,4 +56,5 @@ def download_and_pre_process_a_zip_file(item: DOWNLOAD_URL):
     pre_processor = Pre_Processor()
     status_message = pre_processor.process_downloaded_zip_file(url=item.url)
     return status_ok(message=status_message)
+
 

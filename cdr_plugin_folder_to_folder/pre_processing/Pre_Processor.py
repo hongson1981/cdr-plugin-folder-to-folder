@@ -260,7 +260,7 @@ class Pre_Processor:
             self.process_folder(self.storage.hd1(), self.config.thread_count)
             sleep(update_interval)
 
-    def StartPreProcessingThread(self):
+    def StartHD1WatcherThread(self):
         if self.ThreadRunning():
             return
 
@@ -271,13 +271,18 @@ class Pre_Processor:
         self.pre_processing_thread = threading.Thread(target=self.PreProcessingThread, args=(10,))
         self.pre_processing_thread.start()
 
-    def StopPreProcessingThread(self):
+        return "HD1 Watcher thread has been started"
+
+    def StopHD1WatherThread(self):
         self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPING
         self.pre_processing_thread.join()
         self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPED
 
         self.status.StopStatusThread()
         self.status.set_phase_2()
+
+        return "HD1 Watcher thread has been stopped"
+
 
 def reset_data_folder_to_the_initial_state():
 
