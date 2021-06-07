@@ -167,11 +167,14 @@ class Pre_Processor:
         return True
 
     def process_hd1_files(self, thread_count = DEFAULT_THREAD_COUNT):
+
         self.status.StartStatusThread()
         self.status.set_phase_1()
+
         self.process_folder(self.storage.hd1(), thread_count)
-        self.status.set_phase_2()
+
         self.status.StopStatusThread()
+        self.status.set_phase_2()
 
     @log_duration
     def process(self, thread_data):
@@ -236,12 +239,15 @@ class Pre_Processor:
 
     def PreProcessingThread(self, update_interval):
         while self.ThreadRunning():
-            self.process_hd1_files()
+            self.process_folder(self.storage.hd1(), self.config.thread_count)
             sleep(update_interval)
 
     def StartPreProcessingThread(self):
         if self.ThreadRunning():
             return
+
+        self.status.StartStatusThread()
+        self.status.set_phase_1()
 
         self.pre_processing_thread_status = Pre_Processor.THREAD_RUNNIG
         self.pre_processing_thread = threading.Thread(target=self.PreProcessingThread, args=(10,))
@@ -251,6 +257,9 @@ class Pre_Processor:
         self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPING
         self.pre_processing_thread.join()
         self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPED
+
+        self.status.StopStatusThread()
+        self.status.set_phase_2()
 
 def reset_data_folder_to_the_initial_state():
 
