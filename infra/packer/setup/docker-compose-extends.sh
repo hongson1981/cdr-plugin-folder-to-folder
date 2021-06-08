@@ -42,7 +42,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 #sudo docker-compose up -d --build
 cp .env.sample .env
 echo "PWD=/home/ubuntu/cdr-plugin-folder-to-folder" >> .env
-docker-compose up -d
+sudo docker-compose up -d
 # install vmware tools
 sudo apt install open-vm-tools
 sudo apt install open-vm-tools-desktop -y
