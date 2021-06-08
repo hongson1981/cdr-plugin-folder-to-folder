@@ -1,8 +1,8 @@
 services: 
   web: 
     extends: 
-      file: promethgrafana-compose.yml
-      service: prometheus-grafana
+      file: prometheus-compose.yml
+      service: prometheus
   web: 
     extends: 
       file: jupyter-compose.yml
