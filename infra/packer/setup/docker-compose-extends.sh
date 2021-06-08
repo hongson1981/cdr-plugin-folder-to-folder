@@ -11,7 +11,7 @@ sudo hostnamectl set-hostname glasswall
 
 # get source code
 cd ~
-BRANCH=${BRANCH:-main}
+BRANCH=${BRANCH:-docker-compose-extends}
 GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-filetrust/cdr-plugin-folder-to-folder}
 git clone https://github.com/${GITHUB_REPOSITORY}.git --branch $BRANCH --recursive && cd cdr-plugin-folder-to-folder
 
@@ -42,11 +42,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 #sudo docker-compose up -d --build
 cp .env.sample .env
 echo "PWD=/home/ubuntu/cdr-plugin-folder-to-folder" >> .env
-sudo docker-compose -f docker-compose.yml -f infra/docker-compose/jupyter-compose.yml up -d
-sudo docker-compose -f docker-compose.yml -f infra/docker-compose/est01-kibana-compose.yml up -d
-sudo docker-compose -f docker-compose.yml -f infra/docker-compose/website-compose.yml up -d
-sudo docker-compose -f infra/docker-compose/prometheus/docker-compose.yml -f infra/docker-compose/prometheus/promethgrafana-compose.yml up -d
-
+docker-compose up -d
 # install vmware tools
 sudo apt install open-vm-tools
 sudo apt install open-vm-tools-desktop -y
