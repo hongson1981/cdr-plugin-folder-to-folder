@@ -26,7 +26,7 @@ from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
 from cdr_plugin_folder_to_folder.processing.Report_Elastic import Report_Elastic
 from cdr_plugin_folder_to_folder.processing.Analysis_Json import Analysis_Json
 from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
-from cdr_plugin_folder_to_folder.configure.Configure_Env import SDKEngineVersionKey, SDKAPIVersionKey, AdaptationFileID, RebuildServer
+from cdr_plugin_folder_to_folder.configure.Configure_Env import SDKEngineVersionKey, SDKAPIVersionKey, AdaptationFileID, ServerHeader, ViaHeader
 
 class File_Processing:
 
@@ -151,10 +151,11 @@ class File_Processing:
 
     def get_metadata_from_headers(self, dir, headers):
 
-        sdk_engine_version = ""
-        sdk_api_version = ""
-        rebuild_server = ""
-        adaptation_file_id = ""
+        sdk_engine_version  = ""
+        sdk_api_version     = ""
+        server_header       = ""
+        via_header          = ""
+        adaptation_file_id  = ""
 
         if SDKEngineVersionKey in headers:
             sdk_engine_version = headers[SDKEngineVersionKey]
@@ -162,10 +163,13 @@ class File_Processing:
             sdk_api_version = headers[SDKAPIVersionKey]
         if AdaptationFileID in headers:
             adaptation_file_id = headers[AdaptationFileID]
-        if RebuildServer in headers:
-            rebuild_server = headers[RebuildServer]
+        if ServerHeader in headers:
+            server_header = headers[ServerHeader]
+        if ViaHeader in headers:
+            via_header = headers[ViaHeader]
 
-        self.meta_service.set_rebuild_server(dir, rebuild_server)
+        self.meta_service.set_server_header(dir, server_header)
+        self.meta_service.set_via_header(dir, via_header)
         self.meta_service.set_server_version(dir, "Engine:" + sdk_engine_version + " API:" + sdk_api_version )
         self.meta_service.set_sdk_api_version(dir, sdk_api_version)
         self.meta_service.set_sdk_engine_version(dir, sdk_engine_version)

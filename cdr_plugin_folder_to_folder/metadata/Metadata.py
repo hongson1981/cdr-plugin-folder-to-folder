@@ -84,6 +84,8 @@ class Metadata:
                    'last_update_time'       : None               ,
                    'response_code'          : None               ,
                    'rebuild_server'         : None               ,
+                   'server_header'          : None               ,
+                   'via_header'             : None               ,
                    'server_version'         : None               ,
                    'sdk_api_version'        : None               ,
                    'skd_engine_version'     : None               ,

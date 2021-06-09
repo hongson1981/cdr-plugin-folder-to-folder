@@ -82,6 +82,12 @@ class Metadata_Service:
     def set_rebuild_server(self, metadata_folder, rebuild_server):
         self.set_metadata_field(metadata_folder, 'rebuild_server', rebuild_server)
 
+    def set_server_header(self, metadata_folder, server_header):
+        self.set_metadata_field(metadata_folder, 'server_header', server_header)
+
+    def set_via_header(self, metadata_folder, via_header):
+        self.set_metadata_field(metadata_folder, 'via_header', via_header)
+
     def set_server_version(self, metadata_folder, server_version):
         self.set_metadata_field(metadata_folder, 'server_version', server_version)
 
@@ -125,6 +131,8 @@ class Metadata_Service:
         self.set_xml_report_status(metadata_folder, None)
         self.set_response_code(metadata_folder, None)
         self.set_rebuild_server(metadata_folder, None)
+        self.set_server_header(metadata_folder, None)
+        self.set_via_header(metadata_folder, None)
         self.set_server_version(metadata_folder, None)
         self.set_sdk_api_version(metadata_folder, None)
         self.set_skd_engine_version(metadata_folder, None)
