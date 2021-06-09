@@ -76,11 +76,23 @@ class Metadata_Service:
     def set_xml_report_status(self, metadata_folder, xml_report_status):
         self.set_metadata_field(metadata_folder, 'xml_report_status', xml_report_status)
 
+    def set_response_code(self, metadata_folder, response_code):
+        self.set_metadata_field(metadata_folder, 'response_code', response_code)
+
     def set_rebuild_server(self, metadata_folder, rebuild_server):
         self.set_metadata_field(metadata_folder, 'rebuild_server', rebuild_server)
 
     def set_server_version(self, metadata_folder, server_version):
         self.set_metadata_field(metadata_folder, 'server_version', server_version)
+
+    def set_sdk_api_version(self, metadata_folder, sdk_api_version):
+        self.set_metadata_field(metadata_folder, 'sdk_api_version', sdk_api_version)
+
+    def set_skd_engine_version(self, metadata_folder, skd_engine_version):
+        self.set_metadata_field(metadata_folder, 'skd_engine_version', skd_engine_version)
+
+    def set_adaptation_file_id(self, metadata_folder, adaptation_file_id):
+        self.set_metadata_field(metadata_folder, 'adaptation_file_id', adaptation_file_id)
 
     def set_rebuild_file_path(self, metadata_folder, rebuild_file_path):
         self.set_metadata_field(metadata_folder, 'rebuild_file_path', rebuild_file_path)
@@ -111,8 +123,12 @@ class Metadata_Service:
 
     def reset_metadata(self, metadata_folder):
         self.set_xml_report_status(metadata_folder, None)
+        self.set_response_code(metadata_folder, None)
         self.set_rebuild_server(metadata_folder, None)
         self.set_server_version(metadata_folder, None)
+        self.set_sdk_api_version(metadata_folder, None)
+        self.set_skd_engine_version(metadata_folder, None)
+        self.set_adaptation_file_id(metadata_folder, None)
         self.set_error(metadata_folder, None)
         self.set_rebuild_file_path(metadata_folder, None)
         self.set_rebuild_hash(metadata_folder, None)

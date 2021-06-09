@@ -17,6 +17,8 @@ logger.basicConfig(level=logger.INFO)
 
 SDKEngineVersionKey = "X-SDK-Engine-Version"
 SDKAPIVersionKey = "X-SDK-Api-Version"
+AdaptationFileID = "x-adaptation-file-id"
+RebuildServer = "server"
 LowestEngineVersion = "1.157"
 LowestAPIVersion = "0.1.11"
 
