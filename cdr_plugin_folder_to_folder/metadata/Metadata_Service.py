@@ -88,7 +88,7 @@ class Metadata_Service:
     def set_sdk_api_version(self, metadata_folder, sdk_api_version):
         self.set_metadata_field(metadata_folder, 'sdk_api_version', sdk_api_version)
 
-    def set_skd_engine_version(self, metadata_folder, skd_engine_version):
+    def set_sdk_engine_version(self, metadata_folder, skd_engine_version):
         self.set_metadata_field(metadata_folder, 'skd_engine_version', skd_engine_version)
 
     def set_adaptation_file_id(self, metadata_folder, adaptation_file_id):
