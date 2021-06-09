@@ -1,3 +1,4 @@
+import os
 from unittest                                            import TestCase
 from unittest.mock import patch
 
@@ -7,18 +8,21 @@ from cdr_plugin_folder_to_folder.metadata.Metadata import Metadata
 from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
 from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Service
 from cdr_plugin_folder_to_folder.pre_processing.Status import FileStatus
+from cdr_plugin_folder_to_folder.storage.Storage import Storage
 
 class test_Metadata_Service(TestCase):
 
     def setUp(self) -> None:
         self.metadata_service = Metadata_Service()
         self.test_file        = Test_Data().images().pop()
+        self.storage          = Storage()
         assert file_exists(self.test_file)
 
     def test_create_metadata(self):
 
         metadata  = self.metadata_service.create_metadata(self.test_file)
-        metadata.delete()
+        assert metadata.delete() is True
+
         metadata.add_file(self.test_file)
         assert metadata.data == {   'file_name'              : file_name(self.test_file)        ,
                                     'xml_report_status'      : None                             ,
@@ -48,7 +52,13 @@ class test_Metadata_Service(TestCase):
                                     'hd1_to_hd2_copy_time'   : None                             ,
                                     'hd2_to_hd3_copy_time'   : None
                                 }
+
         assert metadata.delete() is True
+
+        metadata  = self.metadata_service.create_metadata(self.test_file)
+        self.metadata_service.reset_metadata(self.storage.hd2_data(file_sha256(self.test_file)))
+        assert metadata.delete() is True
+
 
     def test_file_hash(self):
         hash=self.metadata_service.file_hash(self.test_file)
@@ -56,6 +66,7 @@ class test_Metadata_Service(TestCase):
 
     def test_file_hash_metadata(self):
         pass
+
 
     # todo: fix test (to be focused on .set_metadata_field() method)
     # @patch('cdr_plugin_folder_to_folder.metadata.Metadata_Elastic.Metadata_Elastic.add_metadata')

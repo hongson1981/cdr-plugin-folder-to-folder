@@ -135,7 +135,7 @@ class Metadata_Service:
         self.set_via_header(metadata_folder, None)
         self.set_server_version(metadata_folder, None)
         self.set_sdk_api_version(metadata_folder, None)
-        self.set_skd_engine_version(metadata_folder, None)
+        self.set_sdk_engine_version(metadata_folder, None)
         self.set_adaptation_file_id(metadata_folder, None)
         self.set_error(metadata_folder, None)
         self.set_rebuild_file_path(metadata_folder, None)
