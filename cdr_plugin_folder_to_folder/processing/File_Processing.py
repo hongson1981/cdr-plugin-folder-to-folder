@@ -169,7 +169,7 @@ class File_Processing:
         self.meta_service.set_server_version(dir, "Engine:" + sdk_engine_version + " API:" + sdk_api_version )
         self.meta_service.set_sdk_api_version(dir, sdk_api_version)
         self.meta_service.set_sdk_engine_version(dir, sdk_engine_version)
-        self.meta_service.set_adapatation_file_id(dir, adaptation_file_id)
+        self.meta_service.set_adaptation_file_id(dir, adaptation_file_id)
 
     # legacy version (makes two calls to get the data)
     @log_duration
