@@ -320,4 +320,4 @@ class test_File_Processing(Temp_Config):
 
         self.file_processing.get_metadata_from_headers(dir, headers)
         server_version = self.file_processing.meta_service.metadata.get_server_version()
-        assert server_version == 'Engine:1.0.0 API:1.0.0'
+        assert server_version == 'Engine: API:'

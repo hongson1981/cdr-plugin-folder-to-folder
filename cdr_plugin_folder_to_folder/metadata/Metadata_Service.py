@@ -76,8 +76,8 @@ class Metadata_Service:
     def set_xml_report_status(self, metadata_folder, xml_report_status):
         self.set_metadata_field(metadata_folder, 'xml_report_status', xml_report_status)
 
-    def set_response_code(self, metadata_folder, response_code):
-        self.set_metadata_field(metadata_folder, 'response_code', response_code)
+    def set_status_code(self, metadata_folder, status_code):
+        self.set_metadata_field(metadata_folder, 'status_code', status_code)
 
     def set_rebuild_server(self, metadata_folder, rebuild_server):
         self.set_metadata_field(metadata_folder, 'rebuild_server', rebuild_server)
@@ -129,7 +129,7 @@ class Metadata_Service:
 
     def reset_metadata(self, metadata_folder):
         self.set_xml_report_status(metadata_folder, None)
-        self.set_response_code(metadata_folder, None)
+        self.set_status_code(metadata_folder, None)
         self.set_rebuild_server(metadata_folder, None)
         self.set_server_header(metadata_folder, None)
         self.set_via_header(metadata_folder, None)

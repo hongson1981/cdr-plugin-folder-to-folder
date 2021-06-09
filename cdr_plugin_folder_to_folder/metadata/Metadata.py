@@ -82,7 +82,7 @@ class Metadata:
         return {   'file_name'              : None               ,
                    'xml_report_status'      : None               ,
                    'last_update_time'       : None               ,
-                   'response_code'          : None               ,
+                   'status_code'            : None               ,
                    'rebuild_server'         : None               ,
                    'server_header'          : None               ,
                    'via_header'             : None               ,

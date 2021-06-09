@@ -283,7 +283,7 @@ class File_Processing:
             response = self.    rebuild_zip(endpoint, encodedFile)
             zip_file_path = os.path.join(dir, "rebuild.zip")
 
-            self.meta_service.set_response_code(dir, response.code)
+            self.meta_service.set_status_code(dir, response.status_code)
 
             headers = response.headers
             self.get_metadata_from_headers(dir, headers)
