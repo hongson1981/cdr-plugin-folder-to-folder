@@ -11,7 +11,7 @@ sudo hostnamectl set-hostname glasswall
 
 # get source code
 cd ~
-BRANCH=${BRANCH:-develop}
+BRANCH=${BRANCH:-docker-compose-extends}
 GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-filetrust/cdr-plugin-folder-to-folder}
 git clone https://github.com/${GITHUB_REPOSITORY}.git --branch $BRANCH --recursive && cd cdr-plugin-folder-to-folder
 
@@ -33,16 +33,14 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.0/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 
 # install local docker registry
-#sudo docker run -d -p 30500:5000 --restart always --name registry registry:2
+sudo docker run -d -p 30500:5000 --restart always --name registry registry:2
 
 # build images
-#cd ~/cdr-plugin-folder-to-folder
-#cp .env.sample .env
-#echo "PWD=/home/ubuntu/cdr-plugin-folder-to-folder" >> .env
-#sudo docker-compose up -d --build
+cd ~/cdr-plugin-folder-to-folder
 cp .env.sample .env
 echo "PWD=/home/ubuntu/cdr-plugin-folder-to-folder" >> .env
-sudo docker-compose up -d
+sudo docker-compose up -d --build
+sudo docker ps -a
 # install vmware tools
 sudo apt install open-vm-tools
 sudo apt install open-vm-tools-desktop -y
