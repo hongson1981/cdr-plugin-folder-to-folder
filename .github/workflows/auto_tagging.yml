@@ -5,11 +5,10 @@ name: Auto tagging and release
 # Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-#     branches:
-#       - main
-#       - develop
   pull_request:
+    branches:
+      - main
+      - develop
     types: [closed]
     paths-ignore:
       - '.github/workflows/auto_tagging.yml'
@@ -121,7 +120,7 @@ jobs:
 
                   gh pr edit $pull_number  --add-label $tag_name
 
-                  echo "testing done"
+                  echo "added label to PR"
               fi
               
         env:
