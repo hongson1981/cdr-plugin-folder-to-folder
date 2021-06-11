@@ -185,6 +185,15 @@ class test_Status(Temp_Config):
 
         Temp_Config.tearDownClass()
 
+    def test_reset_system_data(self):
+        self.status.reset_system_data()
+        data = self.status.data()
+        assert data[Status.VAR_CPU_UTILIZATION]       == None
+        assert data[Status.VAR_RAM_UTILIZATION]       == None
+        assert data[Status.VAR_NUM_OF_PROCESSES]      == None
+        assert data[Status.VAR_NUM_OF_THREADS]        == None
+        assert data[Status.VAR_NETWORK_CONNECTIONS]   == None
+
 
     # todo: add multi-threading test
     # def worker(c):
