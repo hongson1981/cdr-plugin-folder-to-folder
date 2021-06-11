@@ -127,12 +127,10 @@ class test_File_Processing(Temp_Config):
         assert metadata.data.get('original_file_size'     ) == 755
         assert metadata.data.get('original_file_extension') == '.pdf'
         assert metadata.data.get('rebuild_status'         ) == 'Initial'
-
+        
         # 'rebuild_file_extension' is obtained from the xml report.
         # When accessing the SKD behind a loadbalancer, we do not always get the report
-        # So the check is not relevant in those cases
-        # assert metadata.data.get('rebuild_file_extension' ) == 'pdf'
-
+        #assert metadata.data.get('rebuild_file_extension' ) == 'pdf'
         assert metadata.data.get('rebuild_file_size'      ) == 1267
 
     def test_do_rebuild_with_exception(self):
