@@ -15,6 +15,16 @@ from cdr_plugin_folder_to_folder.utils.Logging import log_debug
 from cdr_plugin_folder_to_folder.utils.testing.Setup_Testing import Setup_Testing
 from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
 
+
+from cdr_plugin_folder_to_folder.api.routes.Pre_Processor import \
+    start_hd1_watcher_thread            ,\
+    stop_hd1_watcher_thread             ,\
+    pre_process_hd1_data_to_hd2         ,\
+    clear_data_and_status_folders       ,\
+    mark_all_hd2_files_unprocessed      ,\
+    pre_process_a_folder                ,\
+ 	download_and_pre_process_a_zip_file
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
 class test_Pre_Processor(TestCase):
@@ -104,6 +114,29 @@ class test_Pre_Processor(TestCase):
         retvalue = self.pre_processor.process_downloaded_zip_file("http://google.com/")
         assert retvalue == "File is not a zip file"
 
+    def test_start_stop_watcher_thread(self):
+        stop_result = stop_hd1_watcher_thread()
+        stop_result['message'] == 'cannot join thread before it is started'
+        start_result = start_hd1_watcher_thread()
+        stop_result = stop_hd1_watcher_thread()
+        assert start_result['message'] == Pre_Processor.WATCHER_STARTED
+        assert stop_result['message']  == Pre_Processor.WATCHER_STOPPED
 
+    def test_pre_process_hd1_data_to_hd2(self):
+        retval = pre_process_hd1_data_to_hd2()
+        assert retval['message'] == Pre_Processor.PROCESSING_IS_DONE
 
+    def test_clear_data_and_status_folders(self):
+        retval = clear_data_and_status_folders()
+        assert retval['message'] == Pre_Processor.DATA_CLEARED
+
+    def test_mark_all_hd2_files_unprocessed(self):
+        retval = mark_all_hd2_files_unprocessed()
+        assert retval['message'] == Pre_Processor.DATA_RESTORED
+
+    def test_pre_process_a_folder(self):
+        pass
+
+    def test_download_and_pre_process_a_zip(self):
+        pass
 

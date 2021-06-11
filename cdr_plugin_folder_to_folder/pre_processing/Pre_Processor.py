@@ -36,6 +36,14 @@ class Pre_Processor:
     THREAD_STOPPING     = 1
     THREAD_RUNNIG       = 2
 
+    WATCHER_STARTED     = "HD1 Watcher thread has been started"
+    WATCHER_STOPPED     = "HD1 Watcher thread has been sopped"
+    WATCHER_IS_STOPPING = "HD1 watcher thread is stopping. Try later"
+    WATCHER_IS_RUNNIG   = "HD1 watcher thread is running. Stop it first"
+    DATA_CLEARED        = "Data cleared from HD2"
+    DATA_RESTORED       = "HD2 data restored to the initial state"
+    PROCESSING_IS_DONE  = "Processing is done"
+
     lock = threading.Lock()
 
     _instance = None
@@ -68,11 +76,8 @@ class Pre_Processor:
     @log_duration
     def clear_data_and_status_folders(self):
 
-        if self.ThreadStopping():
-            return "HD1 watcher thread is stopping. Try later"
-
-        if self.ThreadRunning():
-            return "HD1 watcher thread is running. Stop it first"
+        if self.ThreadStopping(): return Pre_Processor.WATCHER_IS_STOPPING
+        if self.ThreadRunning():  return Pre_Processor.WATCHER_IS_RUNNING
 
         data_target      = self.storage.hd2_data()       # todo: refactor this clean up to the storage class
         status_target    = self.storage.hd2_status()
@@ -89,16 +94,13 @@ class Pre_Processor:
         self.status.reset()
         self.clean_elastic_data()
 
-        return "Data cleared from HD2"
+        return Pre_Processor.DATA_CLEARED
 
     @log_duration
     def mark_all_hd2_files_unprocessed(self):
 
-        if self.ThreadStopping():
-            return "HD1 watcher thread is stopping. Try later"
-
-        if self.ThreadRunning():
-            return "HD1 watcher thread is running. Stop it first"
+        if self.ThreadStopping(): return Pre_Processor.WATCHER_IS_STOPPING
+        if self.ThreadRunning():  return Pre_Processor.WATCHER_IS_RUNNING
 
         if Processing_Status.NONE != self.status.get_current_status() and \
         Processing_Status.STOPPED != self.status.get_current_status():
@@ -122,7 +124,7 @@ class Pre_Processor:
         self.status.reset_phase2()
         reset_data_folder_to_the_initial_state()
 
-        return "HD2 data restored to the initial state"
+        return Pre_Processor.DATA_RESTORED
 
 
     def file_hash(self, file_path):
@@ -178,21 +180,16 @@ class Pre_Processor:
         return f"Directory {folder_to_process} added"
 
     def process_folder_api(self, folder_to_process, thread_count = DEFAULT_THREAD_COUNT):
-        if self.ThreadStopping():
-            return "HD1 watcher thread is stopping. Try later"
 
-        if self.ThreadRunning():
-            return "HD1 watcher thread is running. Stop it first"
+        if self.ThreadStopping(): return Pre_Processor.WATCHER_IS_STOPPING
+        if self.ThreadRunning():  return Pre_Processor.WATCHER_IS_RUNNING
 
         return self.process_folder(folder_to_process, thread_count)
 
     def process_hd1_files(self, thread_count = DEFAULT_THREAD_COUNT):
 
-        if self.ThreadStopping():
-            return "HD1 watcher thread is stopping. Try later"
-
-        if self.ThreadRunning():
-            return "HD1 watcher thread is running. Stop it first"
+        if self.ThreadStopping(): return Pre_Processor.WATCHER_IS_STOPPING
+        if self.ThreadRunning():  return Pre_Processor.WATCHER_IS_RUNNING
 
         self.status.StartStatusThread()
         self.status.set_phase_1()
@@ -202,7 +199,7 @@ class Pre_Processor:
         self.status.StopStatusThread()
         self.status.set_phase_2()
 
-        return "Processing is done"
+        return Pre_Processor.PROCESSING_IS_DONE
 
     @log_duration
     def process(self, thread_data):
@@ -238,11 +235,9 @@ class Pre_Processor:
             self.status.set_not_copied()
 
     def process_downloaded_zip_file(self, url):
-        if self.ThreadStopping():
-            return "HD1 watcher thread is stopping. Try later"
 
-        if self.ThreadRunning():
-            return "HD1 watcher thread is running. Stop it first"
+        if self.ThreadStopping(): return Pre_Processor.WATCHER_IS_STOPPING
+        if self.ThreadRunning():  return Pre_Processor.WATCHER_IS_RUNNING
 
         retvalue = "No value"
         directory_name = url.replace('/', '_').replace(':', '').replace('.','_')
@@ -287,17 +282,20 @@ class Pre_Processor:
         self.pre_processing_thread = threading.Thread(target=self.PreProcessingThread, args=(10,))
         self.pre_processing_thread.start()
 
-        return "HD1 Watcher thread has been started"
+        return Pre_Processor.WATCHER_STARTED
 
     def StopHD1WatherThread(self):
-        self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPING
-        self.pre_processing_thread.join()
-        self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPED
+        try:
+            self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPING
+            self.pre_processing_thread.join()
+            self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPED
 
-        self.status.StopStatusThread()
-        self.status.set_phase_2()
+            self.status.StopStatusThread()
+            self.status.set_phase_2()
+        except Exception as e:
+            return str(e)
 
-        return "HD1 Watcher thread has been stopped"
+        return Pre_Processor.WATCHER_STOPPED
 
 
 def reset_data_folder_to_the_initial_state():
