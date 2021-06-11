@@ -14,9 +14,12 @@ from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
 from cdr_plugin_folder_to_folder.utils.Logging import log_debug
 from cdr_plugin_folder_to_folder.utils.testing.Setup_Testing import Setup_Testing
 from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
+from cdr_plugin_folder_to_folder.storage.Storage import Storage
 
 
 from cdr_plugin_folder_to_folder.api.routes.Pre_Processor import \
+    DIRECTORY                           ,\
+    DOWNLOAD_URL                        ,\
     start_hd1_watcher_thread            ,\
     stop_hd1_watcher_thread             ,\
     pre_process_hd1_data_to_hd2         ,\
@@ -39,6 +42,7 @@ class test_Pre_Processor(TestCase):
         cls.temp_dir      = temp_folder()
         file_copy(cls.test_file, cls.temp_dir)
         cls.pre_processor = Pre_Processor()
+        cls.storage       = Storage()
         Setup_Testing().configure_pre_processor(cls.pre_processor)
 
     @classmethod
@@ -135,8 +139,16 @@ class test_Pre_Processor(TestCase):
         assert retval['message'] == Pre_Processor.DATA_RESTORED
 
     def test_pre_process_a_folder(self):
-        pass
+        item = DIRECTORY()
+        item.folder = self.storage.hd1()
+        retval = pre_process_a_folder(item)
+        # assert retval['message'].startswith('Directory')
+        # assert retval['message'].endswith('added')
+        assert retval['message'] == f"Directory {self.storage.hd1()} added"
 
-    def test_download_and_pre_process_a_zip(self):
-        pass
+    def test_download_and_pre_process_a_zip_file(self):
+        item = DOWNLOAD_URL()
+        item.url = "http://google.com/"
+        retval = download_and_pre_process_a_zip_file(item)
+        assert retval['message'] == "File is not a zip file"
 
