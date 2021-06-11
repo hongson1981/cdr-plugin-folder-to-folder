@@ -1,5 +1,5 @@
 import React, { useState }  from "react";
-import LoaderBlocking               from  "../components/Loader/LoaderBlocking";
+import LoaderBlocking       from  "../components/Loader/LoaderBlocking";
 import Configuration        from "./Configuration"
 import Processing           from "./Processing"
 import Dashboard            from "./Dashboard";
@@ -8,8 +8,8 @@ import Dashboard            from "./Dashboard";
 
 export default function Workflow() {
 
-  const [loader, showLoader]                   = useState(false);
-  const [showErrrorMessage, setErrorMessage]       = useState("");
+  const [loader, showLoader]                  = useState(false);
+  const [showErrrorMessage, setErrorMessage]  = useState("");
   const [showError, setShowError]             = useState(false);
   const [threadCount, setThreadCount]         = useState(25);
   const [showSuccess, setShowSuccess]         = useState(false);

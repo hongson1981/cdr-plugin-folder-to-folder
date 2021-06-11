@@ -9,10 +9,10 @@ import GWDialog            from  "../components/Modal/GWDialog";
 
 export default function Processing(props) {
 
-  const [show, setState]                      = useState(false);
-  const [output, setOutput]                   = useState("");
-  const [showStatusModal, setStatusModal]     = useState(false);
-  const [dialogContent, setDialogContent]     = useState(null);
+  const [show, setState]                                       = useState(false);
+  const [output, setOutput]                                    = useState("");
+  const [showStatusModal, setStatusModal]                      = useState(false);
+  const [dialogContent, setDialogContent]                      = useState(null);
   const [loadFileLoader, showLoadFileLoader]                   = useState(false);
   const [startProcessingLoader, showStartProcessingLoader]     = useState(false);
   const [stopProcessingLoader, showStoptProcessingLoader]      = useState(false);
