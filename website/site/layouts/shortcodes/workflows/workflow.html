@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{with resources.Get "js/style.css"}}
+    {{$react_css := .}}
+    <link rel='stylesheet' href='{{$react_css.RelPermalink}}' type='text/css' media='all' />
+    {{ end }}
+    
+    {{ with resources.Get "js/workflows/Workflows.jsx" }}
+    {{ $script := . | js.Build (dict "params" (dict "api_url"  ($.Site.Data.urls.api) "kibana"  ($.Site.Data.urls.kibana) "aws_api" ($.Site.Data.urls.aws_api)) )}}
+    <script src="{{ $script.RelPermalink }}" defer></script>
+    {{ end }}
+   
+<body>
+    <div id="react"></div>
+</body>
+</html>
