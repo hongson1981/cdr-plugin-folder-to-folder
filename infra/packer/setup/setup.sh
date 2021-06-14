@@ -1,4 +1,4 @@
-s#!/bin/bash
+#!/bin/bash
 set -v -e
 
 pushd $( dirname $0 )
