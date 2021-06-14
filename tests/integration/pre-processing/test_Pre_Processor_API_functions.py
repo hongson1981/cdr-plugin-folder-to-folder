@@ -20,7 +20,7 @@ from cdr_plugin_folder_to_folder.api.routes.Pre_Processor import \
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
-class test_Pre_Processor(TestCase):
+class test_Pre_Processor_API_functions(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
