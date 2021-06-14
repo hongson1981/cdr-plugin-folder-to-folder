@@ -27,17 +27,69 @@ class test_Pre_Processor(TestCase):
         cls.status        = Status()
         cls.storage       = Storage()
 
-    def test_pre_process_hd1_data_to_hd2(self):
-        retval = pre_process_hd1_data_to_hd2()
-        assert retval['message'] == Pre_Processor.PROCESSING_IS_DONE
-
     def test_clear_data_and_status_folders(self):
         retval = clear_data_and_status_folders()
         assert retval['message'] == Pre_Processor.DATA_CLEARED
 
+        assert self.status.get_files_count()            == 0
+        assert self.status.get_files_copied()           == 0
+        assert self.status.get_files_to_be_copied()     == 0
+        assert self.status.get_duplicate_files()        == 0
+        assert self.status.get_files_to_process()       == 0
+        assert self.status.get_file_left_to_progress()  == 0
+        assert self.status.get_completed()              == 0
+        assert self.status.get_not_supported()          == 0
+        assert self.status.get_failed()                 == 0
+        assert self.status.get_in_progress()            == 0
+
     def test_mark_all_hd2_files_unprocessed(self):
         retval = mark_all_hd2_files_unprocessed()
         assert retval['message'] == Pre_Processor.DATA_RESTORED
+
+        assert self.status.get_files_count()            == 1
+        assert self.status.get_files_copied()           == 1
+        assert self.status.get_files_to_be_copied()     == 0
+        assert self.status.get_duplicate_files()        == 0
+        assert self.status.get_files_to_process()       == 0
+        assert self.status.get_file_left_to_progress()  == 0
+        assert self.status.get_completed()              == 0
+        assert self.status.get_not_supported()          == 0
+        assert self.status.get_failed()                 == 0
+        assert self.status.get_in_progress()            == 0
+
+    def test_pre_process_hd1_data_to_hd2(self):
+        retval = clear_data_and_status_folders()
+        assert retval['message'] == Pre_Processor.DATA_CLEARED
+
+        retval = pre_process_hd1_data_to_hd2()
+        assert retval['message'] == Pre_Processor.PROCESSING_IS_DONE
+
+        assert self.status.get_files_count()            == 1
+        assert self.status.get_files_copied()           == 1
+        assert self.status.get_files_to_be_copied()     == 0
+        assert self.status.get_duplicate_files()        == 0
+        assert self.status.get_files_to_process()       == 1
+        assert self.status.get_file_left_to_progress()  == 1
+        assert self.status.get_completed()              == 0
+        assert self.status.get_not_supported()          == 0
+        assert self.status.get_failed()                 == 0
+        assert self.status.get_in_progress()            == 0
+
+        # verify that status counters do not change if running it second time
+
+        retval = pre_process_hd1_data_to_hd2()
+        assert retval['message'] == Pre_Processor.PROCESSING_IS_DONE
+
+        assert self.status.get_files_count()            == 1
+        assert self.status.get_files_copied()           == 1
+        assert self.status.get_files_to_be_copied()     == 0
+        assert self.status.get_duplicate_files()        == 0
+        assert self.status.get_files_to_process()       == 1
+        assert self.status.get_file_left_to_progress()  == 1
+        assert self.status.get_completed()              == 0
+        assert self.status.get_not_supported()          == 0
+        assert self.status.get_failed()                 == 0
+        assert self.status.get_in_progress()            == 0
 
     def test_pre_process_a_folder(self):
         item = DIRECTORY()
