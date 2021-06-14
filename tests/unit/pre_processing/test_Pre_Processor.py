@@ -15,15 +15,6 @@ from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
 from cdr_plugin_folder_to_folder.storage.Storage import Storage
 from cdr_plugin_folder_to_folder.pre_processing.Status import Status
 
-from cdr_plugin_folder_to_folder.api.routes.Pre_Processor import \
-    DIRECTORY                           ,\
-    DOWNLOAD_URL                        ,\
-    pre_process_hd1_data_to_hd2         ,\
-    clear_data_and_status_folders       ,\
-    mark_all_hd2_files_unprocessed      ,\
-    pre_process_a_folder                ,\
- 	download_and_pre_process_a_zip_file
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
 class test_Pre_Processor(TestCase):
@@ -53,7 +44,6 @@ class test_Pre_Processor(TestCase):
 
     def tearDown(self) -> None:
         pass
-
 
     def test__init__(self):
         assert folder_exists(self.pre_processor.storage.hd2_data()  )
@@ -180,28 +170,4 @@ class test_Pre_Processor(TestCase):
     def test_process_downloaded_zip_file(self):
         retvalue = self.pre_processor.process_downloaded_zip_file("http://google.com/")
         assert retvalue == "File is not a zip file"
-
-    def test_pre_process_hd1_data_to_hd2(self):
-        retval = pre_process_hd1_data_to_hd2()
-        assert retval['message'] == Pre_Processor.PROCESSING_IS_DONE
-
-    def test_clear_data_and_status_folders(self):
-        retval = clear_data_and_status_folders()
-        assert retval['message'] == Pre_Processor.DATA_CLEARED
-
-    def test_mark_all_hd2_files_unprocessed(self):
-        retval = mark_all_hd2_files_unprocessed()
-        assert retval['message'] == Pre_Processor.DATA_RESTORED
-
-    def test_pre_process_a_folder(self):
-        item = DIRECTORY()
-        item.folder = self.storage.hd1()
-        retval = pre_process_a_folder(item)
-        assert retval['message'] == f"Directory {self.storage.hd1()} added"
-
-    def test_download_and_pre_process_a_zip_file(self):
-        item = DOWNLOAD_URL()
-        item.url = "http://google.com/"
-        retval = download_and_pre_process_a_zip_file(item)
-        assert retval['message'] == "File is not a zip file"
 
