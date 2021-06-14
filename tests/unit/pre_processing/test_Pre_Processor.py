@@ -20,8 +20,6 @@ from cdr_plugin_folder_to_folder.storage.Storage import Storage
 from cdr_plugin_folder_to_folder.api.routes.Pre_Processor import \
     DIRECTORY                           ,\
     DOWNLOAD_URL                        ,\
-    start_hd1_watcher_thread            ,\
-    stop_hd1_watcher_thread             ,\
     pre_process_hd1_data_to_hd2         ,\
     clear_data_and_status_folders       ,\
     mark_all_hd2_files_unprocessed      ,\
@@ -117,14 +115,6 @@ class test_Pre_Processor(TestCase):
     def test_process_downloaded_zip_file(self):
         retvalue = self.pre_processor.process_downloaded_zip_file("http://google.com/")
         assert retvalue == "File is not a zip file"
-
-    def test_start_stop_watcher_thread(self):
-        stop_result = stop_hd1_watcher_thread()
-        stop_result['message'] == 'cannot join thread before it is started'
-        start_result = start_hd1_watcher_thread()
-        stop_result = stop_hd1_watcher_thread()
-        assert start_result['message'] == Pre_Processor.WATCHER_STARTED
-        assert stop_result['message']  == Pre_Processor.WATCHER_STOPPED
 
     def test_pre_process_hd1_data_to_hd2(self):
         retval = pre_process_hd1_data_to_hd2()

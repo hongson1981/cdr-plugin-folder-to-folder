@@ -32,14 +32,6 @@ logger.basicConfig(level=logger.INFO)
 
 class Pre_Processor:
 
-    THREAD_STOPPED      = 0
-    THREAD_STOPPING     = 1
-    THREAD_RUNNIG       = 2
-
-    WATCHER_STARTED     = "HD1 Watcher thread has been started"
-    WATCHER_STOPPED     = "HD1 Watcher thread has been sopped"
-    WATCHER_IS_STOPPING = "HD1 watcher thread is stopping. Try later"
-    WATCHER_IS_RUNNIG   = "HD1 watcher thread is running. Stop it first"
     DATA_CLEARED        = "Data cleared from HD2"
     DATA_RESTORED       = "HD2 data restored to the initial state"
     PROCESSING_IS_DONE  = "Processing is done"
@@ -63,8 +55,6 @@ class Pre_Processor:
             self.base_folder    = None
             self.dst_folder     = None
             self.dst_file_name  = None
-            self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPED
-            self.pre_processing_thread = threading.Thread()
 
     def clean_elastic_data(self):
         metadata_elastic = Metadata_Elastic()
@@ -75,9 +65,6 @@ class Pre_Processor:
 
     @log_duration
     def clear_data_and_status_folders(self):
-
-        if self.ThreadStopping(): return Pre_Processor.WATCHER_IS_STOPPING
-        if self.ThreadRunning():  return Pre_Processor.WATCHER_IS_RUNNING
 
         data_target      = self.storage.hd2_data()       # todo: refactor this clean up to the storage class
         status_target    = self.storage.hd2_status()
@@ -98,9 +85,6 @@ class Pre_Processor:
 
     @log_duration
     def mark_all_hd2_files_unprocessed(self):
-
-        if self.ThreadStopping(): return Pre_Processor.WATCHER_IS_STOPPING
-        if self.ThreadRunning():  return Pre_Processor.WATCHER_IS_RUNNING
 
         if Processing_Status.NONE != self.status.get_current_status() and \
         Processing_Status.STOPPED != self.status.get_current_status():
@@ -181,15 +165,10 @@ class Pre_Processor:
 
     def process_folder_api(self, folder_to_process, thread_count = DEFAULT_THREAD_COUNT):
 
-        if self.ThreadStopping(): return Pre_Processor.WATCHER_IS_STOPPING
-        if self.ThreadRunning():  return Pre_Processor.WATCHER_IS_RUNNING
 
         return self.process_folder(folder_to_process, thread_count)
 
     def process_hd1_files(self, thread_count = DEFAULT_THREAD_COUNT):
-
-        if self.ThreadStopping(): return Pre_Processor.WATCHER_IS_STOPPING
-        if self.ThreadRunning():  return Pre_Processor.WATCHER_IS_RUNNING
 
         self.status.StartStatusThread()
         self.status.set_phase_1()
@@ -236,9 +215,6 @@ class Pre_Processor:
 
     def process_downloaded_zip_file(self, url):
 
-        if self.ThreadStopping(): return Pre_Processor.WATCHER_IS_STOPPING
-        if self.ThreadRunning():  return Pre_Processor.WATCHER_IS_RUNNING
-
         retvalue = "No value"
         directory_name = url.replace('/', '_').replace(':', '').replace('.','_')
         zip_file_name = directory_name + '.zip'
@@ -261,42 +237,6 @@ class Pre_Processor:
             file_delete(path_to_zip_file)
 
         return retvalue
-
-    def ThreadStopped  (self): return (Pre_Processor.THREAD_STOPPED  == self.pre_processing_thread_status)
-    def ThreadStopping (self): return (Pre_Processor.THREAD_STOPPING == self.pre_processing_thread_status)
-    def ThreadRunning  (self): return (Pre_Processor.THREAD_RUNNIG   == self.pre_processing_thread_status)
-
-    def PreProcessingThread(self, update_interval):
-        while self.ThreadRunning():
-            self.process_folder(self.storage.hd1(), self.config.thread_count)
-            sleep(update_interval)
-
-    def StartHD1WatcherThread(self):
-        if self.ThreadRunning():
-            return
-
-        self.status.StartStatusThread()
-        self.status.set_phase_1()
-
-        self.pre_processing_thread_status = Pre_Processor.THREAD_RUNNIG
-        self.pre_processing_thread = threading.Thread(target=self.PreProcessingThread, args=(10,))
-        self.pre_processing_thread.start()
-
-        return Pre_Processor.WATCHER_STARTED
-
-    def StopHD1WatherThread(self):
-        try:
-            self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPING
-            self.pre_processing_thread.join()
-            self.pre_processing_thread_status = Pre_Processor.THREAD_STOPPED
-
-            self.status.StopStatusThread()
-            self.status.set_phase_2()
-        except Exception as e:
-            return str(e)
-
-        return Pre_Processor.WATCHER_STOPPED
-
 
 def reset_data_folder_to_the_initial_state():
 
