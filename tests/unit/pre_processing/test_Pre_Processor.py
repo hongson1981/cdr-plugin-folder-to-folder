@@ -6,16 +6,14 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import folder_exists, folder_create, file_copy, files_list, temp_file, file_delete, \
     temp_folder, folder_delete_all
 
-from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.metadata.Metadata import Metadata
-from cdr_plugin_folder_to_folder.metadata.Metadata_Utils import Metadata_Utils
 from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import Pre_Processor
 from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
 from cdr_plugin_folder_to_folder.utils.Logging import log_debug
 from cdr_plugin_folder_to_folder.utils.testing.Setup_Testing import Setup_Testing
 from cdr_plugin_folder_to_folder.utils.testing.Test_Data import Test_Data
 from cdr_plugin_folder_to_folder.storage.Storage import Storage
-
+from cdr_plugin_folder_to_folder.pre_processing.Status import Status
 
 from cdr_plugin_folder_to_folder.api.routes.Pre_Processor import \
     DIRECTORY                           ,\
@@ -41,6 +39,7 @@ class test_Pre_Processor(TestCase):
         file_copy(cls.test_file, cls.temp_dir)
         cls.pre_processor = Pre_Processor()
         cls.storage       = Storage()
+        cls.status        = Status()
         Setup_Testing().configure_pre_processor(cls.pre_processor)
 
     @classmethod
@@ -93,18 +92,84 @@ class test_Pre_Processor(TestCase):
         path_data   = self.pre_processor.storage.hd2_data()
         path_status = self.pre_processor.storage.hd2_status()
 
+        self.pre_processor.clear_data_and_status_folders()
+
         assert len(files_list(path_data   )) == 0
-        assert len(files_list(path_status )) == 1       # should have the status.json file
+        assert len(files_list(path_status )) == 1
+
+        assert self.status.get_files_count()            == 0
+        assert self.status.get_files_copied()           == 0
+        assert self.status.get_files_to_be_copied()     == 0
+        assert self.status.get_duplicate_files()        == 0
+        assert self.status.get_files_to_process()       == 0
+        assert self.status.get_file_left_to_progress()  == 0
+        assert self.status.get_completed()              == 0
+        assert self.status.get_not_supported()          == 0
+        assert self.status.get_failed()                 == 0
+        assert self.status.get_in_progress()            == 0
 
         self.pre_processor.process_hd1_files()
 
-        pprint('**********: DATA')
-        pprint(files_list(path_data  ))
-        pprint('**********: STATUS')
-        pprint(files_list(path_status))
-        pprint('------------------------')
+        # pprint('**********: DATA')
+        # pprint(files_list(path_data  ))
+        # pprint('**********: STATUS')
+        # pprint(files_list(path_status))
+        # pprint('------------------------')
         assert len(files_list(path_data  )) > 0
-        assert len(files_list(path_status)) == 1            # should have: status.json
+        assert len(files_list(path_status)) == 1
+
+        assert self.status.get_files_count()            == 1
+        assert self.status.get_files_copied()           == 1
+        assert self.status.get_files_to_be_copied()     == 0
+        assert self.status.get_duplicate_files()        == 0
+        assert self.status.get_files_to_process()       == 1
+        assert self.status.get_file_left_to_progress()  == 1
+        assert self.status.get_completed()              == 0
+        assert self.status.get_not_supported()          == 0
+        assert self.status.get_failed()                 == 0
+        assert self.status.get_in_progress()            == 0
+
+    def test_process_multiple_times(self):
+
+        self.pre_processor.clear_data_and_status_folders()
+
+        assert self.status.get_files_count()            == 0
+        assert self.status.get_files_copied()           == 0
+        assert self.status.get_files_to_be_copied()     == 0
+        assert self.status.get_duplicate_files()        == 0
+        assert self.status.get_files_to_process()       == 0
+        assert self.status.get_file_left_to_progress()  == 0
+        assert self.status.get_completed()              == 0
+        assert self.status.get_not_supported()          == 0
+        assert self.status.get_failed()                 == 0
+        assert self.status.get_in_progress()            == 0
+
+        self.pre_processor.process_hd1_files()
+
+        assert self.status.get_files_count()            == 1
+        assert self.status.get_files_copied()           == 1
+        assert self.status.get_files_to_be_copied()     == 0
+        assert self.status.get_duplicate_files()        == 0
+        assert self.status.get_files_to_process()       == 1
+        assert self.status.get_file_left_to_progress()  == 1
+        assert self.status.get_completed()              == 0
+        assert self.status.get_not_supported()          == 0
+        assert self.status.get_failed()                 == 0
+        assert self.status.get_in_progress()            == 0
+
+        self.pre_processor.process_hd1_files()
+
+        assert self.status.get_files_count()            == 1
+        assert self.status.get_files_copied()           == 1
+        assert self.status.get_files_to_be_copied()     == 0
+        assert self.status.get_duplicate_files()        == 0
+        assert self.status.get_files_to_process()       == 1
+        assert self.status.get_file_left_to_progress()  == 1
+        assert self.status.get_completed()              == 0
+        assert self.status.get_not_supported()          == 0
+        assert self.status.get_failed()                 == 0
+        assert self.status.get_in_progress()            == 0
+
 
     def test_process_file(self):
         metadata = Metadata(file_hash=self.file_hash)
@@ -132,8 +197,6 @@ class test_Pre_Processor(TestCase):
         item = DIRECTORY()
         item.folder = self.storage.hd1()
         retval = pre_process_a_folder(item)
-        # assert retval['message'].startswith('Directory')
-        # assert retval['message'].endswith('added')
         assert retval['message'] == f"Directory {self.storage.hd1()} added"
 
     def test_download_and_pre_process_a_zip_file(self):
