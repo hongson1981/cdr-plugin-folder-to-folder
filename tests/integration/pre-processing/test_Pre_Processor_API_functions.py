@@ -2,6 +2,8 @@ import os
 import sys
 from unittest import TestCase
 
+from osbot_utils.utils.Files import files_list, temp_file, file_copy, file_delete
+
 from cdr_plugin_folder_to_folder.pre_processing.Pre_Processor import Pre_Processor
 from cdr_plugin_folder_to_folder.utils.Log_Duration import log_duration
 from cdr_plugin_folder_to_folder.utils.Logging import log_debug
@@ -24,8 +26,18 @@ class test_Pre_Processor_API_functions(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        cls.test_file     = temp_file(contents='Static text so that we have a static hash')
+
         cls.status        = Status()
         cls.storage       = Storage()
+
+        cls.test_file     = temp_file(contents='Sample test file')
+        if len(files_list(cls.storage.hd1())) == 0:
+            file_copy(cls.test_file, cls.storage.hd1())
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        file_delete  (cls.test_file)
 
     def test_clear_data_and_status_folders(self):
         retval = clear_data_and_status_folders()
