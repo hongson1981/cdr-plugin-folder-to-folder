@@ -80,7 +80,7 @@ class test_Configure_Env(TestCase):
         assert folder_exists(hd3_path)
         folder_delete_all(hd3_path)
 
-    @pytest.mark.skip("this is breaking current .env file (this needs to run on a temp .env file)")
+    # @pytest.mark.skip("this is breaking current .env file (this needs to run on a temp .env file)")
     @patch("cdr_plugin_folder_to_folder.configure.Configure_Env.Configure_Env.get_valid_endpoints")
     def test_configure_multiple_gw_sdk_endpoints(self,mock_get_valid_endpoints):
 
