@@ -113,6 +113,10 @@ class test_Configure_Env(TestCase):
         response = self.configure.get_valid_endpoints(endpoint_string=endpoint_string)
         self.assertEqual(json.loads(response)  , json.loads(endpoint_string))
 
+    def test_configure_invalid_endpoints(self):
+        endpoint_string = '{"Endpoints":[{"IP":"0.0.0.0", "Port":"8080"}]}'
+        assert self.configure.configure_endpoints(endpoint_string=endpoint_string) == -1
+
     @patch("requests.request")
     def test_gw_sdk_healthcheck(self,mock_request):
         mock_request.return_value.status_code=404
