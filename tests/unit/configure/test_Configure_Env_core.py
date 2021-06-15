@@ -4,7 +4,10 @@ from unittest import TestCase
 import dotenv
 import pytest
 
+from osbot_utils.utils.Json import json_to_str
+
 from cdr_plugin_folder_to_folder.configure.Configure_Env import Configure_Env
+from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from osbot_utils.utils.Files import folder_exists, folder_delete_all
 from os import environ,path,remove,rename
 
@@ -12,6 +15,7 @@ from unittest.mock import patch,Mock
 class test_Configure_Env(TestCase):
 
     def setUp(self) -> None:
+        self.config = Config()
         self.configure = Configure_Env()
 
     @classmethod
@@ -87,10 +91,15 @@ class test_Configure_Env(TestCase):
         endpoint_string                       = '{"Endpoints":[{"IP":"0.0.0.0", "Port":"8080"},{"IP":"0.0.0.1", "Port":"8080"}]}'
         expected_return_value                 = '{"Endpoints":[{"IP":"0.0.0.0", "Port":"8080"}]}'
         mock_get_valid_endpoints.return_value = expected_return_value
+
+        old_endpoint_string                   = self.config.endpoints
         response=self.configure.configure_endpoints(endpoint_string=endpoint_string)
 
         assert response is not None
         self.assertEqual(response   , json.loads(expected_return_value))
+
+        response=self.configure.configure_endpoints(endpoint_string=json_to_str(old_endpoint_string))
+        assert response is not None
 
     @patch("cdr_plugin_folder_to_folder.configure.Configure_Env.Configure_Env.gw_sdk_health_and_version_check")
     def test_get_valid_endpoints(self,mock_gw_sdk_healthcheck):
