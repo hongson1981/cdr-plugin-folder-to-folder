@@ -1,6 +1,10 @@
 # This is a workflow to build AMI with ICAP server
 
 name: cdr-plugin
+secrets:
+   AWS_ACCESS_KEY: test
+   AWS_SECRET_ACCESS_KEY: test 
+   SSH_PASSWORD: test
 env:
   AWS_DEFAULT_REGION: eu-west-1
 # Controls when the action will run. Triggers the workflow on push or pull request
