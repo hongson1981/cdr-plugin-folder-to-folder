@@ -71,16 +71,32 @@ class Configure_Env:
 
     def env_details(self):
         self.reset_last_error()
-        try:
-            return {
-                "hd1_path": environ.get('HD1_LOCATION'),
-                "hd2_path": environ.get('HD2_LOCATION'),
-                "hd3_path": environ.get('HD3_LOCATION')
-            }
-        except Exception as e:
-            self.last_error_message = f'Configure_Env : env_details : {e}'
-            log_error(f'Configure_Env : env_details : {e}')
-            raise ValueError(str(e))
+
+        hd1_location = environ.get('HD1_LOCATION')
+        hd2_location = environ.get('HD2_LOCATION')
+        hd3_location = environ.get('HD3_LOCATION')
+
+        # if not hd1_location:
+        #     self.last_error_message = f'Configure_Env no HD1_LOCATION defined'
+        #     log_error(self.last_error_message)
+        #     raise ValueError(str(self.last_error_message))
+
+        # if not hd2_location:
+        #     self.last_error_message = f'Configure_Env no HD2_LOCATION defined'
+        #     log_error(self.last_error_message)
+        #     raise ValueError(str(self.last_error_message))
+
+        # if not hd3_location:
+        #     self.last_error_message = f'Configure_Env no HD3_LOCATION defined'
+        #     log_error(self.last_error_message)
+        #     raise ValueError(str(self.last_error_message))
+
+        return {
+            "hd1_path": hd1_location,
+            "hd2_path": hd2_location,
+            "hd3_path": hd3_location
+        }
+
 
     def configure_endpoints(self, endpoint_string):
         self.reset_last_error()

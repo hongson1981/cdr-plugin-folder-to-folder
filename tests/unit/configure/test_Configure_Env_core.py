@@ -1,5 +1,5 @@
 import json
-from unittest import TestCase
+from unittest import TestCase, mock
 
 import dotenv
 import pytest
@@ -13,6 +13,7 @@ from osbot_utils.utils.Files import folder_exists, folder_delete_all
 from os import environ,path,remove,rename
 
 from unittest.mock import patch,Mock
+
 class test_Configure_Env(TestCase):
 
     def setUp(self) -> None:
@@ -126,8 +127,20 @@ class test_Configure_Env(TestCase):
 
         assert response is None
 
+    # @patch("dotenv.find_dotenv")
+    # def test_configure_with_exception(self,mock_find_dotenv):
+    #     exception = IOError("File not found")
+    #     mock_find_dotenv.get(mock.ANY).raise_for_status.side_effect = exception
 
+    #     hd1_path      = "./test_data/scenario-1/hd1"
+    #     hd2_path      = "./test_data/scenario-1/hd2"
+    #     hd3_path      = "./test_data/scenario-1/hd3"
 
+    #     with pytest.raises(IOError) as error_info:
+    #         self.configure.configure (  hd1_path=hd1_path,
+    #                                     hd2_path=hd2_path,
+    #                                     hd3_path=hd3_path)
+    #         assert error_info == exception
 
 
 
