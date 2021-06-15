@@ -5,6 +5,7 @@ import dotenv
 import pytest
 
 from osbot_utils.utils.Json import json_to_str
+from osbot_utils.utils.Dev import pprint
 
 from cdr_plugin_folder_to_folder.configure.Configure_Env import Configure_Env
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
@@ -92,13 +93,16 @@ class test_Configure_Env(TestCase):
         expected_return_value                 = '{"Endpoints":[{"IP":"0.0.0.0", "Port":"8080"}]}'
         mock_get_valid_endpoints.return_value = expected_return_value
 
-        old_endpoint_string                   = self.config.endpoints
+        old_endpoints        = self.config.endpoints
+        old_endpoints_string  = json_to_str(old_endpoints)
+        print(f'old_endpoint_string {old_endpoints_string}')
         response=self.configure.configure_endpoints(endpoint_string=endpoint_string)
 
         assert response is not None
         self.assertEqual(response   , json.loads(expected_return_value))
 
-        response=self.configure.configure_endpoints(endpoint_string=json_to_str(old_endpoint_string))
+        mock_get_valid_endpoints.return_value = old_endpoints_string
+        response=self.configure.configure_endpoints(endpoint_string=old_endpoints_string)
         assert response is not None
 
     @patch("cdr_plugin_folder_to_folder.configure.Configure_Env.Configure_Env.gw_sdk_health_and_version_check")
