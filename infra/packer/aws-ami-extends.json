@@ -1,0 +1,81 @@
+{
+    "variables": {
+      "security_group_ids": "sg-0120400d5eefb0b9e",
+      "create_ova": "false"
+    },
+    "builders": [
+      {
+        "access_key": "{{user `aws_access_key`}}",
+        "ami_name": "{{user `vm_name`}}-{{user `github_sha`}}",
+        "instance_type": "t3.large",
+        "region": "{{user `region`}}",
+        "secret_key": "{{user `aws_secret_key`}}",
+        "ssh_username": "ubuntu",
+        "ssh_timeout": "20m",
+        "type": "amazon-ebs",
+        "ami_regions": "{{user `extra_regions`}}",
+        "security_group_ids": "{{user `security_group_ids`}}",
+        "source_ami": "ami-0213344887e47003a",
+        "tags": {
+            "OS_Version": "Ubuntu-20.04",
+            "Base_AMI_Name": "{{ .SourceAMIName }}",
+            "Name": "{{user `vm_name`}}"
+        },
+        "run_tags": {
+            "Name": "Packer Builder {{user `vm_name`}}",
+            "Team": "{{user `team_tag`}}",
+            "Owner": "{{user `owner_tag`}}",
+            "Scope": "Build AMI",
+            "Delete": "No"
+        },
+        "launch_block_device_mappings": [
+          {
+            "device_name": "/dev/sda1",
+            "volume_type": "gp2",
+            "delete_on_termination": true,
+            "volume_size": 8
+          }
+        ]
+      }
+    ],
+      "provisioners": [
+        {
+            "type": "shell",
+            "script": "./scripts/config/init-config.sh"
+        },
+        {
+            "type": "file",
+            "source":"./setup",
+            "destination":"/tmp/"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "chmod +x /tmp/setup/setup.sh",
+                "cd /tmp/setup",
+                "./setup.sh"
+            ]
+        },
+        {
+            "type": "shell",
+            "script": "./scripts/cleanup/cleanup.sh",
+            "execute_command": "chmod +x {{.Path}}; sudo {{.Path}}"
+        },
+        {
+            "type": "shell-local",
+            "inline_shebang": "/bin/bash",
+            "inline": [
+                "set -e",
+                "CREATE_OVA={{user `create_ova`}}",
+                "if [[ $CREATE_OVA == 'true' ]]; then",
+                "aws ec2 create-instance-export-task --region {{user `region`}} --instance-id {{build `ID`}} --target-environment vmware --export-to-s3-task file://ova-export.json > out.json",
+                "fi"
+            ]
+        },
+        {
+            "type": "shell-local",
+            "script": "ova-check.sh",
+            "environment_vars": ["OVA_NAME={{user `vm_name`}}-{{user `github_sha`}}.ova", "VM_NAME={{user `vm_name`}}", "CREATE_OVA={{user `create_ova`}}"]
+        }
+    ]
+}
