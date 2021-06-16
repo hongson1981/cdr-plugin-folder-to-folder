@@ -9,11 +9,11 @@
     <link rel='stylesheet' href='{{$react_css.RelPermalink}}' type='text/css' media='all' />
     {{ end }}
     
-    {{ with resources.Get "js/workflows/Workflows.jsx" }}
+    {{ with resources.Get "js/Workflows.jsx" }}
     {{ $script := . | js.Build (dict "params" (dict "api_url"  ($.Site.Data.urls.api) "kibana"  ($.Site.Data.urls.kibana) "aws_api" ($.Site.Data.urls.aws_api)) )}}
     <script src="{{ $script.RelPermalink }}" defer></script>
     {{ end }}
-   
+ </head>  
 <body>
     <div id="react"></div>
 </body>
