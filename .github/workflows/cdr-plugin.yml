@@ -18,7 +18,7 @@ on:
         required: true
   push:
     branches: 
-     - main
+     - docker-compose-extends
     paths:
       - 'kubernetes'
       - 'cdr_plugin_folder_to_folder'
@@ -64,76 +64,3 @@ jobs:
         sed -i 's/<vm_name>/cdr-plugin/g' ova-export.json
         RANDOM_STR=${{ github.sha }}-${{ github.run_number }}
         packer build -color=false -on-error=cleanup -var github_sha=$RANDOM_STR -var vm_name=cdr-plugin -var create_ova=${{ github.event.inputs.create_ova }} -var region=${{ env.AWS_DEFAULT_REGION }} -var extra_regions=${{ github.event.inputs.extra_regions }} -var aws_access_key=${{ secrets.AWS_ACCESS_KEY }} -var aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }} -var elastic_host=${{ github.event.inputs.monitoring_ip }} -var elastic_port=9200 -var elastic_user=${{ secrets.MONITORING_USER }} -var elastic_password=${{ secrets.MONITORING_PASSWORD }} -var team_tag=k8-proxy -var owner_tag=githubactionAMIpacker aws-ami.json
-  
-  deploy-ami:
-    runs-on: ubuntu-latest
-    needs: build-ami-ova
-    steps:
-      - name: Get the current instance id
-        id: get_id
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
-        run: |
-          # instance_id="${{ steps.deploy.outputs.instance_id }}"
-          instance_id=$(aws ec2 describe-instances --filters 'Name=tag:Name,Values=dev-cdr-plugin' "Name=instance-state-name,Values=running" --output text --query 'Reservations[*].Instances[*].InstanceId')
-          echo ::set-output name=instance_id::$instance_id
-          
-      - name: Deploy AMI to dev
-        id: deploy
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
-        run: |
-          RANDOM_STR=${{ github.sha }}-${{ github.run_number }}
-          ami_id=$(aws ec2 describe-images --filters "Name=name,Values=cdr-plugin-${RANDOM_STR}" --query 'Images[*].[ImageId]' --output text)
-          result=$(aws ec2 run-instances --image-id $ami_id --count 1 --instance-type t2.large --key-name packer --security-group-ids sg-0120400d5eefb0b9e --tag-specifications 'ResourceType=instance, Tags=[{Key=Name,Value=dev-cdr-plugin}, {Key=Delete,Value=No},{Key=Scope,Value=cdr-plugin}, {Key=Team, Value=k8-proxy/cdr-plugin}, {Key=Owner, Value=githubactionAMIpacker}, {Key=AMI_Name, Value=cdr-plugin-${{ github.sha }}}]' --block-device-mappings 'DeviceName=/dev/sda1,Ebs={DeleteOnTermination=true,VolumeSize=20,VolumeType=gp2}')
-          sleep 2m
-          instance_id=$(echo $result | jq -r ".Instances[0].InstanceId")
-          echo "$instance_id is created."
-          instance_description=$(aws ec2 describe-instances --instance-ids $instance_id)
-          instance_state=$(echo $instance_description | jq -r ".Reservations[0].Instances[0].State.Name")
-          echo "Instance state is $instance_state"
-          if [[ "$instance_state" != "running" ]];then
-              echo "EC2 instance $instance_id created from AMI has failed to start in time, terminating the instance." 
-              aws ec2 terminate-instances --instance-ids $instance_id
-              exit -1
-          fi
-          instance_ip=$(echo $instance_description | jq -r ".Reservations[0].Instances[0].PublicIpAddress")
-          echo "Connect to the ICAP server at: ${instance_ip}"
-          echo ::set-output name=instance_ip::$instance_ip
-          echo ::set-output name=instance_id::$instance_id
-          echo ::set-output name=ami_id::$ami_id
-
-      - name: Run tests on the VM
-        id: test
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
-        run: |
-          instance_id="${{ steps.deploy.outputs.instance_id }}"
-          instance_ip="${{ steps.deploy.outputs.instance_ip }}"
-          ami_id="${{ steps.deploy.outputs.ami_id }}"
-          curl --fail -kv http://$instance_ip:8880/health
-          echo "Tests are successfully on the new instance, terminating old instance."
-          aws ec2 create-tags --resources $ami_id --tags Key=Test_Result,Value=Success
-          instance_id="${{ steps.get_id.outputs.instance_id }}"
-          if [[ ! -z "$instance_id" ]]; then
-            echo "$instance_id" | while IFS= read -r line ; do aws ec2 terminate-instances --instance-ids $line || true; done
-          fi
-
-      - name: Delete instance if tests fail
-        if: ${{ failure() }}
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
-        run: |
-          echo "Failed integration tests, terminating the newly deployed VM"
-          instance_id="${{ steps.deploy.outputs.instance_id }}"
-          ami_id="${{ steps.deploy.outputs.ami_id }}"
-          aws ec2 terminate-instances --instance-ids $instance_id
-          aws ec2 create-tags --resources $ami_id --tags Key=Test_Result,Value=Failed
