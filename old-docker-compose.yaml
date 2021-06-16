@@ -1,38 +1,6 @@
-version: '3.2'
+version:  '3.3'
 services:
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    restart: always
-    ports:
-    - 9090:9090
-    command:
-    - --config.file=/etc/prometheus/prometheus.yml
-    volumes:
-    - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    depends_on:
-    - cadvisor
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
-    restart: always
-    ports:
-    - 8080:8080
-    volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:rw
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
-    depends_on:
-    - redis
-  redis:
-    image: redis:latest
-    container_name: redis
-    restart: always
-    ports:
-    - 6379:6379
-#version: "3.3"
-# Jupyter
+  # Jupyter
   jupyter:
       image: cdr_plugin_folder_to_folder_notebooks
       build:
@@ -83,8 +51,6 @@ services:
       depends_on:
         - 'es01'
       command: ["./wait-for-it.sh", "es01:9200", "--", "python", "cdr_plugin_folder_to_folder/api/Server.py"]
-      environment:
-        - CDR_VERSION=${CDR_VERSION}
       restart: always
 
   # Website
@@ -142,3 +108,27 @@ services:
     restart: always
 
   # minio
+
+  minio:
+    image: minio/minio:latest
+    volumes:
+      - ${HOST_MINIO_LOCATION}:/data
+    ports:
+      - 9000:9000
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: ${ACCESS_TOKEN}
+    command: server /data
+    restart: always
+
+
+  # docker logs (using file beat)
+
+#  filebeat:
+#    image: docker.elastic.co/beats/filebeat:7.12.0
+#    user: root
+#    volumes:
+#       note: filebeat.yml changed location to /infra/docker-compose/filebeat.yml
+#      - ${PWD}/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+#      - /var/lib/docker:/var/lib/docker:ro
+#      - /var/run/docker.sock:/var/run/docker.sock

@@ -1,0 +1,23 @@
+services: 
+  web: 
+    extends: 
+      file: promethgrafana-compose.yml
+      service: prometheus-grafana
+  web: 
+    extends: 
+      file: jupyter-compose.yml
+      service: jupyter
+  web:
+    extends:
+      file: est01-kibana-compose.yml
+      service:  es01-kib01
+  web:
+    extends:
+      file: website-compose.yml
+      service: website
+  web:
+    extends:
+      file: mino-compose.yml
+      service: minio
+  
+version: "3.3"
