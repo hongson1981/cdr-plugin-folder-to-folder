@@ -11,7 +11,7 @@ sudo hostnamectl set-hostname glasswall
 
 # get source code
 cd ~
-BRANCH=${BRANCH:-docker-compose-extends}
+BRANCH=${BRANCH:-develop}
 GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-filetrust/cdr-plugin-folder-to-folder}
 git clone https://github.com/${GITHUB_REPOSITORY}.git --branch $BRANCH --recursive && cd cdr-plugin-folder-to-folder
 
