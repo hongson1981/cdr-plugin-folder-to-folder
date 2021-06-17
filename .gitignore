@@ -150,3 +150,5 @@ alpine-control-vmdk/bin/*.sha256sum
 test
 website/site/node_modules/*
 website/site/public
+website/.DS_Store
+.DS_Store
