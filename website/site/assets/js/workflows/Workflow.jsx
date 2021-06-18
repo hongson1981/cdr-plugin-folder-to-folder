@@ -3,19 +3,25 @@ import LoaderBlocking       from  "../components/Loader/LoaderBlocking";
 import Configuration        from "./Configuration"
 import Processing           from "./Processing"
 import Dashboard            from "./Dashboard";
+import * as Utils       from "js/services/Utils";
 
 
 
 export default function Workflow() {
 
   const [loader, showLoader]                  = useState(false);
-  const [errorMessage, setErrorMessage]  = useState("");
+  const [errorMessage, setErrorMessage]       = useState("");
   const [showError, setShowError]             = useState(false);
-  const [threadCount, setThreadCount]         = useState(25);
+  const [threadCount, setThreadCount]         = useState(
+        localStorage.getItem(Utils.LS_KEY_THREAD_COUNT)!=null?
+          localStorage.getItem(Utils.LS_KEY_THREAD_COUNT):25);
   const [showSuccess, setShowSuccess]         = useState(false);
   const [successMessage, setSuccessMessage]   = useState("");
   
- const closeSuccessAlert=()=>{
+  React.useEffect(() => {
+   }, []);
+ 
+  const closeSuccessAlert=()=>{
     setShowSuccess(false);
  }
 

@@ -89,7 +89,7 @@ export default function Processing(props) {
  
  const displayStatus=()=>{
   showStatusLoader(true)
-  APIService.callAPIGet2(Utils.API_URL + Utils.API_STATUS_PATH)
+  APIService.callAPIGet(Utils.API_URL + Utils.API_STATUS_PATH)
   .then(data => {
     setStatusModal(true)
     setDialogContent(data);

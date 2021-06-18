@@ -221,6 +221,7 @@ button.btn-grp {
   margin: 0 0 5px 0;
   font-size: 17px;
   color: #0c3451;
+  position: relative;
 }
 .cdr-right {
   float: right;
@@ -622,6 +623,32 @@ button#viewConfigButton {
   background: transparent;
   color: #0784f0;
   font-weight: 300;
+}
+button#resetConfigButton {
+  position: absolute;
+  right: 110px;
+  top: 10px;
+  z-index: 1;
+  padding: 0px 8px;
+  background: transparent;
+  color: #0784f0;
+  font-weight: 300;
+}
+
+button#editPortButton {
+  position: absolute;
+  margin-left: 15px;
+  display: inline-block;
+  top: 0px;
+  z-index: 1;
+  font-size: 15px;
+  padding: 0px 8px;
+  background: transparent;
+  color: #0784f0;
+  font-weight: 300;
+}
+button#editPortButton i.fa.fa-edit {
+  margin: 0 4px 0 0;
 }
 .action-buttons .start-processing, .action-buttons .stop-processing, .action-buttons .load-files, .action-buttons .clear-data, .action-buttons .status-button {
   padding: 8px 30px !important;
