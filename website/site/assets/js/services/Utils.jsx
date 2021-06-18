@@ -29,3 +29,13 @@ export const getCurrentDateAndTime=()=>{
     let dateObj = new Date()
     return dateObj.toLocaleDateString("en-US") + "- " + dateObj.toLocaleTimeString("en-US") + ": ";
 }
+
+
+export const getEndPoints =(cloudSDKIPs, sdkPort)=>{
+    let cloudSDKIPObject = JSON.parse(cloudSDKIPs);
+    let plugin_ips = cloudSDKIPObject.map(itm => {
+      let obj = { "IP": itm, "Port": sdkPort }
+      return obj
+    })
+    return plugin_ips;
+}

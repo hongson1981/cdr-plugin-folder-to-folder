@@ -42,7 +42,6 @@ export default function Workflow() {
  } 
 
  const setThreadChangeHandler=(thread)=>{
-   console.log("setThreadChangeHandler" + thread)
     setThreadCount(thread)
  }
 
@@ -54,22 +53,22 @@ export default function Workflow() {
         }
         {
         showError &&
-        <div 
-          id        ="alertBar" 
-          className ="alert alert-danger alert-dismissible fade in" 
-          >
-        <button 
-            id          ="closeAlert" 
-            className   ="close" 
-            data-dismiss="alert" 
-            aria-label  ="close"
-            onClick     ={closeErrorAlert}
-            >&times;</button>
-        <strong>
-          <img src="/images/fire.png" alt="error" />
-          </strong>
-        <p id="errortext" >{errorMessage}</p> 
-        </div>
+          <div 
+            id        ="alertBar" 
+            className ="alert alert-danger alert-dismissible fade in" 
+            >
+          <button 
+              id          ="closeAlert" 
+              className   ="close" 
+              data-dismiss="alert" 
+              aria-label  ="close"
+              onClick     ={closeErrorAlert}
+              >&times;</button>
+          <strong>
+            <img src="/images/fire.png" alt="error" />
+            </strong>
+          <p id="errortext" >{errorMessage}</p> 
+          </div>
         }
        
        {showSuccess &&
