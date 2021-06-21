@@ -3,19 +3,25 @@ import LoaderBlocking       from  "../components/Loader/LoaderBlocking";
 import Configuration        from "./Configuration"
 import Processing           from "./Processing"
 import Dashboard            from "./Dashboard";
+import * as Utils       from "js/services/Utils";
 
 
 
 export default function Workflow() {
 
   const [loader, showLoader]                  = useState(false);
-  const [errorMessage, setErrorMessage]  = useState("");
+  const [errorMessage, setErrorMessage]       = useState("");
   const [showError, setShowError]             = useState(false);
-  const [threadCount, setThreadCount]         = useState(25);
+  const [threadCount, setThreadCount]         = useState(
+        localStorage.getItem(Utils.LS_KEY_THREAD_COUNT)!=null?
+          localStorage.getItem(Utils.LS_KEY_THREAD_COUNT):25);
   const [showSuccess, setShowSuccess]         = useState(false);
   const [successMessage, setSuccessMessage]   = useState("");
   
- const closeSuccessAlert=()=>{
+  React.useEffect(() => {
+   }, []);
+ 
+  const closeSuccessAlert=()=>{
     setShowSuccess(false);
  }
 
@@ -36,7 +42,6 @@ export default function Workflow() {
  } 
 
  const setThreadChangeHandler=(thread)=>{
-   console.log("setThreadChangeHandler" + thread)
     setThreadCount(thread)
  }
 
@@ -48,22 +53,22 @@ export default function Workflow() {
         }
         {
         showError &&
-        <div 
-          id        ="alertBar" 
-          className ="alert alert-danger alert-dismissible fade in" 
-          >
-        <button 
-            id          ="closeAlert" 
-            className   ="close" 
-            data-dismiss="alert" 
-            aria-label  ="close"
-            onClick     ={closeErrorAlert}
-            >&times;</button>
-        <strong>
-          <img src="/images/fire.png" alt="error" />
-          </strong>
-        <p id="errortext" >{errorMessage}</p> 
-        </div>
+          <div 
+            id        ="alertBar" 
+            className ="alert alert-danger alert-dismissible fade in" 
+            >
+          <button 
+              id          ="closeAlert" 
+              className   ="close" 
+              data-dismiss="alert" 
+              aria-label  ="close"
+              onClick     ={closeErrorAlert}
+              >&times;</button>
+          <strong>
+            <img src="/images/fire.png" alt="error" />
+            </strong>
+          <p id="errortext" >{errorMessage}</p> 
+          </div>
         }
        
        {showSuccess &&

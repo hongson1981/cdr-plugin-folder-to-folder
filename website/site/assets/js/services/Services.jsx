@@ -1,7 +1,7 @@
 
 let mock = false;
 
-export const callAPIGet=(url, callback)=>{
+export const callAPIGetAsync=(url, callback)=>{
     if(!mock){
         fetch(url)
         .then(res => res.json())
@@ -41,7 +41,7 @@ export async function callAPIPost(url = '', data = {}, pathParm='') {
 
 
 
-export async function callAPIGet2(url = '', queryParams = {}, pathParm='') {
+export async function callAPIGet(url = '', queryParams = {}, pathParm='') {
     if(!mock){
          // Default options are marked with *
         const response = await fetch(url+pathParm, {

@@ -16,6 +16,11 @@ export const STOP_PROCESSING        = "/processing/stop";
 export const API_STATUS_PATH        = "/processing/status"
 export const CLEAN_DATA_STATUS      = "/pre-processor/clear-data-and-status";
 
+export const LS_KEY_BASEDIR         = 'basedir';
+export const LS_KEY_THREAD_COUNT    = 'threadcount';
+export const LS_KEY_SDK_PORT        = 'cloudsdkport';
+export const SDK_DEFAULT_PORT       = '8080'
+
 
 
 export const TEST_DATA=["scenario-1","scenario-2"]
@@ -23,4 +28,14 @@ export const getCurrentDateAndTime=()=>{
 
     let dateObj = new Date()
     return dateObj.toLocaleDateString("en-US") + "- " + dateObj.toLocaleTimeString("en-US") + ": ";
+}
+
+
+export const getEndPoints =(cloudSDKIPs, sdkPort)=>{
+    let cloudSDKIPObject = JSON.parse(cloudSDKIPs);
+    let plugin_ips = cloudSDKIPObject.map(itm => {
+      let obj = { "IP": itm, "Port": sdkPort }
+      return obj
+    })
+    return plugin_ips;
 }
