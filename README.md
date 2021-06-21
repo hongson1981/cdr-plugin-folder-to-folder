@@ -96,6 +96,4 @@ The Metadata_Service class manages the creation and updating of the metadata.jso
 - Open `http://localhost:5601/`
 - Use `access_token` as password
 
-## Troubleshooting
- - If the "Load AWS" button click gives a 403 - CORS - Content Security Error please open Chrome in safe browsing mode (https://alfilatov.com/posts/run-chrome-without-cors/) and retry.
 
