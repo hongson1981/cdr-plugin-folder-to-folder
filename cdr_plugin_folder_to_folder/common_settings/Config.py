@@ -174,7 +174,7 @@ class Config:
             "request_timeout"        : self.request_timeout
         }
 
-    def test_dir_folders(self):
+    def get_test_dir_folders(self):
         root_folder = os.getenv("ROOT_FOLDER", DEFAULT_ROOT_FOLDER)
         head, tail = os.path.split(root_folder)
         dirs = [name for name in os.listdir(head) if os.path.isdir(os.path.join(head, name)) and not name.startswith('.')]
