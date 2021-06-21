@@ -81,4 +81,4 @@ def reset_logging():
 
 @router.get("/test_data_folders/")
 def get_test_data_base_dir():
-    return json.loads(Config().test_dir_folders())
+    return Config().test_dir_folders()
