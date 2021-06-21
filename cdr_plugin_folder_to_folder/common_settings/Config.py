@@ -177,7 +177,5 @@ class Config:
     def test_dir_folders(self):
         root_folder = os.getenv("ROOT_FOLDER", DEFAULT_ROOT_FOLDER)
         head, tail = os.path.split(root_folder)
-        dirs = []
-        for root, dirname, filename in os.walk(head):
-            dirs.append(dirname)
+        dirs = [name for name in os.listdir(head) if os.path.isdir(os.path.join(head, name))]
         return dirs
