@@ -173,3 +173,11 @@ class Config:
             "endpoints"              : self.endpoints           ,
             "request_timeout"        : self.request_timeout
         }
+
+    def test_dir_folders(self):
+        self.root_folder = os.getenv("ROOT_FOLDER", DEFAULT_ROOT_FOLDER)
+        head, tail = os.path.split('product/bin/client')
+        dirs = []
+        for root, dirname, filename in os.walk(head):
+            dirs.append(dirname)
+        return dirs

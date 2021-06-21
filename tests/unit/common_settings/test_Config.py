@@ -116,3 +116,7 @@ class test_Config(Temp_Config):
         assert self.config.hd3_location == hd3_location
         assert file_exists(hd3_location)
         assert folder_delete_all(hd3_location)
+
+    def test_get_base_dir_folders(self):
+        response = self.config.test_dir_folders()
+        assert list_set(response) == ['scenario-1']
