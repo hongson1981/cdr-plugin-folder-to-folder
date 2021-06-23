@@ -4,6 +4,7 @@ import zipfile
 import shutil
 import logging as logger
 from datetime import datetime
+from time import sleep
 
 from osbot_utils.utils.Files import folder_create, folder_delete_all, folder_copy, \
     path_combine, file_delete, file_exists, folder_exists
@@ -31,18 +32,29 @@ logger.basicConfig(level=logger.INFO)
 
 class Pre_Processor:
 
+    DATA_CLEARED        = "Data cleared from HD2"
+    DATA_RESTORED       = "HD2 data restored to the initial state"
+    PROCESSING_IS_DONE  = "Processing is done"
+
     lock = threading.Lock()
 
+    _instance = None
+    def __new__(cls):                                               # singleton pattern
+        if cls._instance is None:
+            cls._instance = super(Pre_Processor, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self):
-        self.config         = Config()
-        self.meta_service   = Metadata_Service()
-        self.status         = Status()
-        self.storage        = Storage()
-        self.file_name      = None                              # set in process() method
-        self.current_path   = None
-        self.base_folder    = None
-        self.dst_folder     = None
-        self.dst_file_name  = None
+        if hasattr(self, 'instantiated') is False:                  # only set these values first time around
+            self.instantiated   = True
+            self.config         = Config()
+            self.meta_service   = Metadata_Service()
+            self.status         = Status()
+            self.storage        = Storage()
+            self.current_path   = None
+            self.base_folder    = None
+            self.dst_folder     = None
+            self.dst_file_name  = None
 
     def clean_elastic_data(self):
         metadata_elastic = Metadata_Elastic()
@@ -53,6 +65,7 @@ class Pre_Processor:
 
     @log_duration
     def clear_data_and_status_folders(self):
+
         data_target      = self.storage.hd2_data()       # todo: refactor this clean up to the storage class
         status_target    = self.storage.hd2_status()
         processed_target = self.storage.hd2_processed()
@@ -68,12 +81,13 @@ class Pre_Processor:
         self.status.reset()
         self.clean_elastic_data()
 
+        return Pre_Processor.DATA_CLEARED
+
     @log_duration
     def mark_all_hd2_files_unprocessed(self):
-        print(f'mark_all_hd2_files_unprocessed {self.status.get_current_status()}')
 
         if Processing_Status.NONE != self.status.get_current_status() and \
-           Processing_Status.STOPPED != self.status.get_current_status():
+        Processing_Status.STOPPED != self.status.get_current_status():
             # do nothing if the processing has not been completed
             return
 
@@ -93,6 +107,9 @@ class Pre_Processor:
 
         self.status.reset_phase2()
         reset_data_folder_to_the_initial_state()
+
+        return Pre_Processor.DATA_RESTORED
+
 
     def file_hash(self, file_path):
         return self.meta_service.file_hash(file_path)
@@ -114,9 +131,10 @@ class Pre_Processor:
 
     @log_duration
     def process_folder(self, folder_to_process, thread_count = DEFAULT_THREAD_COUNT):
+
         if not os.path.isdir(folder_to_process):
             # todo: add an event log
-           return False
+           return f"{folder_to_process} is not a directory"
 
         folder_to_process = self.prepare_folder(folder_to_process)
 
@@ -136,7 +154,6 @@ class Pre_Processor:
             for filename in filenames:
                 file_path =  os.path.join(folderName, filename)
                 if os.path.isfile(file_path):
-                    #self.process((file_path, ))
                     thread_data.append((file_path, ))
 
         pool = ThreadPool(thread_count)
@@ -144,15 +161,24 @@ class Pre_Processor:
         pool.close()
         pool.join()
 
-        #self.status.reset_phase2()
-        return True
+        return f"Directory {folder_to_process} added"
 
-    def process_files(self, thread_count = DEFAULT_THREAD_COUNT):
+    def process_folder_api(self, folder_to_process, thread_count = DEFAULT_THREAD_COUNT):
+
+
+        return self.process_folder(folder_to_process, thread_count)
+
+    def process_hd1_files(self, thread_count = DEFAULT_THREAD_COUNT):
+
         self.status.StartStatusThread()
         self.status.set_phase_1()
+
         self.process_folder(self.storage.hd1(), thread_count)
-        self.status.set_phase_2()
+
         self.status.StopStatusThread()
+        self.status.set_phase_2()
+
+        return Pre_Processor.PROCESSING_IS_DONE
 
     @log_duration
     def process(self, thread_data):
@@ -173,9 +199,6 @@ class Pre_Processor:
         original_hash  = metadata.get_original_hash()
         status         = metadata.get_rebuild_status()
 
-        if status == FileStatus.INITIAL:
-            self.status.add_file()
-
         tok   = datetime.now()
         delta = tok - tik
 
@@ -191,6 +214,7 @@ class Pre_Processor:
             self.status.set_not_copied()
 
     def process_downloaded_zip_file(self, url):
+
         retvalue = "No value"
         directory_name = url.replace('/', '_').replace(':', '').replace('.','_')
         zip_file_name = directory_name + '.zip'
@@ -248,6 +272,5 @@ def reset_data_folder_to_the_initial_state():
         errors_json_path = path_combine(metadata_folder, "error.json")
         if file_exists(errors_json_path):
             file_delete(errors_json_path)
-
 
     return True

@@ -53,4 +53,5 @@ class Temp_Config(TestCase):
 
     def execute_stage_1(self):
         pre_processor = Pre_Processor()
-        return pre_processor.process_folder(pre_processor.storage.hd1())
+        pre_processor.process_folder(pre_processor.storage.hd1())
+        return True
