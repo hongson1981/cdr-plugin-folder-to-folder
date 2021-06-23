@@ -78,7 +78,8 @@ class test_Server(TestCase):
                                           '/processing/status'                                   : { 'methods': {'GET' }, 'name': 'get_the_processing_status'           , 'path_format': '/processing/status'                                   },
                                           '/processing/stop'                                     : { 'methods': {'POST'}, 'name': 'stop_processing'                     , 'path_format': '/processing/stop'                                     },
                                           '/status'                                              : { 'methods': {'GET' }, 'name': 'status'                              , 'path_format': '/status'                                              },
-                                          '/version'                                             : { 'methods': {'GET' }, 'name': 'version'                             , 'path_format': '/version'                                             }}
+                                          '/version'                                             : { 'methods': {'GET' }, 'name': 'version'                             , 'path_format': '/version'                                             },
+                                          '/configuration/test_data_folders/'                    : {'methods': {'GET'}  , 'name': 'get_test_data_dirs'                  , 'path_format': '/configuration/test_data_folders/'                    }}
 
 
     # todo add global exception handler
