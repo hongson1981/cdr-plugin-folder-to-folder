@@ -306,14 +306,14 @@ class test_File_Processing(Temp_Config):
         endpoint = 'http://127.0.0.1:8080'
         assert self.file_processing.do_rebuild(endpoint,'ABC',source,dir) is False
 
-    def test_get_server_version(self):
+    def test_get_metadata_from_headers(self):
 
         headers = {SDKEngineVersionKey: '1.0.0', SDKAPIVersionKey: '1.0.0'}
         assert SDKEngineVersionKey in headers
         assert SDKAPIVersionKey in headers
 
         dir = os.path.dirname(self.test_file_metadata.metadata_file_path())
-        self.file_processing.get_server_version(dir, headers)
+        self.file_processing.get_metadata_from_headers(dir, headers)
         server_version = self.file_processing.meta_service.metadata.get_server_version()
         assert server_version == 'Engine:1.0.0 API:1.0.0'
 
@@ -321,6 +321,6 @@ class test_File_Processing(Temp_Config):
         assert not SDKEngineVersionKey in headers
         assert not SDKAPIVersionKey in headers
 
-        self.file_processing.get_server_version(dir, headers)
+        self.file_processing.get_metadata_from_headers(dir, headers)
         server_version = self.file_processing.meta_service.metadata.get_server_version()
-        assert server_version == 'Engine:1.0.0 API:1.0.0'
+        assert server_version == 'Engine: API:'
