@@ -1,8 +1,5 @@
 ---
-title: Workflows
+title: "Workflows"
 weight: 5
 ---
-
-## Workflows
-
-{{% children %}}
+{{< workflows/workflows >}}
