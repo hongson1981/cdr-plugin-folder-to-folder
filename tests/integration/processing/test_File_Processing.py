@@ -48,7 +48,7 @@ class test_File_Processing(Temp_Config):
 
     def setUp(self) -> None:
         self.sdk_server         = self.config.test_sdk
-        self.sdk_port           = '8080'
+        self.sdk_port           = '80'
         #self.temp_folder        = temp_folder()
         self.events_elastic     = Events_Log_Elastic()
         self.endpoint_service   = Endpoint_Service()
@@ -89,7 +89,7 @@ class test_File_Processing(Temp_Config):
         # assert metadata.data.get('xml_report_status'      ) == 'Obtained'
         # assert metadata.data.get('file_name'              ) == self.test_file_name
         assert metadata.data.get('rebuild_server'         ) == endpoint
-        assert metadata.data.get('server_version'         ).startswith('Engine:1.157 API:0.1.1')
+        assert metadata.data.get('server_version'         ).startswith('Engine:1.157 API:v0.3.0')
         assert metadata.data.get('error'                  ) is None
         assert metadata.data.get('original_hash'          ) == self.test_file_hash
         assert metadata.data.get('original_file_size'     ) == 755
@@ -121,7 +121,7 @@ class test_File_Processing(Temp_Config):
         # assert metadata.data.get('xml_report_status'      ) == 'Obtained'
         # assert metadata.data.get('file_name'              ) == self.test_file_name
         assert metadata.data.get('rebuild_server'         ) == endpoint
-        assert metadata.data.get('server_version'         ).startswith('Engine:1.157 API:0.1.1')
+        assert metadata.data.get('server_version'         ).startswith('Engine:1.157 API:v0.3.0')
         assert metadata.data.get('error'                  ) is None
         assert metadata.data.get('original_hash'          ) == self.test_file_hash
         assert metadata.data.get('original_file_size'     ) == 755
@@ -220,7 +220,7 @@ class test_File_Processing(Temp_Config):
 
     def test_pdf_rebuild(self):            # refactor into separate test file
         server          = self.config.test_sdk
-        url             = f"http://{server}:8080/api/rebuild/base64"
+        url             = f"http://{self.sdk_server}:{self.sdk_port}/api/rebuild/base64"
         headers         = { 'accept': 'application/json',
                             'Content-Type': 'application/json'}
         text            = random_text("random text - ")
