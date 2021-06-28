@@ -1,35 +1,23 @@
-import React, { useState } from "react";
-import GWButton                 from "../../../components/buttons/GWButton";
+import React, { useState }      from "react";
 import * as APIService          from "../../../services/Services";
 import * as Utils               from "../../../services/Utils";
-import { withStyles } from '@material-ui/core/styles';
-import { green } from '@material-ui/core/colors';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
-
-const GreenRadio = withStyles({
-  root: {
-    color: green[400],
-    '&$checked': {
-      color: green[600],
-    },
-  },
-  checked: {},
-})((props) => <Radio color="default" {...props} />);
+import { withStyles }           from '@material-ui/core/styles';
+import { green }                from '@material-ui/core/colors';
+import Radio                    from '@material-ui/core/Radio';
+import RadioGroup               from '@material-ui/core/RadioGroup';
+import FormControlLabel         from '@material-ui/core/FormControlLabel';
+import FormControl              from '@material-ui/core/FormControl';
+import FormLabel                from '@material-ui/core/FormLabel';
 
 export default function Scenarios(props) {
 
   const [defaultVolume, setDefaultVolume] = useState(localStorage.getItem(Utils.LS_KEY_BASEDIR));
-   const [type, setType]                  = useState(localStorage.getItem(Utils.LS_KEY_VOLUME_TYPE)||Utils.VOLUME_DEFAULT);
-  const [hd1, setHD1]                     = useState(localStorage.getItem(Utils.VOLUME_HD1)|| "")
-  const [hd2, setHD2]                     = useState(localStorage.getItem(Utils.VOLUME_HD2) || "")
-  const [hd3, setHD3]                     = useState(localStorage.getItem(Utils.VOLUME_HD3)|| "")
-  const [customVolume, setCustomVolume]   = useState({hd1:"",hd2:"", hd3:""})
- 
-  const [scenarios, setScenarios] = useState(null)
+  const [type, setType]                   = useState(localStorage.getItem(Utils.LS_KEY_VOLUME_TYPE)||Utils.VOLUME_DEFAULT);
+  const [hd1, setHD1]                     = useState(localStorage.getItem(Utils.VOLUME_HD1, ""))
+  const [hd2, setHD2]                     = useState(localStorage.getItem(Utils.VOLUME_HD2, ""))
+  const [hd3, setHD3]                     = useState(localStorage.getItem(Utils.VOLUME_HD3, ""))
+  const [customVolume, setCustomVolume]   = useState({hd1:"test",hd2:"test2", hd3:"test3"})
+  const [scenarios, setScenarios]         = useState(null)
 
 
   React.useEffect(() => {
@@ -68,11 +56,11 @@ const loadScenarios = (alert = false) => {
         props.setError("No scenario available")
         return;
       }
-      }else if(type === Utils.VOLUME_CUSTOM){
-        bodyFormat = {
-          "hd1_path": hd1,
-          "hd2_path": hd2,
-          "hd3_path": hd3,
+    }else if(type === Utils.VOLUME_CUSTOM){
+      bodyFormat = {
+        "hd1_path": hd1,
+        "hd2_path": hd2,
+        "hd3_path": hd3,
       }
     }
 
@@ -85,6 +73,7 @@ const loadScenarios = (alert = false) => {
         }else{
           props.setError(data.detail)
         }
+        
       }).catch(error => {
         console.log("error" + error);
         showLoader(false);

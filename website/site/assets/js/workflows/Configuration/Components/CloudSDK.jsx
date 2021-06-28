@@ -4,12 +4,9 @@ import EditableTable                 from "../../../components/EditableTable/Edi
 import * as APIService          from "../../../services/Services";
 import * as Utils               from "../../../services/Utils";
 import swal                     from 'sweetalert';
-import ReactJson                from 'react-json-view'
 
 export default function CloudSDK(props) {
-    const [liveIPList, setLiveIpList] = useState([]);
     const [updatedIPList, setUpdatedIPList] = React.useState( localStorage.getItem(Utils.LS_KEY_SDK_IP) ? JSON.parse(localStorage.getItem(Utils.LS_KEY_SDK_IP)):[] )
-    //const [updatedIPList, setUpdatedIPList] = React.useState( [] )
     const [skipPageReset, setSkipPageReset] = React.useState(false)
     const [refresh, setRefresh] = React.useState(true)
 
@@ -48,15 +45,10 @@ export default function CloudSDK(props) {
         localStorage.setItem(Utils.LS_KEY_SDK_IP, JSON.stringify(updatedIPList));
       }
     
-      // After data chagnes, we turn the flag back off
-      // so that if data actually changes when we're not
-      // editing it, the page is reset
       React.useEffect(() => {
         setSkipPageReset(true)
       }, [updatedIPList])
     
-      // Let's add a data resetter/randomizer to help
-      // illustrate that flow...
       const resetData = () => {
           setUpdatedIPList([]);
           setRefresh(!refresh);
@@ -70,7 +62,6 @@ export default function CloudSDK(props) {
             let obj = { IP: item, Port: port }
             sdkIps.push(obj)
         })
-        setLiveIpList(sdkIps)
         setUpdatedIPList(JSON.parse(JSON.stringify(sdkIps)));
         localStorage.setItem(Utils.LS_KEY_SDK_IP, JSON.stringify(sdkIps));
     }
@@ -83,7 +74,7 @@ export default function CloudSDK(props) {
         props.showLoader(true);
         APIService.callAPIGet(Utils.SDK_SERVER_IPS + Utils.LOAD_CLOUD_SDK_IPS)
             .then(data => {
-                addKeys(data.live_ips, "8080");
+                addKeys(data.live_ips, Utils.SDK_DEFAULT_PORT);
                 showLoader(false);
             }).catch(error => {
                 console.log("error" + error);
@@ -103,7 +94,8 @@ export default function CloudSDK(props) {
             .then(data => {
                 if (data.Endpoints) {
                     props.showSuccessAlert("Successfully set");
-                    setUpdatedIPList(data.Endpoints)
+                    setUpdatedIPList(data.Endpoints);
+                    localStorage.setItem(Utils.LS_KEY_SDK_IP, JSON.stringify(data.Endpoints));
                 } else {
                     props.setError(data.detail)
                     loadLiveIPs();
@@ -119,7 +111,7 @@ export default function CloudSDK(props) {
     }
 
     const addData =()=>{
-        var record = {IP:'0.0.0.0', Port:"8080"}
+        var record = {IP:'0.0.0.0', Port:Utils.SDK_DEFAULT_PORT}
         var existing = updatedIPList;
 
         existing.push(record);
@@ -129,25 +121,21 @@ export default function CloudSDK(props) {
 
     }
 
+    
+    const deleteData =(dataindex)=>{
+        var existing = updatedIPList;
+        if (dataindex > -1) {
+            existing.splice(dataindex, 1);
+        }
+        setUpdatedIPList(existing)
+        setRefresh(!refresh);
+        localStorage.setItem(Utils.LS_KEY_SDK_IP, JSON.stringify(existing));
+  }
+
     return (
         <div>
             <div className="card-holder">
                 <div className="cdr-left">
-                    {/* <ReactJson src={updatedLiveIps}
-                        theme="twilight"
-                        onEdit={true}
-                        onAdd={true}
-                        onDelete={true}
-                        name="SDK"
-                        onEdit={e => {
-                            console.log(e)
-                            if (e.new_value == "error") {
-                                return false
-                            }
-                            setUpdatedLiveIps(e.updated_src);
-                        }}
-                        displayDataTypes={false} /> */}
-                    {/* <button onClick={resetData}></button> */}
                     <div className="sdk-btn-grp">
                         <GWButton showLoader={false} text="Reset" callback={resetData} classname="clear-data" />
                         <GWButton showLoader={false} text="Add" callback={addData} classname="start-processing" />
@@ -157,6 +145,7 @@ export default function CloudSDK(props) {
                         data={updatedIPList}
                         updateMyData={updateMyData}
                         skipPageReset={skipPageReset}
+                        onDelete ={deleteData}
                     />
                 </div>
                 <div className="buttons-group sdk-buttons">
