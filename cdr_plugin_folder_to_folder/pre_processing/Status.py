@@ -202,11 +202,6 @@ class Status:
             if updated_status == FileStatus.NONE:
                 data[Status.VAR_FILES_COUNT] = count
                 data[Status.VAR_FILES_TO_BE_COPIED] = count
-                
-            elif updated_status == FileStatus.INITIAL:
-                data[Status.VAR_FILES_COPIED] += 1
-                if data[Status.VAR_FILES_TO_BE_COPIED] > 0:
-                    data[Status.VAR_FILES_TO_BE_COPIED] -= 1
 
             elif updated_status == FileStatus.NOT_COPIED:
                 if data[Status.VAR_FILES_TO_BE_COPIED] > 0:
@@ -285,20 +280,45 @@ class Status:
     def add_completed       (self       ): return self.update_counters(FileStatus.COMPLETED          )
     def add_not_supported   (self       ): return self.update_counters(FileStatus.NOT_SUPPORTED      )
     def add_failed          (self       ): return self.update_counters(FileStatus.FAILED             )
-    def add_file            (self       ): return self.update_counters(FileStatus.INITIAL            )
+
+    def add_copied_file     (self       ):
+        Status.lock.acquire()
+        try:
+            data = self.data()
+            data[Status.VAR_FILES_COPIED] += 1
+        finally:
+            Status.lock.release()
+            self.save()
+        return self
+
+    def decrease_to_be_copied (self):
+        Status.lock.acquire()
+        try:
+            data = self.data()
+            if data[Status.VAR_FILES_TO_BE_COPIED] > 0:
+                data[Status.VAR_FILES_TO_BE_COPIED] -= 1
+        finally:
+            Status.lock.release()
+            self.save()
+        return self
+
     def set_files_count     (self, count): return self.update_counters(FileStatus.NONE        , count)
     def set_not_copied      (self       ): return self.update_counters(FileStatus.NOT_COPIED         )
     def add_in_progress     (self       ): return self.update_counters(FileStatus.IN_PROGRESS        )
     def add_to_be_processed (self       ): return self.update_counters(FileStatus.TO_PROCESS         )
     def add_duplicate_files (self       ): return  self.update_counters(FileStatus.DUPLICATE         )
-    def get_completed       (self): return self.data().get(Status.VAR_COMPLETED)
-    def get_current_status  (self): return self.data().get(Status.VAR_CURRENT_STATUS)
-    def get_not_supported   (self): return self.data().get(Status.VAR_NOT_SUPPORTED)
-    def get_failed          (self): return self.data().get(Status.VAR_FAILED)
-    def get_files_count     (self): return self.data().get(Status.VAR_FILES_COUNT)
-    def get_files_copied    (self): return self.data().get(Status.VAR_FILES_COPIED)
-    def get_files_to_process(self): return self.data().get(Status.VAR_FILES_TO_PROCESS)
-    def get_in_progress     (self): return self.data().get(Status.VAR_IN_PROGRESS)
+
+    def get_current_status          (self): return self.data().get(Status.VAR_CURRENT_STATUS)
+    def get_files_count             (self): return self.data().get(Status.VAR_FILES_COUNT)
+    def get_files_copied            (self): return self.data().get(Status.VAR_FILES_COPIED)
+    def get_files_to_be_copied      (self): return self.data().get(Status.VAR_FILES_TO_BE_COPIED)
+    def get_duplicate_files         (self): return self.data().get(Status.VAR_DUPLICATES)
+    def get_files_to_process        (self): return self.data().get(Status.VAR_FILES_TO_PROCESS)
+    def get_file_left_to_progress   (self): return self.data().get(Status.VAR_FILES_LEFT_TO_PROCESS)
+    def get_completed               (self): return self.data().get(Status.VAR_COMPLETED)
+    def get_not_supported           (self): return self.data().get(Status.VAR_NOT_SUPPORTED)
+    def get_failed                  (self): return self.data().get(Status.VAR_FAILED)
+    def get_in_progress             (self): return self.data().get(Status.VAR_IN_PROGRESS)
 
     def set_prometheus_metrics(self):
         self.metrics.set_status_current_status(self._status_data[Status.VAR_CURRENT_STATUS])
