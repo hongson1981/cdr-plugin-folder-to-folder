@@ -49,7 +49,7 @@ class Metadata:
             delta = tok - tik
             self.set_file_hash_calculation_time(delta.total_seconds())
 
-            if self.exists():
+            if self.exists() and self.metadata_file_exists():
                 self.get_from_file()
             else:
                 self.create(file_path)
