@@ -26,7 +26,7 @@ from cdr_plugin_folder_to_folder.pre_processing.Status import Status, FileStatus
 from cdr_plugin_folder_to_folder.processing.Report_Elastic import Report_Elastic
 from cdr_plugin_folder_to_folder.processing.Analysis_Json import Analysis_Json
 from cdr_plugin_folder_to_folder.pre_processing.Hash_Json import Hash_Json
-from cdr_plugin_folder_to_folder.configure.Configure_Env import SDKEngineVersionKey, SDKAPIVersionKey
+from cdr_plugin_folder_to_folder.configure.Configure_Env import SDKEngineVersionKey, SDKAPIVersionKey, AdaptationFileID, ServerHeader, ViaHeader
 
 class File_Processing:
 
@@ -46,9 +46,6 @@ class File_Processing:
         self.hash_json          = Hash_Json()
         self.status             = Status()
         self.storage            = Storage()
-
-
-
 
     def add_event_log(self, message, event_data = {}):
         json_data = self.events_log.add_log(message, event_data)
@@ -152,20 +149,31 @@ class File_Processing:
             self.add_event_log('Decoding FAILED. The HTML file has been saved')
             return processed_path + '.html'                                                 # todo: refactor this workflow and how this is calculated
 
-    def get_server_version(self, dir, headers):
+    def get_metadata_from_headers(self, dir, headers):
 
-        sdk_engine_version = ""
-        sdk_api_version = ""
+        sdk_engine_version  = ""
+        sdk_api_version     = ""
+        server_header       = ""
+        via_header          = ""
+        adaptation_file_id  = ""
 
         if SDKEngineVersionKey in headers:
             sdk_engine_version = headers[SDKEngineVersionKey]
         if SDKAPIVersionKey in headers:
             sdk_api_version = headers[SDKAPIVersionKey]
+        if AdaptationFileID in headers:
+            adaptation_file_id = headers[AdaptationFileID]
+        if ServerHeader in headers:
+            server_header = headers[ServerHeader]
+        if ViaHeader in headers:
+            via_header = headers[ViaHeader]
 
-        if not sdk_engine_version and not sdk_api_version:
-            return
-
+        self.meta_service.set_server_header(dir, server_header)
+        self.meta_service.set_via_header(dir, via_header)
         self.meta_service.set_server_version(dir, "Engine:" + sdk_engine_version + " API:" + sdk_api_version )
+        self.meta_service.set_sdk_api_version(dir, sdk_api_version)
+        self.meta_service.set_sdk_engine_version(dir, sdk_engine_version)
+        self.meta_service.set_adaptation_file_id(dir, adaptation_file_id)
 
     # legacy version (makes two calls to get the data)
     @log_duration
@@ -244,7 +252,7 @@ class File_Processing:
                 return False
                 #raise ValueError("No X-Adaptation-File-Id header found in the response")
 
-            self.get_server_version(dir, headers)
+            self.get_metadata_from_headers(dir, headers)
 
         log_info(message=f"rebuild ok for file {hash} on endpoint {endpoint} took {duration.seconds()} seconds")
         return True
@@ -275,8 +283,10 @@ class File_Processing:
             response = self.    rebuild_zip(endpoint, encodedFile)
             zip_file_path = os.path.join(dir, "rebuild.zip")
 
+            self.meta_service.set_status_code(dir, response.status_code)
+
             headers = response.headers
-            self.get_server_version(dir, headers)
+            self.get_metadata_from_headers(dir, headers)
 
             fileIdKey = "X-Adaptation-File-Id"
 

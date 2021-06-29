@@ -43,7 +43,8 @@ class test_Storage(Temp_Config):
     def test_hd2_metadatas(self):
         self.add_test_files(count=10, text_size=1000, execute_stage_1=True)
         metadatas = self.storage.hd2_metadatas()
-        assert list_set(metadatas[0]) == [ 'error', 'f2f_plugin_git_commit', 'f2f_plugin_version', 'file_name', 'hd1_to_hd2_copy_time', 'hd2_to_hd3_copy_time', 'last_update_time', 'original_file_extension', 'original_file_paths', 'original_file_size', 'original_hash', 'original_hash_calculation_time', 'rebuild_file_duration', 'rebuild_file_extension', 'rebuild_file_path', 'rebuild_file_size', 'rebuild_hash', 'rebuild_server', 'rebuild_status', 'server_version', 'xml_report_status']
+        assert list_set(metadatas[0]) == [ 'adaptation_file_id', 'error', 'f2f_plugin_git_commit', 'f2f_plugin_version', 'file_name', 'hd1_to_hd2_copy_time', 'hd2_to_hd3_copy_time', 'last_update_time', 'original_file_extension', 'original_file_paths', 'original_file_size', 'original_hash', 'original_hash_calculation_time', 'rebuild_file_duration', 'rebuild_file_extension', 'rebuild_file_path', 'rebuild_file_size', 'rebuild_hash', 'rebuild_server', 'rebuild_status', 'sdk_api_version', 'server_header', 'server_version', 'skd_engine_version', 'status_code', 'via_header', 'xml_report_status']
+
 
     @pytest.mark.skip("needs more work to be solid")
     def test_hd3_files(self):

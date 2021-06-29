@@ -27,7 +27,7 @@ DEFAULT_KIBANA_HOST      = "kib01"
 DEFAULT_KIBANA_PORT      = "5601"
 DEFAULT_THREAD_COUNT     = 10
 DEFAULT_TEST_SDK         = 'gw-cloud-sdk-455649808.eu-west-1.elb.amazonaws.com'
-DEFAULT_ENDPOINT_PORT    = '8080'
+DEFAULT_ENDPOINT_PORT    = '80'
 DEFAULT_MINIO_ENDPOINT_PORT    = '8088'          # Minio version is using this port
 DEFAULT_ENDPOINTS        = '{"Endpoints":[{"IP":"' + DEFAULT_TEST_SDK + '", "Port":"' + DEFAULT_ENDPOINT_PORT +'"}]}'
 DEFAULT_SUPPORTED_FILE_TYPES = '.doc .dot .xls .xlt .xlm .ppt .pot .pps .docx .dotx .docm .dotm .xlsx .xltx .xlsm .xltm .pptx .potx .ppsx .pptm .potm .ppsm .pdf .jpeg .jpg .jpe .png .gif'
@@ -35,7 +35,7 @@ DEFUALT_SAVE_UNSUPPORTED_FILE_TYPES = True
 DEFAULT_REQUEST_TIMEOUT  = 600
 DEFAULT_REBUILD_ZIP      = True
 DEFAULT_USE_DYNAMIC_ENDPOINTS = False
-DEFAULT_SDK_SERVERS_API  = 'https://tmol8zkg3c.execute-api.eu-west-1.amazonaws.com/prod/sdk-servers/ip_addresses'
+DEFAULT_SDK_SERVERS_API  = 'https://1bycqgpa8j.execute-api.eu-west-1.amazonaws.com/prod/sdk-servers/ip_addresses'
 DEFAULT_PROMETHEUS_HOST  = '127.0.0.1'
 DEFAULT_PROMETHEUS_PORT  = '8000'
 API_VERSION              = os.getenv    ("CDR_VERSION"     , "unknown"    )
@@ -173,3 +173,9 @@ class Config:
             "endpoints"              : self.endpoints           ,
             "request_timeout"        : self.request_timeout
         }
+
+    def get_test_dir_folders(self):
+        root_folder = os.getenv("ROOT_FOLDER", DEFAULT_ROOT_FOLDER)
+        head, tail = os.path.split(root_folder)
+        dirs = [name for name in os.listdir(head) if os.path.isdir(os.path.join(head, name)) and not name.startswith('.')]
+        return dirs

@@ -78,3 +78,7 @@ def reset_logging():
     message = 'Logging was reset via API call'
     log_debug(message=message)
     return message
+
+@router.get("/test_data_folders/")
+def get_test_data_dirs():
+    return Config().get_test_dir_folders()

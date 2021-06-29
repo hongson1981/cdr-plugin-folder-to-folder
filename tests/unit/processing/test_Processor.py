@@ -48,7 +48,7 @@ class test_Processor(TestCase):
 
     def test__init__(self):
         self.pre_processor.clear_data_and_status_folders()       # clear output folders
-        self.pre_processor.process_files()                       # copy files across
+        self.pre_processor.process_hd1_files()                       # copy files across
 
         assert folder_exists(self.config.hd1_location)
         assert folder_exists(self.config.hd2_location)

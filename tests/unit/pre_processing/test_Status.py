@@ -102,8 +102,8 @@ class test_Status(Temp_Config):
 
     def test_load_data(self):
         status = self.status
-        assert status.reset_system_data().data()             == status.default_data()
-        assert status.load_data().reset_system_data().data() == status.default_data()
+        assert status.reset().data()             == status.default_data()
+        assert status.load_data().reset().data() == status.default_data()
         assert status.get_files_count()  == 0
         for i in range(1,100):
             assert status.add_completed()
@@ -112,7 +112,7 @@ class test_Status(Temp_Config):
             assert status.add_failed()
             assert status.get_failed() == i
 
-            assert status.add_file()
+            assert status.add_copied_file()
             assert status.get_files_copied() == i
 
             assert status.add_in_progress()
@@ -149,7 +149,7 @@ class test_Status(Temp_Config):
 
         pre_proocessor = Pre_Processor()
         pre_proocessor.config = temp_config.config
-        pre_proocessor.process_files()
+        pre_proocessor.process_hd1_files()
 
         data = self.status.data()
         assert data[Status.VAR_CURRENT_STATUS] == Processing_Status.PHASE_2
@@ -184,6 +184,15 @@ class test_Status(Temp_Config):
         assert data[Status.VAR_FAILED] == 0
 
         Temp_Config.tearDownClass()
+
+    def test_reset_system_data(self):
+        self.status.reset_system_data()
+        data = self.status.data()
+        assert data[Status.VAR_CPU_UTILIZATION]       == None
+        assert data[Status.VAR_RAM_UTILIZATION]       == None
+        assert data[Status.VAR_NUM_OF_PROCESSES]      == None
+        assert data[Status.VAR_NUM_OF_THREADS]        == None
+        assert data[Status.VAR_NETWORK_CONNECTIONS]   == None
 
 
     # todo: add multi-threading test

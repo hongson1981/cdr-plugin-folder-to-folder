@@ -3,7 +3,7 @@ api_docs : http://localhost:8880/docs
 kibana   : http://localhost:5601/app/dashboards#/list
 jupyter  : http://localhost:8866/voila/tree/work
 minio    : http://localhost:9000
-aws_api  : https://tmol8zkg3c.execute-api.eu-west-1.amazonaws.com/prod/docs
+aws_api  : https://1bycqgpa8j.execute-api.eu-west-1.amazonaws.com/prod/docs
 voila    : http://localhost:8866
 
 f2f_workflows : /voila/render/work/f2f-workflow-buttons.ipynb?voila-template=gridstack

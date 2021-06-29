@@ -13,7 +13,7 @@ from osbot_utils.utils.Misc import base64_to_str, base64_to_bytes, str_to_bytes,
     str_to_base64, bytes_to_str, bytes_to_base64, random_uuid
 
 from osbot_utils.utils.Json import str_to_json, json_to_str, json_parse
-from cdr_plugin_folder_to_folder.common_settings.Config import Config, DEFAULT_ENDPOINTS
+from cdr_plugin_folder_to_folder.common_settings.Config import Config, DEFAULT_ENDPOINTS, DEFAULT_ENDPOINT_PORT
 from cdr_plugin_folder_to_folder.metadata.Metadata import Metadata
 from cdr_plugin_folder_to_folder.metadata.Metadata_Service import Metadata_Service
 from cdr_plugin_folder_to_folder.metadata.Metadata_Utils import Metadata_Utils
@@ -48,7 +48,7 @@ class test_File_Processing(Temp_Config):
 
     def setUp(self) -> None:
         self.sdk_server         = self.config.test_sdk
-        self.sdk_port           = '8080'
+        self.sdk_port           = DEFAULT_ENDPOINT_PORT
         #self.temp_folder        = temp_folder()
         self.events_elastic     = Events_Log_Elastic()
         self.endpoint_service   = Endpoint_Service()
@@ -86,10 +86,10 @@ class test_File_Processing(Temp_Config):
         assert self.file_processing.do_rebuild_zip(**kwargs)
 
         metadata.load()
-        #assert metadata.data.get('xml_report_status'      ) == 'Obtained'
-        #assert metadata.data.get('file_name'              ) == self.test_file_name
+        # assert metadata.data.get('xml_report_status'      ) == 'Obtained'
+        # assert metadata.data.get('file_name'              ) == self.test_file_name
         assert metadata.data.get('rebuild_server'         ) == endpoint
-        assert metadata.data.get('server_version'         ) == 'Engine:1.157 API:0.1.11'
+        assert metadata.data.get('server_version'         ).startswith('Engine:1.157 API:v0.3.0')
         assert metadata.data.get('error'                  ) is None
         assert metadata.data.get('original_hash'          ) == self.test_file_hash
         assert metadata.data.get('original_file_size'     ) == 755
@@ -118,10 +118,10 @@ class test_File_Processing(Temp_Config):
 
         pprint(metadata.load())
 
-        #assert metadata.data.get('xml_report_status'      ) == 'Obtained'
-        #assert metadata.data.get('file_name'              ) == self.test_file_name
+        # assert metadata.data.get('xml_report_status'      ) == 'Obtained'
+        # assert metadata.data.get('file_name'              ) == self.test_file_name
         assert metadata.data.get('rebuild_server'         ) == endpoint
-        assert metadata.data.get('server_version'         ) == 'Engine:1.157 API:0.1.11'
+        assert metadata.data.get('server_version'         ).startswith('Engine:1.157 API:v0.3.0')
         assert metadata.data.get('error'                  ) is None
         assert metadata.data.get('original_hash'          ) == self.test_file_hash
         assert metadata.data.get('original_file_size'     ) == 755
@@ -220,7 +220,7 @@ class test_File_Processing(Temp_Config):
 
     def test_pdf_rebuild(self):            # refactor into separate test file
         server          = self.config.test_sdk
-        url             = f"http://{server}:8080/api/rebuild/base64"
+        url             = f"http://{self.sdk_server}:{self.sdk_port}/api/rebuild/base64"
         headers         = { 'accept': 'application/json',
                             'Content-Type': 'application/json'}
         text            = random_text("random text - ")
@@ -306,14 +306,14 @@ class test_File_Processing(Temp_Config):
         endpoint = 'http://127.0.0.1:8080'
         assert self.file_processing.do_rebuild(endpoint,'ABC',source,dir) is False
 
-    def test_get_server_version(self):
+    def test_get_metadata_from_headers(self):
 
         headers = {SDKEngineVersionKey: '1.0.0', SDKAPIVersionKey: '1.0.0'}
         assert SDKEngineVersionKey in headers
         assert SDKAPIVersionKey in headers
 
         dir = os.path.dirname(self.test_file_metadata.metadata_file_path())
-        self.file_processing.get_server_version(dir, headers)
+        self.file_processing.get_metadata_from_headers(dir, headers)
         server_version = self.file_processing.meta_service.metadata.get_server_version()
         assert server_version == 'Engine:1.0.0 API:1.0.0'
 
@@ -321,6 +321,6 @@ class test_File_Processing(Temp_Config):
         assert not SDKEngineVersionKey in headers
         assert not SDKAPIVersionKey in headers
 
-        self.file_processing.get_server_version(dir, headers)
+        self.file_processing.get_metadata_from_headers(dir, headers)
         server_version = self.file_processing.meta_service.metadata.get_server_version()
-        assert server_version == 'Engine:1.0.0 API:1.0.0'
+        assert server_version == 'Engine: API:'
