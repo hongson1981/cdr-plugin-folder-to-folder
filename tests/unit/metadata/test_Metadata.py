@@ -94,18 +94,5 @@ class test_Metadata(TestCase):
     def test_delete(self):
         assert self.metadata.delete() is False
 
-    def test_add_file_after_delete_should_not_fail(self):
-        metadata = self.metadata
-        # adding file first time
-        assert metadata.add_file(self.file_path) == self.file_hash                              # add file and get file hash as return value
-        assert metadata.exists() is True                                                        # confirm metadata folder now exists
-        file_delete(self.metadata.metadata_file_path())                                         # Delete the metadata.json path
-        assert metadata.add_file(self.file_path) == self.file_hash                              # Try to add file again, this should not fail
-        assert metadata.exists() is True
-
-        #clean up
-        assert self.metadata.delete() is True
-        assert folder_not_exists(self.metadata.metadata_folder_path())
-
     def test_metadata_file_path(self):
         assert self.metadata.metadata_folder_path() is None
