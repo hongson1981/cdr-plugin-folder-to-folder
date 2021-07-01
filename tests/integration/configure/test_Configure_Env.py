@@ -4,7 +4,7 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Json import str_to_json, json_to_str, json_parse
 from osbot_utils.utils.Http import GET_json, GET
 
-from cdr_plugin_folder_to_folder.common_settings.Config  import Config
+from cdr_plugin_folder_to_folder.common_settings.Config  import Config, DEFAULT_ENDPOINT_PORT
 from cdr_plugin_folder_to_folder.configure.Configure_Env import Configure_Env
 
 class test_Configure_Env(TestCase):
@@ -25,7 +25,7 @@ class test_Configure_Env(TestCase):
 
         endpoints = []
         for ip in str_to_json(ips):
-            endpoints.append({'IP': ip , "Port": "8080"})
+            endpoints.append({'IP': ip , "Port": DEFAULT_ENDPOINT_PORT})
 
         if len(endpoints) == 0:
             #nothing to validate
