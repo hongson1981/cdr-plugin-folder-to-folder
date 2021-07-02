@@ -29,7 +29,7 @@ export const VOLUME_CUSTOM          = 'custom'
 export const VOLUME_HD1             = 'hd1'
 export const VOLUME_HD2             = 'hd2'
 export const VOLUME_HD3             = 'hd3'
-export const SDK_DEFAULT_PORT       = '8080'
+export const SDK_DEFAULT_PORT       = '80'
 
 
 
