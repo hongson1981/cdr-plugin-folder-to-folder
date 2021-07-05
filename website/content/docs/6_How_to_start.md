@@ -5,8 +5,8 @@ weight: 7
 
 Wiki pages to refer to: 
 - [FAQ](website\content\docs\5.FAQ.md)
-- [How to use end to end workflow ESXI](website\content\docs\4.End&#32;to&#32;end&#32;workflow&#32;ESXI.md)
-- [How to use end to end workflow AWS](website\content\docs\3.End&#32;to&#32;end&#32;workflow&#32;AWS.md)
+- [How to use end to end workflow ESXI](website\content\docs\4_End_to_end_workflow_ESXI.md)
+- [How to use end to end workflow AWS](website\content\docs\3_End_to_end_workflow_AWS.md)
 
 Helpful videos:
 - [How to deploy CDR Plugin VM](https://www.loom.com/share/ab2b8904104843c5af424484c57a380a)

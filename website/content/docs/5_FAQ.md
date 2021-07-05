@@ -118,7 +118,7 @@ docker-compose up --build --force
 ### 11. How to connect to deployed CDR Plugin VM?
 - From the folder where your ssh key is stored run:
 ```
- ssh -L 8002:127.0.0.1:5601 -L 8001:127.0.0.1:8888 -L 8003:127.0.0.1:9000 -L 8000:127.0.0.1:8880 -i <your_key>.pem ubuntu@<VM_IP>
+ ssh -L 8002:127.0.0.1:5601 -L 8001:127.0.0.1:8888 -L 8003:127.0.0.1:9000 -L 8000:127.0.0.1:8880 -L 8004:127.0.0.1:1313 -L 8005:127.0.0.1:8866 ubuntu@<VM IP>
 ```
 - From browser you can now access:
    - Minio: `localhost:8003`
