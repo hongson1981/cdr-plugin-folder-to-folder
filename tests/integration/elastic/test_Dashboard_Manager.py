@@ -52,4 +52,4 @@ class test_Dashboard(TestCase):
         assert os.path.exists(kibana_dashboards_dir)
         assert os.path.isdir(kibana_dashboards_dir)
         count = self.dashboard_manager.import_dashboards(kibana_dashboards_dir)
-        assert count == 7
+        assert count == 3
