@@ -14,7 +14,7 @@ weight: 4
 - Deploy `CDR Plugin` VM
   - You can use [this video](https://www.loom.com/share/ab2b8904104843c5af424484c57a380a) as a reference
 - SSH to your CDR Plugin VM
-  - Run following command: `ssh -L 8002:127.0.0.1:5601 -L 8001:127.0.0.1:8888 -L 8003:127.0.0.1:9000 -L 8000:127.0.0.1:8880 -L 8004:127.0.0.1:1313 -L 8005:127.0.0.1:8866 -i <your_key> ubuntu@<cdr_plugin_ip>`
+  - Run following command: `ssh -L 8002:127.0.0.1:5601 -L 8001:127.0.0.1:8888 -L 8003:127.0.0.1:9000 -L 8000:127.0.0.1:8880 -L 8004:127.0.0.1:1313 -L 8005:127.0.0.1:8866 ubuntu@<cdr_plugin_ip>`
   - Above command will map default ports to the ones you can use to access components local via `localhost:<port>`
   
   ![image (5)](https://user-images.githubusercontent.com/70108899/117103199-2bf4a200-ad7a-11eb-9489-e4eaf8a30b43.png)
