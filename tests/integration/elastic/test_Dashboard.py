@@ -53,3 +53,9 @@ class test_Dashboard(TestCase):
         dashboard = Dashboard(kibana=self.kibana, dashboard_id=dashboard_id)
         export_data = dashboard.export_dashboard()
         pprint(file_create(contents=export_data))
+
+    def test_export_not_existing_dashboard(self):
+        dashboard_id = 'ffdd80b7-11eb-4dd9-b8ce-293254a5c961'
+        dashboard = Dashboard(kibana=self.kibana, dashboard_id=dashboard_id)
+        export_data = dashboard.export_dashboard()
+        assert export_data == '{"statusCode":400,"error":"Bad Request","message":"Error fetching objects to export","attributes":{"objects":[{"id":"ffdd80b7-11eb-4dd9-b8ce-293254a5c961","type":"dashboard","error":{"statusCode":404,"error":"Not Found","message":"Saved object [dashboard/ffdd80b7-11eb-4dd9-b8ce-293254a5c961] not found"}}]}}'
