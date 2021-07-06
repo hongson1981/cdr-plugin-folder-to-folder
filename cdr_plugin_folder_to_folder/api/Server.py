@@ -108,13 +108,13 @@ async def docs_redirect():
     response = RedirectResponse(url='/docs')
     return response
 
-@app.on_event("startup")
-async def startup_event():
-    log_debug(message=f"Uploading dashboards to Kibana")
-    manager = Dashboard_Manager()
-    count = manager.import_dashboards( "/app/test_data/kibana-dashboards")
-    if count <= 0:
-        log_error("Failed to upload dashboards to Kibana")
+# @app.on_event("startup")
+# async def startup_event():
+#     log_debug(message=f"Uploading dashboards to Kibana")
+#     manager = Dashboard_Manager()
+#     count = manager.import_dashboards( "/app/test_data/kibana-dashboards")
+#     if count <= 0:
+#         log_error("Failed to upload dashboards to Kibana")
 
 server  = Server(app)
 server.add_routes()
@@ -123,6 +123,7 @@ if "PYTEST_CURRENT_TEST" not in os.environ:
 
 def run_if_main():
     if __name__ == "__main__":
+        server.upload_dashboards()
         server.start()
 
 run_if_main()
