@@ -24,8 +24,8 @@ class test_Dashboard(TestCase):
         self.port   = self.config.kibana_port
         self.kibana = Kibana(host=self.host, port=self.port).setup()
 
-        # if self.kibana.enabled is False:
-        #     pytest.skip('Elastic server not available')
+        if self.kibana.enabled is False:
+            pytest.skip('Elastic server not available')
 
         self.dashboard_manager  = Dashboard_Manager()
 
