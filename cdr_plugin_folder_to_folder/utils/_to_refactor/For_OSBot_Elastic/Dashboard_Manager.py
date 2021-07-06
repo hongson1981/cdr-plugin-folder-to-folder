@@ -40,10 +40,13 @@ class Dashboard_Manager:
         count = 0
 
         for i in range(0, KIBANA_TIMEOUT):
-            if i == KIBANA_TIMEOUT:
+            if i >= KIBANA_TIMEOUT:
                 return count
+
+            self.kibana = Kibana(host=self.host, port=self.port).setup()
             if self.kibana.enabled:
                 break
+
             time.sleep(6) # 6 seconds delay
 
         for key in os.listdir(directory):
