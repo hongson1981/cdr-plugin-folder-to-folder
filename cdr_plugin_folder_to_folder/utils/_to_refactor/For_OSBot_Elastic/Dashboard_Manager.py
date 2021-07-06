@@ -30,7 +30,7 @@ class Dashboard_Manager:
         # TODO: more verifiations on the file content
         return True
 
-    def import_dashboards(self, directory):
+    def import_dashboards(self, directory, timeout = KIBANA_TIMEOUT):
         if not os.path.exists(directory):
             return -1
 
@@ -39,7 +39,7 @@ class Dashboard_Manager:
 
         count = 0
 
-        for i in range(0, KIBANA_TIMEOUT):
+        for i in range(0, timeout):
             if i >= KIBANA_TIMEOUT:
                 return count
 
