@@ -7,7 +7,7 @@ from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.utils._to_refactor.For_OSBot_Elastic.Kibana import Kibana
 from cdr_plugin_folder_to_folder.utils._to_refactor.For_OSBot_Elastic.Dashboard import Dashboard
 
-KIBANA_TIMEOUT = 10
+KIBANA_TIMEOUT = 100
 
 class Dashboard_Manager:
 
