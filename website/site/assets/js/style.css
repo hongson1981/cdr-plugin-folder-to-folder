@@ -101,7 +101,7 @@ textarea:focus-visible {
   display:inline-block;
 }
 .threads-count input.form-control {
-  width: 86.5%;
+  width: 95.5%;
   margin-right: 0;
 }
 
@@ -195,6 +195,26 @@ button.btn-grp {
   cursor: pointer;
 }
 .clear-data:hover, .clear-data:focus {
+  background: #f24233 !important;
+  color: #fff !important;
+}
+
+
+.btn-remove {
+  border-radius: 0 !important;
+  margin: 0 5px 0 0 !important;
+  font-size: 15px !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  color: #fff !important;
+  padding: 8px 45px !important;
+  letter-spacing: .5px !important;
+  background: #fff!important;
+  border: 1px solid #f24233 !important;
+  color: #f24233 !important;
+  cursor: pointer;
+}
+.btn-remove:hover, .btn-remove:focus {
   background: #f24233 !important;
   color: #fff !important;
 }

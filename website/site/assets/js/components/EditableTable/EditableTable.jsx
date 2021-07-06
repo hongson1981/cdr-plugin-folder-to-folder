@@ -1,7 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
+import GWButton from "../buttons/GWButton";
 import { useTable, usePagination } from 'react-table'
-
+import DeleteIcon from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
 
 
 const Styles = styled.div`
@@ -77,7 +79,7 @@ const defaultColumn = {
 }
 
 // Be sure to pass our updateMyData and the skipPageReset option
-export default function EditableTable ({ columns, data, updateMyData, skipPageReset }) {
+export default function EditableTable ({ columns, data, updateMyData, skipPageReset, onDelete }) {
   // For this example, we're using pagination to illustrate how to stop
   // the current page from resetting when our data changes
   // Otherwise, nothing is different here.
@@ -134,6 +136,11 @@ export default function EditableTable ({ columns, data, updateMyData, skipPageRe
                 {row.cells.map(cell => {
                   return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
                 })}
+                <td>
+                <IconButton aria-label="delete" >
+                  <DeleteIcon onClick={() => onDelete(i)} onDelete />
+                </IconButton>
+                </td>
               </tr>
             )
           })}
