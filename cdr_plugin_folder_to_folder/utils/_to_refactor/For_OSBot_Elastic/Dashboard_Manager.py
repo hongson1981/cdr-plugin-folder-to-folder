@@ -3,15 +3,19 @@ from osbot_utils.utils.Http import GET
 
 import os
 import time
-from cdr_plugin_folder_to_folder.utils._to_refactor.For_OSBot_Elastic.Dashboard import Dashboard
+from cdr_plugin_folder_to_folder.common_settings.Config import Config
 from cdr_plugin_folder_to_folder.utils._to_refactor.For_OSBot_Elastic.Kibana import Kibana
+from cdr_plugin_folder_to_folder.utils._to_refactor.For_OSBot_Elastic.Dashboard import Dashboard
 
 KIBANA_TIMEOUT = 10
 
 class Dashboard_Manager:
 
-    def __init__(self, kibana):
-        self.kibana         = kibana
+    def __init__(self):
+        self.config = Config()
+        self.host   = self.config.kibana_host
+        self.port   = self.config.kibana_port
+        self.kibana = Kibana(host=self.host, port=self.port).setup()
         self.object_type    = 'dashboard_manager'
         pass
 

@@ -27,7 +27,7 @@ class test_Dashboard(TestCase):
         if self.kibana.enabled is False:
             pytest.skip('Elastic server not available')
 
-        self.dashboard_manager  = Dashboard_Manager(kibana=self.kibana)
+        self.dashboard_manager  = Dashboard_Manager()
 
     def get_project_root(self):
         current_directory = os.getcwd();
