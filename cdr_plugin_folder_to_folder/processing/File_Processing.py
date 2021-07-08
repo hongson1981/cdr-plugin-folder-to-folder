@@ -6,6 +6,7 @@ import os.path
 import xmltodict
 import zipfile
 
+from http import HTTPStatus
 
 from osbot_utils.testing.Duration import Duration
 from osbot_utils.utils.Files import folder_create, parent_folder, file_delete, \
@@ -257,6 +258,15 @@ class File_Processing:
         log_info(message=f"rebuild ok for file {hash} on endpoint {endpoint} took {duration.seconds()} seconds")
         return True
 
+    def handleBadResponse(self, dir, status_code, reason):
+        message = f"Not a regular SDK response"
+        if status_code != HTTPStatus.OK:
+            message = f"{status_code} {reason}"
+
+        log_error(message=message)
+        self.add_event_log(message)
+        self.meta_service.set_error(dir,message)
+
     # todo: refactor this method into smaller methods (for each step of the workflow below)
     @log_duration
     def do_rebuild_zip(self, endpoint, hash, source_path, dir):
@@ -288,9 +298,15 @@ class File_Processing:
             headers = response.headers
             self.get_metadata_from_headers(dir, headers)
 
-            fileIdKey = "X-Adaptation-File-Id"
+            if response.status_code != HTTPStatus.OK:
+                self.handleBadResponse(dir, response.status_code, response.reason)
+                return False
 
-            unzip_folder_path = path_append(dir, headers[fileIdKey])
+            if not AdaptationFileID in headers:
+                self.handleBadResponse(dir, headers, response.status_code)
+                return False
+
+            unzip_folder_path = path_append(dir, headers[AdaptationFileID])
 
             try:
                 with open(zip_file_path, 'wb') as file:
