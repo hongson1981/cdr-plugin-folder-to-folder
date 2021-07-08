@@ -251,7 +251,7 @@ class test_File_Processing(Temp_Config):
         assert result == True
         metadata.load()
         assert metadata.data.get('rebuild_status') == FileStatus.NOT_SUPPORTED
-        assert metadata.data.get('error')          == '400 Bad Request'
+        assert metadata.data.get('error')          == "400 Bad Request. See details in 'error.json'"
 
     def test_processZipFileWithDualEP(self):
         uuid = random_text()
