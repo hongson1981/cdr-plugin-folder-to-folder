@@ -1,6 +1,7 @@
 import os
 import pytest
 
+from packaging import version
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -30,7 +31,7 @@ from cdr_plugin_folder_to_folder.processing.Report_Elastic import Report_Elastic
 from cdr_plugin_folder_to_folder.processing.Analysis_Json import Analysis_Json
 from cdr_plugin_folder_to_folder.processing.Analysis_Elastic import Analysis_Elastic
 from cdr_plugin_folder_to_folder.pre_processing.Status import FileStatus
-from cdr_plugin_folder_to_folder.configure.Configure_Env import SDKEngineVersionKey, SDKAPIVersionKey
+from cdr_plugin_folder_to_folder.configure.Configure_Env import SDKEngineVersionKey, SDKAPIVersionKey, LowestEngineVersion, LowestAPIVersion
 import traceback
 import base64
 
@@ -89,7 +90,8 @@ class test_File_Processing(Temp_Config):
         # assert metadata.data.get('xml_report_status'      ) == 'Obtained'
         # assert metadata.data.get('file_name'              ) == self.test_file_name
         assert metadata.data.get('rebuild_server'         ) == endpoint
-        assert metadata.data.get('server_version'         ).startswith('Engine:1.157 API:v0.3.0')
+        assert version.parse(metadata.data.get('skd_engine_version')) >= version.parse(LowestEngineVersion)
+        assert version.parse(metadata.data.get('sdk_api_version'))    >= version.parse(LowestAPIVersion)
         assert metadata.data.get('error'                  ) is None
         assert metadata.data.get('original_hash'          ) == self.test_file_hash
         assert metadata.data.get('original_file_size'     ) == 755
@@ -121,7 +123,8 @@ class test_File_Processing(Temp_Config):
         # assert metadata.data.get('xml_report_status'      ) == 'Obtained'
         # assert metadata.data.get('file_name'              ) == self.test_file_name
         assert metadata.data.get('rebuild_server'         ) == endpoint
-        assert metadata.data.get('server_version'         ).startswith('Engine:1.157 API:v0.3.0')
+        assert version.parse(metadata.data.get('skd_engine_version')) >= version.parse(LowestEngineVersion)
+        assert version.parse(metadata.data.get('sdk_api_version'))    >= version.parse(LowestAPIVersion)
         assert metadata.data.get('error'                  ) is None
         assert metadata.data.get('original_hash'          ) == self.test_file_hash
         assert metadata.data.get('original_file_size'     ) == 755
