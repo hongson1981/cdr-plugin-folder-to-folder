@@ -13,7 +13,11 @@ sudo hostnamectl set-hostname glasswall
 cd ~
 BRANCH=${BRANCH:-develop}
 GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-filetrust/cdr-plugin-folder-to-folder}
-git clone https://github.com/${GITHUB_REPOSITORY}.git --branch $BRANCH --recursive && cd cdr-plugin-folder-to-folder
+git clone https://github.com/${GITHUB_REPOSITORY}.git --branch $BRANCH --recursive
+cd ~/cdr-plugin-folder-to-folder/test_data
+git checkout main
+git pull
+cd ~/cdr-plugin-folder-to-folder
 
 # build docker images
 sudo apt-get install \
