@@ -6,6 +6,7 @@ import os.path
 import xmltodict
 import zipfile
 
+from http import HTTPStatus
 
 from osbot_utils.testing.Duration import Duration
 from osbot_utils.utils.Files import folder_create, parent_folder, file_delete, \
@@ -257,6 +258,26 @@ class File_Processing:
         log_info(message=f"rebuild ok for file {hash} on endpoint {endpoint} took {duration.seconds()} seconds")
         return True
 
+    def handleBadResponse(self, dir, response):
+        message = f"Not a regular SDK response"
+        if response.status_code != HTTPStatus.OK:
+            message = f"{response.status_code} {response.reason}."
+
+        try:
+            error_json_file_path = os.path.join(dir, "error.json")
+
+            with open(error_json_file_path, 'wb') as file:
+                file.write(response.content)
+
+            message = message + " See details in 'error.json'"
+        except:
+            pass
+
+        log_error(message=message)
+        self.add_event_log(message)
+        self.meta_service.set_error(dir,message)
+
+
     # todo: refactor this method into smaller methods (for each step of the workflow below)
     @log_duration
     def do_rebuild_zip(self, endpoint, hash, source_path, dir):
@@ -288,9 +309,15 @@ class File_Processing:
             headers = response.headers
             self.get_metadata_from_headers(dir, headers)
 
-            fileIdKey = "X-Adaptation-File-Id"
+            if response.status_code != HTTPStatus.OK:
+                self.handleBadResponse(dir, response)
+                return False
 
-            unzip_folder_path = path_append(dir, headers[fileIdKey])
+            if not AdaptationFileID in headers:
+                self.handleBadResponse(dir, headers, response.status_code)
+                return False
+
+            unzip_folder_path = path_append(dir, headers[AdaptationFileID])
 
             try:
                 with open(zip_file_path, 'wb') as file:
@@ -354,12 +381,6 @@ class File_Processing:
 
             except Exception as error:
                 message=f"Error in do_rebuild_zip for {hash} : {error}"
-                if "is not a zip file" in message:
-                    message = "Error while processing the request. See details in 'error.json'"
-                    try:
-                        file_copy(zip_file_path, os.path.join(dir, "error.json"))
-                    except:
-                        pass
                 log_error(message=message)
                 self.meta_service.set_xml_report_status(dir, "No Report")
                 self.meta_service.set_error(dir,message)
