@@ -11,7 +11,7 @@ from http import HTTPStatus
 from osbot_utils.testing.Duration import Duration
 from osbot_utils.utils.Files import folder_create, parent_folder, file_delete, \
     folder_delete_all, file_unzip, path_append, folder_exists, file_exists, \
-    folder_files, file_copy
+    folder_files, file_copy, file_write, file_write_bytes, path_combine
 from osbot_utils.utils.Json import json_save_file_pretty
 from datetime import datetime, timedelta
 
@@ -136,17 +136,16 @@ class File_Processing:
         self.add_event_log('Saving to: ' + processed_path)
 
         dirname = ntpath.dirname(processed_path)
-        basename = ntpath.basename(processed_path)
         folder_create(dirname)
 
         decoded = FileService.base64decode(result)
 
         if decoded:
-            FileService.wrtie_binary_file(dirname, basename, decoded)
+            file_write_bytes(processed_path, decoded)
             self.add_event_log('The decoded file has been saved')
             return processed_path
         else:
-            FileService.wrtie_file(dirname, basename + ".html", result)                     # todo: capture better this workflow
+            file_write(processed_path + '.html', result)
             self.add_event_log('Decoding FAILED. The HTML file has been saved')
             return processed_path + '.html'                                                 # todo: refactor this workflow and how this is calculated
 
