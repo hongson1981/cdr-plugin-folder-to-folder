@@ -29,24 +29,6 @@ class test_File_service(TestCase):
         self.test_file    = self.test_data.image()
         self.dict_content = { "value": "testing" }
 
-
-    def test_copy_file(self):
-        assert file_exists(self.test_file)
-        assert folder_exists(self.new_folder)
-        self.dst = os.path.join(self.new_folder,"image2.jpg")
-        self.file_service.copy_file(self.test_file,self.dst )
-
-        assert os.path.exists(self.dst) is True
-
-    def test_copy_folder(self):
-        temp_folder = folder_temp()
-        folder_delete_all(temp_folder)
-
-        self.file_service.copy_folder(self.test_folder,temp_folder)
-        directory = os.listdir(temp_folder)
-
-        assert len(directory) is not 0
-
     def test_wrtie_json_file(self):
         create_folder(self.new_folder)
         self.file_service.wrtie_json_file(self.new_folder,"test.json",self.dict_content)
@@ -59,15 +41,6 @@ class test_File_service(TestCase):
 
         assert content is not None
 
-    def test_move_file(self):
-        source_file = temp_file()
-        target_file = temp_file()
-        file_copy(self.test_file, source_file)
-
-        self.file_service.move_file(source_file, target_file)
-
-        assert os.path.exists(source_file ) is False
-        assert os.path.exists(target_file ) is True
 
 
 

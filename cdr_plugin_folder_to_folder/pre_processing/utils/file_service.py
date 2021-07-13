@@ -5,24 +5,6 @@ import shutil
 # todo: to delete (check if this is stil used)
 class File_Service:
 
-    def copy_file(self,src,dst):
-        try:
-            shutil.copyfile(src, dst)
-        except Exception as error:
-            raise error
-
-    def copy_folder(self,src,dest):
-        try:
-            shutil.copytree(src, dest)
-        except Exception as error:
-            raise error
-
-    def move_file(self,src,dst):
-        try:
-            shutil.move(src, dst)
-        except Exception as error:
-            raise error
-
     def wrtie_json_file(self,folder,file_name,content):
         try:
             self.metadata_file_name = os.path.join(folder, file_name)
