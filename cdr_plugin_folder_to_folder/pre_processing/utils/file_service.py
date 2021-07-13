@@ -23,27 +23,6 @@ class File_Service:
         except Exception as error:
             raise error
 
-    # def wrtie_file(self,folder,file_name,content):
-    #     try:
-    #         self.metadata_file_name = os.path.join(folder, file_name)
-    #         with open(self.metadata_file_name, "w") as fp:
-    #             fp.write(str(content))
-    #     except Exception as error:
-    #         raise error
-
-    def create_folder(self,folder_name):
-        try:
-            if not os.path.exists(folder_name):
-                os.makedirs(folder_name)
-        except Exception as error:
-            raise error
-
-    def delete_folder(self,folder_path):
-        try:
-            shutil.rmtree(folder_path)
-        except Exception as error:
-            raise error
-
     def wrtie_json_file(self,folder,file_name,content):
         try:
             self.metadata_file_name = os.path.join(folder, file_name)
@@ -51,7 +30,6 @@ class File_Service:
                 json.dump(content, json_file)
         except Exception as error:
             raise error
-
 
     def read_json_file(self,file_path):
         try:

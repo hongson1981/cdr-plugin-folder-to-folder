@@ -443,7 +443,7 @@ class File_Processing:
             return False
 
         metadata_file_path = os.path.join(dir, Metadata_Service.METADATA_FILE_NAME)
-        if not (FileService.file_exist(metadata_file_path)):
+        if not (file_exists(metadata_file_path)):
             self.add_event_log("The metadate.json file does not exist")
             #raise ValueError("The metadate.json file does not exist")
             return False
@@ -457,7 +457,7 @@ class File_Processing:
         self.status.add_in_progress()
 
         source_path = os.path.join(dir, "source")
-        if not (FileService.file_exist(source_path)):
+        if not (file_exists(source_path)):
             self.add_event_log("File does not exist")
             #raise ValueError("File does not exist")
             return False
