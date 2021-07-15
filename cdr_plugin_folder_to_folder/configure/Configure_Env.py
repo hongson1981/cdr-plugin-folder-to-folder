@@ -159,7 +159,7 @@ class Configure_Env:
             api_route = "api/health/"
             url=urljoin(server_url,api_route)
 
-            response = requests.request("GET", url , timeout=10)
+            response = requests.request("GET", url , verify=False, timeout=10)
 
             while True:
 
