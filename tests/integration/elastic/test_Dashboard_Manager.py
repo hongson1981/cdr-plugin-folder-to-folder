@@ -14,14 +14,12 @@ from cdr_plugin_folder_to_folder.utils.testing.Setup_Testing import Setup_Testin
 class test_Dashboard(TestCase):
 
     def setUp(self) -> None:
+        Setup_Testing().configure_config(self.config)
+        self.config = Config()
+        self.dashboard_manager  = Dashboard_Manager()
         self.kibana = Kibana(host=self.config.kibana_host, port=self.config.kibana_port).setup()
-
         if self.kibana.enabled is False:
             pytest.skip('Elastic server not available')
-
-        self.config = Config()
-        Setup_Testing().configure_config(self.config)
-        self.dashboard_manager  = Dashboard_Manager()
 
     def get_project_root(self):
         current_directory = os.getcwd();
