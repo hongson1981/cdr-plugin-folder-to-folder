@@ -14,10 +14,15 @@ from cdr_plugin_folder_to_folder.utils.testing.Setup_Testing import Setup_Testin
 class test_Dashboard(TestCase):
 
     def setUp(self) -> None:
-        Setup_Testing().configure_config(self.config)
         self.config = Config()
+        Setup_Testing().configure_config(self.config)
+        self.kibana_host   = self.config.kibana_host
+        self.kibana_port   = self.config.kibana_port
+        self.kibana = Kibana(host=self.kibana_host, port=self.kibana_port).setup()
+        if self.kibana.enabled is False:
+            pytest.skip('Elastic server not available')
+
         self.dashboard_manager  = Dashboard_Manager()
-        self.kibana = Kibana(host=self.config.kibana_host, port=self.config.kibana_port).setup()
 
     def get_project_root(self):
         current_directory = os.getcwd();
@@ -38,8 +43,6 @@ class test_Dashboard(TestCase):
         return path_combine(test_data_dir, "kibana-dashboards")
 
     def test_import_all_dashboards(self):
-        if self.kibana.enabled is False:
-            pytest.skip('Elastic server not available')
         kibana_dashboards_dir = self.get_kibana_dashboards_dir()
         assert os.path.exists(kibana_dashboards_dir)
         assert os.path.isdir(kibana_dashboards_dir)
