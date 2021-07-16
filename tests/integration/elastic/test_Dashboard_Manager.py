@@ -18,8 +18,6 @@ class test_Dashboard(TestCase):
         self.config = Config()
         self.dashboard_manager  = Dashboard_Manager()
         self.kibana = Kibana(host=self.config.kibana_host, port=self.config.kibana_port).setup()
-        if self.kibana.enabled is False:
-            pytest.skip('Elastic server not available')
 
     def get_project_root(self):
         current_directory = os.getcwd();
@@ -40,6 +38,8 @@ class test_Dashboard(TestCase):
         return path_combine(test_data_dir, "kibana-dashboards")
 
     def test_import_all_dashboards(self):
+        if self.kibana.enabled is False:
+            pytest.skip('Elastic server not available')
         kibana_dashboards_dir = self.get_kibana_dashboards_dir()
         assert os.path.exists(kibana_dashboards_dir)
         assert os.path.isdir(kibana_dashboards_dir)
