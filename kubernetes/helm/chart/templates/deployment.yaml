@@ -29,6 +29,15 @@ spec:
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.cdrplugin.repository }}:{{ .Values.image.cdrplugin.tag }}"
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - all
+            add:
+              - NET_BIND_SERVICE
         imagePullPolicy: {{ .Values.image.cdrplugin.pullPolicy }}
         {{- if .Values.application.cdrplugin.secrets }}
         envFrom:
