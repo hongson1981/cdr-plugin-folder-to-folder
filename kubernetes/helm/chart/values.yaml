@@ -6,11 +6,11 @@ image:
   cdrplugin:
     repository: pranaysahith/cdr_plugin_folder_to_folder
     tag: 0.0.2
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   jupyter:
     repository: pranaysahith/cdr_plugin_jupyter
     tag: 0.0.1
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
 podAnnotations: {}
 application:
   cdrplugin:
