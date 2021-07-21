@@ -13,7 +13,11 @@ sudo hostnamectl set-hostname glasswall
 cd ~
 BRANCH=${BRANCH:-develop}
 GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-filetrust/cdr-plugin-folder-to-folder}
-git clone https://github.com/${GITHUB_REPOSITORY}.git --branch $BRANCH --recursive && cd cdr-plugin-folder-to-folder
+git clone https://github.com/${GITHUB_REPOSITORY}.git --branch $BRANCH --recursive
+cd ~/cdr-plugin-folder-to-folder/test_data
+git checkout main
+git pull
+cd ~/cdr-plugin-folder-to-folder
 
 # build docker images
 sudo apt-get install \
@@ -39,7 +43,15 @@ sudo docker run -d -p 30500:5000 --restart always --name registry registry:2
 cd ~/cdr-plugin-folder-to-folder
 cp .env.sample .env
 echo "PWD=/home/ubuntu/cdr-plugin-folder-to-folder" >> .env
-export CDR_VERSION=$(git tag --points-at HEAD)
+
+latest_github_sha=$(git rev-parse HEAD)
+tag_name=$(git tag -l --contains $latest_github_sha | head -n 1)
+if [ -z "$tag_name" ]; then
+    tag_name="unknown"
+fi
+echo $tag_name
+echo "CDR_VERSION=$tag_name" >> .env
+
 sudo docker-compose up -d --build
 
 

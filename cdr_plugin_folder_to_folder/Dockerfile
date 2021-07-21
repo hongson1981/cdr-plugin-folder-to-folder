@@ -1,6 +1,6 @@
-FROM    python:3.10.0b1-alpine3.12
+FROM    python:rc-alpine3.12
 RUN     apk update && apk upgrade && \
-        apk add --no-cache bash git openssh gcc libc-dev linux-headers
+        apk add --no-cache bash git openssh gcc libc-dev linux-headers cifs-utils
 
 WORKDIR /app
 # Add wait-for-it, use to check if ES is up before starting the server

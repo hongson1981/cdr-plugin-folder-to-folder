@@ -17,8 +17,9 @@ from cdr_plugin_folder_to_folder.api.routes.Pre_Processor import router as route
 from cdr_plugin_folder_to_folder.api.routes.File_Distributor import router as router_file_distribution
 from cdr_plugin_folder_to_folder.api.routes.Health import router as router_health
 from cdr_plugin_folder_to_folder.api.routes.Configure import router as router_configure
-from cdr_plugin_folder_to_folder.utils.Logging import log_debug
+from cdr_plugin_folder_to_folder.utils.Logging import log_debug, log_error
 from cdr_plugin_folder_to_folder.utils.Logging_Process import start_logging
+from cdr_plugin_folder_to_folder.utils._to_refactor.For_OSBot_Elastic.Dashboard_Manager import Dashboard_Manager
 
 class Logging_Middleware:
     def __init__(self, app: ASGIApp, minimum_size: int = 500) -> None:
@@ -62,6 +63,13 @@ class Server:
         #    - https://github.com/encode/uvicorn/issues/614
         #    - https://github.com/encode/uvicorn/issues/562
         logging.getLogger().handlers.clear()                                # todo: see side effects of this
+
+    def upload_dashboards(self):
+        log_debug(message=f"Uploading dashboards to Kibana")
+        manager = Dashboard_Manager()
+        count = manager.import_dashboards( "/app/test_data/kibana-dashboards")
+        if count <= 0:
+            print("Failed to upload dashboards to Kibana")
 
     def start(self):
         log_debug(message=f"Starting API server on {self.host}:{self.port} with uvicorn log level {self.log_level}")
@@ -107,6 +115,7 @@ if "PYTEST_CURRENT_TEST" not in os.environ:
 
 def run_if_main():
     if __name__ == "__main__":
+        server.upload_dashboards()
         server.start()
 
 run_if_main()

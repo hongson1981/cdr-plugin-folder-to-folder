@@ -143,7 +143,7 @@ services:
 
   # minio
   minio:
-    image: minio/minio:latest
+    image: minio/minio@sha256:7f402afa859f4d92ac78ba1c816f6fc24c844c4244a1a33a7230e99cbc13142f
     volumes:
       - ${HOST_MINIO_LOCATION}:/data
     ports:
