@@ -7,7 +7,6 @@ from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.utils.Files import temp_folder, path_combine, file_exists, file_copy, folder_delete_all, folder_create
 
 from cdr_plugin_folder_to_folder.common_settings.Config import Config
-from cdr_plugin_folder_to_folder.utils import file_utils
 from cdr_plugin_folder_to_folder.utils.file_utils import FileService
 
 
