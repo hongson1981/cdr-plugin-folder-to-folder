@@ -2,7 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "trackableappname" . }}
-  annotations: {}
+  annotations:
+    container.apparmor.security.beta.kubernetes.io/cdr-plugin: "runtime/default"
   labels:
     app: {{ template "appname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
